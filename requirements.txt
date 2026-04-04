@@ -1,7 +1,48 @@
-flask
-flask-cors
-pdfplumber
-easyocr
-Pillow
-PyMuPDF
-opencv-python
+Collecting opencv-python-headless (from easyocr->-r requirements.txt (line 4))
+  Downloading opencv_python_headless-4.13.0.92-cp37-abi3-manylinux_2_28_x86_64.whl.metadata (19 kB)
+Collecting scipy (from easyocr->-r requirements.txt (line 4))
+  Downloading scipy-1.17.1-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (62 kB)
+Collecting numpy (from easyocr->-r requirements.txt (line 4))
+  Downloading numpy-2.4.4-cp314-cp314-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl.metadata (6.6 kB)
+Collecting scikit-image (from easyocr->-r requirements.txt (line 4))
+  Downloading scikit_image-0.26.0-cp314-cp314-manylinux_2_24_x86_64.manylinux_2_28_x86_64.whl.metadata (15 kB)
+Collecting python-bidi (from easyocr->-r requirements.txt (line 4))
+  Downloading python_bidi-0.6.7.tar.gz (45 kB)
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'error'
+  error: subprocess-exited-with-error
+  
+  × Preparing metadata (pyproject.toml) did not run successfully.
+  │ exit code: 1
+  ╰─> [14 lines of output]
+          Updating crates.io index
+      warning: failed to write cache, path: /usr/local/cargo/registry/index/index.crates.io-1949cf8c6b5b557f/.cache/py/o3/pyo3, error: Read-only file system (os error 30)
+       Downloading crates ...
+        Downloaded find-msvc-tools v0.1.2
+      error: failed to create directory `/usr/local/cargo/registry/cache/index.crates.io-1949cf8c6b5b557f`
+      
+      Caused by:
+        Read-only file system (os error 30)
+      💥 maturin failed
+        Caused by: Cargo metadata failed. Does your crate compile with `cargo build`?
+        Caused by: `cargo metadata` exited with an error:
+      Error running maturin: Command '['maturin', 'pep517', 'write-dist-info', '--metadata-directory', '/tmp/pip-modern-metadata-uuyxaxmx', '--interpreter', '/opt/render/project/src/.venv/bin/python3.14']' returned non-zero exit status 1.
+      Checking for Rust toolchain....
+      Running `maturin pep517 write-dist-info --metadata-directory /tmp/pip-modern-metadata-uuyxaxmx --interpreter /opt/render/project/src/.venv/bin/python3.14`
+      [end of output]
+  
+  note: This error originates from a subprocess, and is likely not a problem with pip.
+[notice] A new release of pip is available: 25.3 -> 26.0.1
+[notice] To update, run: pip install --upgrade pip
+error: metadata-generation-failed
+× Encountered error while generating package metadata.
+╰─> python-bidi
+Menu
+note: This is an issue with the package mentioned above, not pip.
+hint: See above for details.
+==> Build failed 😞
+==> Common ways to troubleshoot your deploy: https://render.com/docs/troubleshooting-deploys
