@@ -10,8 +10,16 @@ from PIL import Image
 import cv2
 import numpy as np
 
-app = Flask(__name__)
-CORS(app)
+import logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+app = Flask(__name__, static_folder='static')
+CORS(app, origins="*")
+
+# Config from environment variables (safe for deployment)
+PORT = int(os.environ.get('PORT', 3000))
+MAX_FILE_SIZE_MB = 10
 
 # ─── EasyOCR (lazy load) ─────────────────────────────────────────────────────
 _ocr = None
@@ -216,7 +224,35 @@ def extract_with_easyocr(image_bytes):
 # ─── Routes ───────────────────────────────────────────────────────────────────
 @app.route('/', methods=['GET'])
 def index():
-    return 'Chemsbury OCR Server running'
+    import os
+    # Try multiple possible locations for the HTML file
+    base = os.path.dirname(os.path.abspath(__file__))
+    possible = [
+        os.path.join(base, 'chemsbury.html'),
+        os.path.join(base, 'Chemsbury.html'),
+        os.path.join(os.getcwd(), 'chemsbury.html'),
+        os.path.join(os.getcwd(), 'Chemsbury.html'),
+    ]
+    logger.info(f"Base dir: {base}, CWD: {os.getcwd()}")
+    logger.info(f"Files in dir: {os.listdir(base)}")
+    
+    html_path = None
+    for p in possible:
+        if os.path.exists(p):
+            html_path = p
+            break
+
+    if html_path:
+        with open(html_path, 'r', encoding='utf-8') as f:
+            html = f.read()
+        html = html.replace('http://localhost:3000/analyze', '/analyze')
+        html = html.replace('http://localhost:3000', '')
+        from flask import Response
+        return Response(html, mimetype='text/html')
+    
+    # Show what files are available for debugging
+    files = os.listdir(base)
+    return f'HTML not found. Files in directory: {files}'
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
@@ -228,6 +264,16 @@ def analyze():
         file_b64 = data['file']
         file_type = data.get('type', 'image/jpeg')
         raw_bytes = base64.b64decode(file_b64)
+
+        # Validate file size
+        size_mb = len(raw_bytes) / (1024 * 1024)
+        if size_mb > MAX_FILE_SIZE_MB:
+            return jsonify({'error': f'File too large ({size_mb:.1f}MB). Maximum is {MAX_FILE_SIZE_MB}MB.'}), 400
+
+        # Validate file type
+        allowed_types = ['application/pdf', 'image/jpeg', 'image/png', 'image/jpg']
+        if file_type not in allowed_types:
+            return jsonify({'error': f'Unsupported file type: {file_type}'}), 400
 
         params = {}
         sample_info = ""
@@ -265,5 +311,5 @@ def analyze():
 
 
 if __name__ == '__main__':
-    print("Starting Chemsbury OCR Server on http://localhost:3000")
-    app.run(host='0.0.0.0', port=3000, debug=False)
+    logger.info(f"Starting Chemsbury OCR Server on port {PORT}")
+    app.run(host='0.0.0.0', port=PORT, debug=False)
