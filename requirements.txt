@@ -1,0 +1,7 @@
+flask
+flask-cors
+pdfplumber
+easyocr
+Pillow
+PyMuPDF
+opencv-python
