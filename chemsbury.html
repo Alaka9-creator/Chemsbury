@@ -497,11 +497,17 @@
     <div class="logo-icon">💧</div>
     Chemsbury <span>Solutions</span>
   </div>
-  <nav>
-    <a href="#">Dashboard</a>
-    <a href="#">Reports</a>
-    <a href="#">About</a>
+  <nav id="mainNav">
+    <a href="/dashboard">📊 Dashboard</a>
+    <a href="/admin" id="adminLink" style="display:none;">⚙️ Admin</a>
   </nav>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <div style="display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:4px 14px 4px 6px;">
+      <div id="navAvatar" style="width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-family:'Syne',sans-serif;font-weight:700;font-size:0.7rem;color:#0a0f1a;">?</div>
+      <span id="navUserName" style="font-size:0.85rem;color:var(--text2);">…</span>
+    </div>
+    <button onclick="authLogout()" style="background:transparent;border:1px solid var(--border);color:var(--text2);font-family:'DM Sans',sans-serif;font-size:0.82rem;padding:5px 12px;border-radius:6px;cursor:pointer;transition:all 0.2s;" onmouseover="this.style.borderColor='var(--border2)'" onmouseout="this.style.borderColor='var(--border)'">Sign Out</button>
+  </div>
 </header>
 
 <section class="hero">
@@ -680,16 +686,8 @@ let currentParams = {};
 let selectedFilter = null;
 let cameraStream = null;
 
-// ===================== GEMINI CONFIG =====================
-let GEMINI_KEY = localStorage.getItem("gemini_api_key") || "";
-function getGeminiURL() {
-  return 'http://localhost:3000/analyze';
-}
 // ===================== PARAMETER DEFINITIONS =====================
 const fileInput = document.getElementById("fileInput");
-console.log("fileInput:", fileInput);
-
-// API key managed by saveApiKey() defined below
 
 const PARAM_DEFS = [
   { key:'ph', label:'pH', unit:'', safe:[6.5,8.5], warnLow:6.5, warnHigh:8.5 },
@@ -966,14 +964,19 @@ async function analyzeImage() {
   }, 900);
 
   try {
-    const resp = await fetch('http://localhost:3000/analyze', {
+    const _tok = localStorage.getItem('chem_token') || '';
+    const resp = await fetch('/analyze', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + _tok
+      },
       body: JSON.stringify({
         file: capturedImageBase64,
         type: window._currentFileType || 'image/jpeg'
       })
     });
+    if (resp.status === 401) { window.location.href = '/'; return; }
 
     const data = await resp.json();
     clearInterval(stepInterval);
@@ -1000,7 +1003,7 @@ async function analyzeImage() {
   } catch(e) {
     clearInterval(stepInterval);
     document.getElementById('loadingState').style.display='none';
-    alert('OCR error: ' + e.message + '\n\nMake sure app.py is running on port 3000.');
+    alert('Analysis error: ' + e.message + '\n\nYou may have been signed out — please refresh the page.');
     document.getElementById('inputSection').style.display='block';
   }
 }
@@ -1074,15 +1077,9 @@ function renderSafetyBanner(params) {
     const v = params[p.key];
     if(v===undefined||v===null) return;
     if(p.warnHigh!==undefined && v>p.warnHigh) {
-      // Zero-tolerance params (coliform, ecoli) — any detection = immediately unsafe
-      if(p.warnHigh === 0) {
-        unsafe = true;
-        issues.push(`${p.label} detected at ${v} ${p.unit} — must be zero (IS:10500 standard)`);
-      } else {
-        const ratio = v/p.warnHigh;
-        if(ratio>1.5) unsafe=true; else caution=true;
-        issues.push(`${p.label} is ${v > p.warnHigh*2 ? 'critically ' : ''}high at ${v} ${p.unit} (limit: ${p.warnHigh} ${p.unit})`);
-      }
+      const ratio = v/p.warnHigh;
+      if(ratio>1.5) unsafe=true; else caution=true;
+      issues.push(`${p.label} is ${v > p.warnHigh*2 ? 'critically ' : ''}high at ${v} ${p.unit} (limit: ${p.warnHigh} ${p.unit})`);
     }
     if(p.warnLow!==undefined && v<p.warnLow) {
       caution=true;
@@ -1142,20 +1139,16 @@ function reEvaluate() {
   PARAM_DEFS.forEach(p=>{
     const inp = document.getElementById('pv_'+p.key);
     if(inp) {
-      const v = inp.value.trim();
-      if(v==='' || isNaN(parseFloat(v))) delete currentParams[p.key];
+      const v = inp.value;
+      if(v==='') delete currentParams[p.key];
       else currentParams[p.key] = parseFloat(v);
     }
   });
-  const old = document.getElementById('metaInfoBar');
-  if(old) old.remove();
   renderSafetyBanner(currentParams);
-  renderMetaInfo();
   renderParamsGrid(currentParams);
   renderFilterGrid(currentParams);
   document.getElementById('vesselSection').style.display='none';
   selectedFilter = null;
-  document.getElementById('safetyBanner').scrollIntoView({behavior:'smooth', block:'start'});
 }
 
 function renderFilterGrid(params) {
@@ -1302,31 +1295,6 @@ function printReport() {
   window.print();
 }
 
-// ===================== API KEY =====================
-  function saveApiKey() {
-    const inp = document.getElementById('apiKeyInput');
-    if(!inp) return;
-    const key = inp.value.trim();
-    if(!key) { inp.style.borderColor='var(--danger)'; inp.focus(); return; }
-    GEMINI_KEY = key;
-    try { localStorage.setItem('gemini_api_key', key); } catch(e){}
-    const banner = document.getElementById('apiKeyBanner');
-    if(banner) banner.innerHTML = '<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:10px;"><span>&#9989;</span><span style=\'font-size:0.85rem;color:var(--success);font-weight:500;margin-left:8px;\'>API key saved &#8212; ready to analyse!</span><button onclick=\'clearApiKey()\' style=\'margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:0.78rem;padding:4px 10px;border-radius:6px;cursor:pointer;\'>Change Key</button></div>';
-  }
-  function clearApiKey() {
-    GEMINI_KEY = '';
-    try { localStorage.removeItem('gemini_api_key'); } catch(e){}
-    location.reload();
-  }
-  window.addEventListener('DOMContentLoaded', () => {
-    let saved = '';
-    try { saved = localStorage.getItem('gemini_api_key') || ''; } catch(e){}
-    if(saved) {
-      GEMINI_KEY = saved;
-      const banner = document.getElementById('apiKeyBanner');
-      if(banner) banner.innerHTML = '<div style="background:rgba(52,211,153,0.08);border:1px solid rgba(52,211,153,0.3);border-radius:12px;padding:12px 20px;display:flex;align-items:center;gap:10px;"><span>&#9989;</span><span style=\'font-size:0.85rem;color:var(--success);font-weight:500;margin-left:8px;\'>API key loaded &#8212; ready to analyse!</span><button onclick=\'clearApiKey()\' style=\'margin-left:auto;background:transparent;border:1px solid var(--border);color:var(--text3);font-size:0.78rem;padding:4px 10px;border-radius:6px;cursor:pointer;\'>Change Key</button></div>';
-    }
-  });
 
   // ===================== DEBUG =====================
   function toggleDebug() {
@@ -1367,6 +1335,37 @@ printStyle.textContent=`
   * { color:#000 !important; background:transparent !important; }
 `;
 document.head.appendChild(printStyle);
+
+// ===================== AUTH INIT =====================
+(function() {
+  const token = localStorage.getItem('chem_token');
+  if (!token) { window.location.href = '/'; return; }
+
+  fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } })
+    .then(r => {
+      if (!r.ok) { localStorage.removeItem('chem_token'); window.location.href = '/'; return; }
+      return r.json();
+    })
+    .then(user => {
+      if (!user) return;
+      const nameEl = document.getElementById('navUserName');
+      const avatarEl = document.getElementById('navAvatar');
+      if (nameEl) nameEl.textContent = user.name.split(' ')[0];
+      if (avatarEl) avatarEl.textContent = user.name.charAt(0).toUpperCase();
+      if (user.role === 'admin') {
+        const adminLink = document.getElementById('adminLink');
+        if (adminLink) adminLink.style.display = '';
+      }
+      localStorage.setItem('chem_user', JSON.stringify(user));
+    })
+    .catch(() => {});
+})();
+
+function authLogout() {
+  localStorage.removeItem('chem_token');
+  localStorage.removeItem('chem_user');
+  window.location.href = '/';
+}
 </script>
 </body>
 </html>

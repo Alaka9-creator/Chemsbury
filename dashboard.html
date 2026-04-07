@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dashboard — Chemsbury Solutions</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1a; --bg2: #0e1525; --bg3: #131c2e;
+    --surface: #1a2540; --surface2: #1f2d4a;
+    --border: rgba(99,179,237,0.12); --border2: rgba(99,179,237,0.22);
+    --accent: #3ecfcf; --accent2: #5b9cf6; --accent3: #a78bfa;
+    --danger: #f87171; --warning: #fbbf24; --success: #34d399;
+    --text: #e8f0fe; --text2: #8ba3cc; --text3: #4a6080;
+    --glow: 0 0 40px rgba(62,207,207,0.15);
+  }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
+  body::before {
+    content:''; position:fixed; inset:0;
+    background:
+      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(62,207,207,0.06) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(91,156,246,0.06) 0%, transparent 60%);
+    pointer-events:none; z-index:0;
+  }
+  header {
+    position:sticky; top:0; z-index:100;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:0 40px; height:64px;
+    background:rgba(10,15,26,0.85); backdrop-filter:blur(20px);
+    border-bottom:1px solid var(--border);
+  }
+  .logo { display:flex; align-items:center; gap:10px; font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; letter-spacing:-0.02em; color:var(--text); text-decoration:none; }
+  .logo-icon { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; display:grid; place-items:center; font-size:16px; }
+  .logo span { color:var(--accent); }
+  .header-right { display:flex; align-items:center; gap:12px; }
+  .user-chip {
+    display:flex; align-items:center; gap:8px;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:100px; padding:5px 14px 5px 8px;
+    font-size:0.85rem; color:var(--text2);
+  }
+  .user-avatar {
+    width:26px; height:26px; border-radius:50%;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    display:grid; place-items:center;
+    font-family:'Syne',sans-serif; font-weight:700; font-size:0.7rem; color:#0a0f1a;
+  }
+  .nav-btn {
+    padding:6px 14px; border-radius:6px; border:none; cursor:pointer;
+    font-family:'DM Sans',sans-serif; font-size:0.875rem;
+    transition:all 0.2s; text-decoration:none;
+    display:inline-flex; align-items:center; gap:6px;
+  }
+  .nav-btn.primary { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0a0f1a; font-weight:600; }
+  .nav-btn.ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
+  .nav-btn.ghost:hover { color:var(--text); border-color:var(--border2); }
+
+  .main { position:relative; z-index:1; padding:40px; max-width:1100px; margin:0 auto; }
+
+  .page-title { margin-bottom:32px; }
+  .page-title h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; letter-spacing:-0.02em; margin-bottom:6px; }
+  .page-title p { color:var(--text2); font-size:0.9rem; }
+
+  /* STATS ROW */
+  .stats-row { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:32px; }
+  .stat-card {
+    background:var(--surface); border:1px solid var(--border); border-radius:14px;
+    padding:20px; display:flex; align-items:center; gap:16px;
+  }
+  .stat-icon { font-size:2rem; }
+  .stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.6rem; line-height:1; margin-bottom:4px; }
+  .stat-label { font-size:0.78rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.05em; }
+
+  /* ANALYSES TABLE */
+  .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
+  .section-header h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+
+  .table-wrap {
+    background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden;
+  }
+  table { width:100%; border-collapse:collapse; }
+  thead tr { border-bottom:1px solid var(--border); }
+  th {
+    text-align:left; padding:12px 18px;
+    font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--text3);
+  }
+  td { padding:14px 18px; font-size:0.875rem; border-bottom:1px solid var(--border); vertical-align:middle; }
+  tr:last-child td { border-bottom:none; }
+  tr:hover td { background:rgba(99,179,237,0.03); }
+
+  .status-badge {
+    display:inline-flex; align-items:center; gap:5px;
+    padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:600;
+  }
+  .status-badge.safe { background:rgba(52,211,153,0.12); color:var(--success); }
+  .status-badge.caution { background:rgba(251,191,36,0.12); color:var(--warning); }
+  .status-badge.unsafe { background:rgba(248,113,113,0.12); color:var(--danger); }
+
+  .empty-state {
+    text-align:center; padding:60px 20px;
+    color:var(--text3);
+  }
+  .empty-state .empty-icon { font-size:3rem; margin-bottom:16px; }
+  .empty-state h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; margin-bottom:8px; color:var(--text2); }
+  .empty-state p { font-size:0.875rem; margin-bottom:20px; }
+
+  .spinner { width:40px; height:40px; margin:40px auto; border-radius:50%; border:3px solid var(--border); border-top-color:var(--accent); animation:spin 0.9s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  @media(max-width:700px) {
+    header { padding:0 16px; }
+    .main { padding:20px 16px; }
+    .stats-row { grid-template-columns:1fr; }
+    th:nth-child(3), td:nth-child(3),
+    th:nth-child(4), td:nth-child(4) { display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="/app" class="logo">
+    <div class="logo-icon">💧</div>
+    Chemsbury <span>Solutions</span>
+  </a>
+  <div class="header-right">
+    <div class="user-chip">
+      <div class="user-avatar" id="avatarInitial">?</div>
+      <span id="userName">Loading…</span>
+    </div>
+    <a href="/app" class="nav-btn primary">+ New Analysis</a>
+    <button class="nav-btn ghost" onclick="logout()">Sign Out</button>
+  </div>
+</header>
+
+<div class="main">
+  <div class="page-title">
+    <h1>My Dashboard</h1>
+    <p>Your water analysis history and account overview</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">🔬</div>
+      <div>
+        <div class="stat-val" id="totalCount">—</div>
+        <div class="stat-label">Total Analyses</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div>
+        <div class="stat-val" id="safeCount">—</div>
+        <div class="stat-label">Safe Results</div>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">⚠️</div>
+      <div>
+        <div class="stat-val" id="issueCount">—</div>
+        <div class="stat-label">Require Attention</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-header">
+    <h2>Analysis History</h2>
+  </div>
+
+  <div class="table-wrap" id="tableWrap">
+    <div class="spinner"></div>
+  </div>
+</div>
+
+<script>
+  const token = localStorage.getItem('chem_token');
+  if (!token) { window.location.href = '/'; }
+
+  const user = JSON.parse(localStorage.getItem('chem_user') || '{}');
+  if (user.name) {
+    document.getElementById('userName').textContent = user.name.split(' ')[0];
+    document.getElementById('avatarInitial').textContent = user.name.charAt(0).toUpperCase();
+  }
+  if (user.role === 'admin') {
+    // Add admin link
+    const hdr = document.querySelector('.header-right');
+    const adminLink = document.createElement('a');
+    adminLink.href = '/admin';
+    adminLink.className = 'nav-btn ghost';
+    adminLink.textContent = '⚙️ Admin';
+    hdr.insertBefore(adminLink, hdr.firstChild);
+  }
+
+  async function loadData() {
+    try {
+      const resp = await fetch('/api/analyses', {
+        headers: { 'Authorization': 'Bearer ' + token }
+      });
+      if (resp.status === 401) { window.location.href = '/'; return; }
+      const data = await resp.json();
+
+      document.getElementById('totalCount').textContent = data.length;
+      document.getElementById('safeCount').textContent = data.filter(d => d.safety_status === 'safe').length;
+      document.getElementById('issueCount').textContent = data.filter(d => d.safety_status !== 'safe').length;
+
+      renderTable(data);
+    } catch(e) {
+      document.getElementById('tableWrap').innerHTML = '<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Could not load data</h3><p>Please refresh the page.</p></div>';
+    }
+  }
+
+  function renderTable(data) {
+    const wrap = document.getElementById('tableWrap');
+    if (!data.length) {
+      wrap.innerHTML = `<div class="empty-state">
+        <div class="empty-icon">💧</div>
+        <h3>No analyses yet</h3>
+        <p>Upload your first water report to get started.</p>
+        <a href="/app" class="nav-btn primary" style="display:inline-flex;margin:0 auto;">+ New Analysis</a>
+      </div>`;
+      return;
+    }
+    wrap.innerHTML = `<table>
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Sample / Lab</th>
+          <th>Status</th>
+          <th>Method</th>
+          <th>Confidence</th>
+          <th>Date</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${data.map((r, i) => `
+          <tr>
+            <td style="color:var(--text3);font-size:0.78rem;">${r.id}</td>
+            <td>
+              <div style="font-weight:500;color:var(--text);">${r.lab_info || '—'}</div>
+              <div style="font-size:0.78rem;color:var(--text3);margin-top:2px;">${r.sample_info || ''}</div>
+            </td>
+            <td>${statusBadge(r.safety_status)}</td>
+            <td style="color:var(--text2);font-size:0.82rem;">${r.method_used || '—'}</td>
+            <td>${confidenceBadge(r.confidence)}</td>
+            <td style="color:var(--text3);font-size:0.82rem;white-space:nowrap;">${formatDate(r.created_at)}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    </table>`;
+  }
+
+  function statusBadge(s) {
+    const map = { safe: ['✅','Safe','safe'], caution: ['🔔','Caution','caution'], unsafe: ['⚠️','Unsafe','unsafe'] };
+    const [icon, label, cls] = map[s] || ['—','Unknown','caution'];
+    return `<span class="status-badge ${cls}">${icon} ${label}</span>`;
+  }
+
+  function confidenceBadge(c) {
+    const colors = { high: 'var(--success)', medium: 'var(--warning)', low: 'var(--danger)' };
+    const col = colors[c] || 'var(--text3)';
+    return `<span style="font-size:0.78rem;color:${col};font-weight:600;text-transform:capitalize;">${c || '—'}</span>`;
+  }
+
+  function formatDate(dt) {
+    if (!dt) return '—';
+    const d = new Date(dt + (dt.endsWith('Z') ? '' : 'Z'));
+    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' }) +
+           ' ' + d.toLocaleTimeString('en-IN', { hour:'2-digit', minute:'2-digit' });
+  }
+
+  function logout() {
+    localStorage.removeItem('chem_token');
+    localStorage.removeItem('chem_user');
+    window.location.href = '/';
+  }
+
+  loadData();
+</script>
+</body>
+</html>
