@@ -318,12 +318,16 @@
     </div>
 
     <div class="form-group">
-      <label>Password</label>
-      <div class="input-wrap">
-        <span class="input-icon">🔑</span>
-        <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
-      </div>
-    </div>
+  <label>Password</label>
+  <div class="input-wrap">
+    <span class="input-icon">🔑</span>
+    <input type="password" id="password" placeholder="Enter your password" autocomplete="current-password">
+    <button type="button" onclick="toggleLoginPass()" 
+            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text3); font-size:16px; display:flex; align-items:center; z-index:10; outline:none;">
+      <span id="eye-icon">👁️</span>
+    </button>
+  </div>
+</div>
 
     <button class="submit-btn" id="loginBtn" onclick="doLogin()">
       <span id="loginText">Sign In</span>
@@ -407,6 +411,18 @@
     el.textContent = msg;
     el.style.display = 'block';
   }
+  function toggleLoginPass() {
+    const input = document.getElementById('password');
+    const icon = document.getElementById('eye-icon');
+    
+    if (input.type === "password") {
+        input.type = "text";
+        icon.textContent = "🙈"; // Icon for hidden state
+    } else {
+        input.type = "password";
+        icon.textContent = "👁️"; // Icon for visible state
+    }
+}
 </script>
 </body>
 </html>
