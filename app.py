@@ -473,6 +473,18 @@ def api_register():
         return jsonify({'error': f'Only @{ALLOWED_DOMAIN} email addresses are allowed.'}), 400
     if len(password) < 8:
         return jsonify({'error': 'Password must be at least 8 characters.'}), 400
+    # 2. Uppercase Check
+    if not re.search(r'[A-Z]', password):
+        return jsonify({'error': 'Password must contain at least one uppercase letter.'}), 400
+    # 3. Lowercase Check
+    if not re.search(r'[a-z]', password):
+        return jsonify({'error': 'Password must contain at least one lowercase letter.'}), 400
+    # 4. Number Check
+    if not re.search(r'\d', password):
+        return jsonify({'error': 'Password must contain at least one number.'}), 400
+    # 5. Special Symbol Check
+    if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
+        return jsonify({'error': 'Password must contain at least one special symbol.'}), 400
 
     conn = get_db()
     try:
