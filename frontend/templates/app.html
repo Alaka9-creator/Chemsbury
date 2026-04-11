@@ -5,286 +5,182 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Chemsbury Solutions — Water Analysis Platform</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
 <style>
-  :root {
-    --bg: #0a0f1a; --bg2: #0e1525; --bg3: #131c2e;
-    --surface: #1a2540; --surface2: #1f2d4a;
-    --border: rgba(99,179,237,0.12); --border2: rgba(99,179,237,0.22);
-    --accent: #3ecfcf; --accent2: #5b9cf6; --accent3: #a78bfa;
-    --danger: #f87171; --warning: #fbbf24; --success: #34d399;
-    --text: #e8f0fe; --text2: #8ba3cc; --text3: #4a6080;
-    --glow: 0 0 40px rgba(62,207,207,0.15);
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  html { scroll-behavior: smooth; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg); color: var(--text);
-    min-height: 100vh; overflow-x: hidden;
-  }
-  body::before {
-    content:''; position:fixed; inset:0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(62,207,207,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(91,156,246,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 40% 40% at 50% 50%, rgba(167,139,250,0.03) 0%, transparent 70%);
-    pointer-events:none; z-index:0;
-  }
+  html { scroll-behavior:smooth; }
+  body { overflow-x:hidden; }
 
-  /* ── HEADER ── */
-  header {
-    position: sticky; top:0; z-index:100;
-    display:flex; align-items:center; justify-content:space-between;
-    padding: 0 32px; height: 64px;
-    background: rgba(10,15,26,0.92);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid var(--border);
-  }
-  .logo {
-    display:flex; align-items:center; gap:8px;
-    text-decoration:none; flex-shrink:0;
-  }
-  .logo-img {
-    height: 44px; width: auto;
-    object-fit: contain;
-    border-radius: 4px;
-  }
-  .logo-text {
-    font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem;
-    letter-spacing:-0.02em; color: var(--text);
-    display: none;
-  }
-  .logo-text span { color: var(--accent); }
-  @media(min-width:600px){ .logo-text { display:block; } }
-
-  .header-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
-  .user-chip {
-    display:flex; align-items:center; gap:8px;
-    background:var(--surface); border:1px solid var(--border);
-    border-radius:100px; padding:4px 12px 4px 6px; font-size:0.82rem; color:var(--text2);
-  }
-  .user-avatar {
-    width:24px; height:24px; border-radius:50%;
-    background:linear-gradient(135deg,var(--accent),var(--accent2));
-    display:grid; place-items:center;
-    font-family:'Syne',sans-serif; font-weight:700; font-size:0.68rem; color:#0a0f1a;
-    flex-shrink:0;
-  }
-  #navUserName { display:none; }
-  @media(min-width:600px){ #navUserName { display:inline; } }
-  .nav-btn {
-    padding:5px 12px; border-radius:6px; border:none; cursor:pointer;
-    font-family:'DM Sans',sans-serif; font-size:0.82rem;
-    transition:all 0.2s; text-decoration:none;
-    display:inline-flex; align-items:center; gap:5px;
-    white-space:nowrap;
-  }
-  .nav-btn.ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
-  .nav-btn.ghost:hover { color:var(--text); border-color:var(--border2); }
-
-  /* ── NAV LINKS ── */
-  nav { display:flex; gap:4px; }
+  /* ── Header nav ── */
   nav a {
-    color: var(--text2); font-size:0.82rem; text-decoration:none;
-    padding:5px 10px; border-radius:6px; transition: all 0.2s; white-space:nowrap;
+    color:var(--text2); font-size:0.82rem; text-decoration:none;
+    padding:5px 10px; border-radius:6px; transition:all 0.2s; white-space:nowrap;
   }
   nav a:hover { color:var(--text); background:var(--surface); }
 
-  /* ── HERO ── */
+  /* ── Hero ── */
   .hero {
     position:relative; z-index:1;
-    padding: clamp(40px,8vw,80px) 20px clamp(30px,5vw,60px);
+    padding:clamp(40px,8vw,80px) 20px clamp(30px,5vw,60px);
     text-align:center; max-width:760px; margin:0 auto;
   }
   .hero-tag {
     display:inline-flex; align-items:center; gap:6px;
-    background: rgba(62,207,207,0.1); border: 1px solid rgba(62,207,207,0.25);
+    background:rgba(62,207,207,0.1); border:1px solid rgba(62,207,207,0.25);
     border-radius:100px; padding:4px 14px;
     font-size:0.78rem; font-weight:500; letter-spacing:0.04em;
-    color: var(--accent); margin-bottom:20px; text-transform:uppercase;
+    color:var(--accent); margin-bottom:20px; text-transform:uppercase;
   }
   .hero h1 {
     font-family:'Syne',sans-serif; font-weight:800;
-    font-size: clamp(1.6rem, 5vw, 3.2rem);
-    line-height:1.1; letter-spacing:-0.03em; margin-bottom:16px;
+    font-size:clamp(1.6rem,5vw,3.2rem); line-height:1.1;
+    letter-spacing:-0.03em; margin-bottom:16px;
   }
   .hero h1 em {
     font-style:normal;
-    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    background:linear-gradient(90deg,var(--accent),var(--accent2));
     -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
   }
   .hero p { font-size:clamp(0.9rem,2vw,1.05rem); line-height:1.7; color:var(--text2); max-width:540px; margin:0 auto; }
 
-  /* ── MAIN ── */
-  .main { position:relative; z-index:1; padding: 0 clamp(12px,4vw,40px) 80px; max-width:1100px; margin:0 auto; }
+  .main { position:relative; z-index:1; padding:0 clamp(12px,4vw,40px) 80px; max-width:1100px; margin:0 auto; }
 
-  /* ── SECTION LABEL ── */
   .section-label { display:flex; align-items:center; gap:10px; margin-bottom:16px; }
   .step-badge {
     width:28px; height:28px; border-radius:50%;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
     display:grid; place-items:center;
     font-family:'Syne',sans-serif; font-weight:700; font-size:0.8rem; flex-shrink:0;
   }
   .section-label h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:clamp(0.95rem,2vw,1.1rem); letter-spacing:-0.01em; }
 
-  /* ── METHOD CARDS ── */
-  .input-methods {
-    display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px;
-  }
-  @media(min-width:600px){ .input-methods { grid-template-columns:repeat(2,1fr); } }
-
+  /* Method cards */
+  .input-methods { display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-bottom:14px; }
   .method-card {
-    background: var(--surface); border: 1px solid var(--border);
+    background:var(--surface); border:1px solid var(--border);
     border-radius:14px; padding:clamp(16px,3vw,24px) 16px;
-    text-align:center; cursor:pointer; transition: all 0.25s;
-    position:relative; overflow:hidden;
+    text-align:center; cursor:pointer; transition:all 0.25s; position:relative; overflow:hidden;
   }
-  .method-card:hover { border-color:var(--border2); transform:translateY(-2px); box-shadow: var(--glow); }
-  .method-card.active { border-color:var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--glow); }
+  .method-card:hover { border-color:var(--border2); transform:translateY(-2px); box-shadow:var(--glow); }
+  .method-card.active { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent),var(--glow); }
   .method-card .icon { font-size:clamp(1.5rem,4vw,2rem); margin-bottom:8px; display:block; }
   .method-card h3 { font-family:'Syne',sans-serif; font-weight:600; font-size:clamp(0.82rem,2vw,0.92rem); margin-bottom:4px; }
-  .method-card p { font-size:0.75rem; color:var(--text2); line-height:1.4; }
+  .method-card p  { font-size:0.75rem; color:var(--text2); line-height:1.4; }
 
-  /* ── DROP ZONE ── */
+  /* Drop zone */
   .drop-zone {
-    background: var(--surface); border: 2px dashed var(--border2);
+    background:var(--surface); border:2px dashed var(--border2);
     border-radius:16px; padding:clamp(28px,5vw,48px) 20px;
-    text-align:center; cursor:pointer; transition: all 0.25s; display:none;
+    text-align:center; cursor:pointer; transition:all 0.25s; display:none;
   }
-  .drop-zone:hover, .drop-zone.drag-over { border-color: var(--accent); background: rgba(62,207,207,0.04); }
+  .drop-zone:hover,.drop-zone.drag-over { border-color:var(--accent); background:rgba(62,207,207,0.04); }
   .drop-zone .dz-icon { font-size:2.2rem; margin-bottom:12px; }
   .drop-zone h3 { font-family:'Syne',sans-serif; font-weight:600; font-size:0.95rem; margin-bottom:6px; }
-  .drop-zone p { font-size:0.82rem; color:var(--text2); }
-  .drop-zone .browse-btn {
+  .drop-zone p  { font-size:0.82rem; color:var(--text2); }
+  .browse-btn {
     display:inline-block; margin-top:14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
     color:#0a0f1a; font-weight:600; font-size:0.85rem;
     padding:9px 24px; border-radius:8px; cursor:pointer;
-    border:none; font-family:'DM Sans',sans-serif; transition: opacity 0.2s;
+    border:none; font-family:'DM Sans',sans-serif; transition:opacity 0.2s;
   }
-  .drop-zone .browse-btn:hover { opacity:0.85; }
+  .browse-btn:hover { opacity:0.85; }
 
-  /* ── PREVIEW ── */
+  /* Preview */
   #imagePreview {
-    display:none; background: var(--surface); border:1px solid var(--border);
+    display:none; background:var(--surface); border:1px solid var(--border);
     border-radius:16px; overflow:hidden; margin-bottom:14px;
   }
   #imagePreview img { width:100%; max-height:240px; object-fit:contain; background:#080d18; }
   #imagePreview .preview-footer {
     display:flex; align-items:center; justify-content:space-between;
-    padding:10px 16px; background: var(--surface2);
+    padding:10px 16px; background:var(--surface2);
   }
   #imagePreview .preview-footer span { font-size:0.82rem; color:var(--text2); }
 
-  /* ── BUTTONS ── */
+  /* Analyse button */
   .analyze-btn {
     width:100%; padding:14px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
     color:#0a0f1a; font-family:'Syne',sans-serif; font-weight:700; font-size:1rem;
     border:none; border-radius:12px; cursor:pointer;
-    transition: all 0.25s; display:none; letter-spacing:0.02em;
+    transition:all 0.25s; display:none; letter-spacing:0.02em;
   }
-  .analyze-btn:hover { transform:translateY(-1px); box-shadow: var(--glow); }
-  .cam-btn {
-    padding:8px 18px; border-radius:8px; border:none; cursor:pointer;
-    font-family:'DM Sans',sans-serif; font-weight:500; font-size:0.875rem; transition: all 0.2s;
-  }
-  .cam-btn.primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color:#0a0f1a; }
-  .cam-btn.secondary { background: var(--surface); color:var(--text2); border:1px solid var(--border); }
-  .restart-btn {
-    background:transparent; border:1px solid var(--border);
-    color:var(--text2); font-family:'DM Sans',sans-serif; font-size:0.85rem;
-    padding:6px 16px; border-radius:8px; cursor:pointer; transition:all 0.2s;
-  }
-  .restart-btn:hover { border-color:var(--border2); color:var(--text); }
-  .report-btn {
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    width:100%; padding:14px; background: var(--surface); border:1px solid var(--border);
-    color:var(--text); font-family:'Syne',sans-serif; font-weight:600; font-size:0.95rem;
-    border-radius:12px; cursor:pointer; transition:all 0.25s;
-    letter-spacing:0.02em; margin-top:8px;
-  }
-  .report-btn:hover { border-color:var(--accent2); color:var(--accent2); }
+  .analyze-btn:hover { transform:translateY(-1px); box-shadow:var(--glow); }
 
-  /* ── LOADING ── */
+  /* Loading */
   #loadingState { display:none; text-align:center; padding:60px 20px; }
-  .spinner {
-    width:52px; height:52px; margin:0 auto 20px; border-radius:50%;
-    border:3px solid var(--border); border-top-color:var(--accent);
-    animation: spin 0.9s linear infinite;
-  }
-  @keyframes spin { to { transform:rotate(360deg); } }
-  .loading-steps { font-size:0.85rem; color:var(--text2); margin-top:8px; }
+  .load-spinner { width:52px; height:52px; margin:0 auto 20px; border-radius:50%; border:3px solid var(--border); border-top-color:var(--accent); animation:spin 0.9s linear infinite; }
+  .loading-stage { font-size:0.85rem; color:var(--text2); margin-top:8px; transition:opacity 0.3s; }
+  .loading-icon  { font-size:2rem; margin-bottom:8px; animation:fadeIn 0.3s ease; }
 
-  /* ── RESULTS ── */
+  /* Results */
   #resultsSection { display:none; }
-  @keyframes fadeUp { from { opacity:0; transform:translateY(20px); } to { opacity:1; transform:translateY(0); } }
 
-  /* ── SAFETY BANNER ── */
+  /* Safety banner */
   .safety-banner {
     border-radius:16px; padding:clamp(16px,3vw,24px) clamp(16px,3vw,28px);
     margin-bottom:24px; display:flex; align-items:flex-start; gap:16px;
-    animation: fadeUp 0.5s ease both;
+    animation:fadeUp 0.5s ease both;
   }
-  .safety-banner.safe { background: rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3); }
-  .safety-banner.unsafe { background: rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); }
-  .safety-banner.caution { background: rgba(251,191,36,0.08); border:1px solid rgba(251,191,36,0.3); }
+  .safety-banner.safe    { background:rgba(52,211,153,0.08); border:1px solid rgba(52,211,153,0.3); }
+  .safety-banner.unsafe  { background:rgba(248,113,113,0.08); border:1px solid rgba(248,113,113,0.3); }
+  .safety-banner.caution { background:rgba(251,191,36,0.08);  border:1px solid rgba(251,191,36,0.3);  }
   .banner-icon { font-size:2rem; flex-shrink:0; margin-top:2px; }
   .banner-content h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:clamp(1rem,2.5vw,1.2rem); margin-bottom:8px; }
-  .safety-banner.safe h3 { color: var(--success); }
-  .safety-banner.unsafe h3 { color: var(--danger); }
-  .safety-banner.caution h3 { color: var(--warning); }
-  .banner-reasons { list-style:none; }
-  .banner-reasons li {
-    font-size:0.85rem; color:var(--text2); line-height:1.6;
-    display:flex; align-items:flex-start; gap:8px; margin-bottom:4px;
-  }
+  .safety-banner.safe    h3 { color:var(--success); }
+  .safety-banner.unsafe  h3 { color:var(--danger);  }
+  .safety-banner.caution h3 { color:var(--warning);  }
+  .banner-reasons li { font-size:0.85rem; color:var(--text2); line-height:1.6; display:flex; align-items:flex-start; gap:8px; margin-bottom:4px; }
   .banner-reasons li::before { content:'›'; color:var(--text3); margin-top:1px; }
 
-  /* ── PARAMS GRID ── */
+  /* Param cards */
   .params-grid {
     display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(clamp(140px,30vw,200px),1fr));
-    gap:10px; margin-bottom:24px; animation: fadeUp 0.5s 0.1s ease both;
+    grid-template-columns:repeat(auto-fill,minmax(clamp(140px,30vw,200px),1fr));
+    gap:10px; margin-bottom:24px; animation:fadeUp 0.5s 0.1s ease both;
   }
   .param-card {
-    background: var(--surface); border:1px solid var(--border);
-    border-radius:12px; padding:14px; position:relative; transition: border-color 0.2s;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:12px; padding:14px; position:relative;
+    transition:border-color 0.2s;
+    animation:staggerIn 0.4s ease both;
   }
-  .param-card.exceeded { border-color:rgba(248,113,113,0.4); }
-  .param-card.warning-level { border-color:rgba(251,191,36,0.4); }
-  .param-card .param-name { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text3); font-weight:500; margin-bottom:6px; }
+  .param-card.exceeded     { border-color:rgba(248,113,113,0.4); }
+  .param-card.warning-level{ border-color:rgba(251,191,36,0.4); }
+  .param-name  { font-size:0.72rem; text-transform:uppercase; letter-spacing:0.06em; color:var(--text3); font-weight:500; margin-bottom:6px; }
   .param-card input {
-    background: transparent; border: none; border-bottom: 1px solid var(--border);
-    color: var(--text); font-family:'Syne',sans-serif; font-weight:700; font-size:1.25rem;
-    width:100%; padding: 2px 0; outline:none; transition: border-color 0.2s;
+    background:transparent; border:none; border-bottom:1px solid var(--border);
+    color:var(--text); font-family:'Syne',sans-serif; font-weight:700; font-size:1.25rem;
+    width:100%; padding:2px 0; outline:none; transition:border-color 0.2s;
   }
-  .param-card input:focus { border-bottom-color: var(--accent); }
-  .param-card .param-unit { font-size:0.72rem; color:var(--text3); margin-top:2px; }
-  .param-card .param-limit { font-size:0.7rem; color:var(--text3); margin-top:6px; }
+  .param-card input:focus { border-bottom-color:var(--accent); }
+  .param-unit  { font-size:0.72rem; color:var(--text3); margin-top:2px; }
+  .param-limit { font-size:0.7rem;  color:var(--text3); margin-top:6px; }
   .param-badge {
     position:absolute; top:10px; right:10px;
     padding:2px 7px; border-radius:100px; font-size:0.68rem; font-weight:600;
   }
-  .param-badge.ok { background:rgba(52,211,153,0.15); color:var(--success); }
-  .param-badge.high { background:rgba(248,113,113,0.15); color:var(--danger); }
-  .param-badge.warn { background:rgba(251,191,36,0.15); color:var(--warning); }
+  .param-badge.ok   { background:rgba(52,211,153,0.15); color:var(--success); }
+  .param-badge.high { background:rgba(248,113,113,0.15); color:var(--danger);  }
+  .param-badge.warn { background:rgba(251,191,36,0.15);  color:var(--warning); }
+  /* Param level meter */
+  .param-meter { margin-top:8px; height:3px; background:var(--surface2); border-radius:3px; overflow:hidden; }
+  .param-meter-fill { height:100%; border-radius:3px; transition:width 0.6s ease, background 0.4s; }
 
-  /* ── FILTER GRID ── */
-  .filter-section { animation: fadeUp 0.5s 0.2s ease both; margin-bottom:24px; }
+  /* Filter grid */
+  .filter-section { animation:fadeUp 0.5s 0.2s ease both; margin-bottom:24px; }
   .filter-grid {
     display:grid; grid-template-columns:repeat(auto-fill,minmax(clamp(240px,40vw,280px),1fr));
     gap:12px; margin-top:14px;
   }
   .filter-card {
-    background: var(--surface); border:1px solid var(--border);
-    border-radius:14px; padding:18px; cursor:pointer; transition: all 0.25s;
+    background:var(--surface); border:1px solid var(--border);
+    border-radius:14px; padding:18px; cursor:pointer; transition:all 0.25s;
     position:relative; overflow:hidden;
   }
-  .filter-card:hover { border-color:var(--border2); transform:translateY(-2px); }
-  .filter-card.selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent), var(--glow); }
+  .filter-card:hover    { border-color:var(--border2); transform:translateY(-2px); }
+  .filter-card.selected { border-color:var(--accent); box-shadow:0 0 0 1px var(--accent),var(--glow); }
   .filter-card.recommended::after {
     content:'Recommended'; position:absolute; top:12px; right:12px;
     background:linear-gradient(90deg,var(--accent),var(--accent2));
@@ -292,243 +188,125 @@
   }
   .filter-card .fc-icon { font-size:1.6rem; margin-bottom:10px; }
   .filter-card h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:0.92rem; margin-bottom:6px; }
-  .filter-card p { font-size:0.8rem; color:var(--text2); line-height:1.5; margin-bottom:10px; }
-  .filter-card .media-tags { display:flex; flex-wrap:wrap; gap:5px; }
-  .media-tag {
+  .filter-card p  { font-size:0.8rem; color:var(--text2); line-height:1.5; margin-bottom:10px; }
+  .media-tags { display:flex; flex-wrap:wrap; gap:5px; }
+  .media-tag  {
     padding:3px 8px; border-radius:100px; font-size:0.7rem; font-weight:500;
     background:var(--surface2); color:var(--text2); border:1px solid var(--border);
   }
 
-  /* ── VESSEL SECTION ── */
-  #vesselSection { animation: fadeUp 0.5s 0.3s ease both; margin-bottom:24px; display:none; }
-  .design-grid {
-    display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;
-  }
-  @media(max-width:640px){ .design-grid { grid-template-columns:1fr; } }
-
-  .bom-card {
-    background: var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px;
-  }
-  .bom-card h4 {
-    font-family:'Syne',sans-serif; font-weight:700;
-    margin-bottom:14px; color:var(--text2);
-    text-transform:uppercase; letter-spacing:0.05em; font-size:0.72rem;
+  /* Vessel */
+  #vesselSection { animation:fadeUp 0.5s 0.3s ease both; margin-bottom:24px; display:none; }
+  .design-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px; }
+  @media(max-width:640px){ .design-grid{grid-template-columns:1fr;} }
+  .bom-card h4,.vessel-wrap h4 {
+    font-family:'Syne',sans-serif; font-weight:700; margin-bottom:14px;
+    color:var(--text2); text-transform:uppercase; letter-spacing:0.05em; font-size:0.72rem;
   }
   .bom-item {
     display:flex; align-items:center; justify-content:space-between;
     padding:9px 0; border-bottom:1px solid var(--border); font-size:0.85rem;
   }
   .bom-item:last-child { border-bottom:none; }
-  .bom-dot { width:10px;height:10px;border-radius:50%;margin-right:10px;flex-shrink:0; }
-  .bom-name { display:flex;align-items:center;flex:1; }
-  .bom-qty { font-family:'Syne',sans-serif; font-weight:600; color:var(--accent); white-space:nowrap; }
-
-  .vessel-wrap {
-    background:var(--surface); border:1px solid var(--border); border-radius:14px;
-    padding:18px; display:flex; flex-direction:column; align-items:center;
-  }
-  .vessel-wrap h4 {
-    font-family:'Syne',sans-serif; font-weight:700;
-    text-transform:uppercase; letter-spacing:0.05em; font-size:0.72rem;
-    color:var(--text2); margin-bottom:14px; align-self:flex-start;
-  }
+  .bom-dot  { width:10px; height:10px; border-radius:50%; margin-right:10px; flex-shrink:0; }
+  .bom-name { display:flex; align-items:center; flex:1; }
+  .bom-qty  { font-family:'Syne',sans-serif; font-weight:600; color:var(--accent); white-space:nowrap; }
+  .vessel-wrap { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px; display:flex; flex-direction:column; align-items:center; }
   #vesselDiagram { width:100%; max-width:200px; }
 
-  /* ── MANUAL ENTRY ── */
-  #manualSection { display:none; }
-  #manualGrid {
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(clamp(140px,30vw,200px),1fr));
-    gap:12px;
-  }
-
-  /* ── HIDDEN ── */
-  #fileInput { display:none; }
-  #canvasCapture { display:none; }
-  #cameraZone { display:none; }
-
-  /* ── SCROLLBAR ── */
-  ::-webkit-scrollbar { width:5px; }
-  ::-webkit-scrollbar-track { background:var(--bg); }
-  ::-webkit-scrollbar-thumb { background:var(--surface2); border-radius:10px; }
-
-  /* ── DEBUG ── */
+  /* Debug */
   #debugPanel { display:none; margin-top:20px; }
 
-  /* ════════════════════════════════════════
-     PRINT / PDF STYLES
-     Only shows: logo + vessel diagram + BOM
-     Hides everything else
-  ════════════════════════════════════════ */
+  /* Print */
   @media print {
-    * { -webkit-print-color-adjust:exact; print-color-adjust:exact; }
-
-    /* Hide everything by default */
-    body > * { display:none !important; }
-    body::before, body::after { display:none !important; }
-
-    /* Show only the print report wrapper */
-    #printReport { display:block !important; }
-
-    #printReport {
-      font-family: 'DM Sans', sans-serif;
-      color: #111;
-      background: #fff;
-      padding: 32px;
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    .pr-header {
-      display:flex; align-items:center; justify-content:space-between;
-      border-bottom: 2px solid #0a5f7a; padding-bottom:16px; margin-bottom:28px;
-    }
-    .pr-logo { height:52px; width:auto; }
-    .pr-title { text-align:right; }
-    .pr-title h1 { font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:800; color:#0a5f7a; }
-    .pr-title p { font-size:0.8rem; color:#555; margin-top:4px; }
-
-    .pr-meta {
-      display:flex; gap:24px; margin-bottom:28px; flex-wrap:wrap;
-    }
-    .pr-meta-item { flex:1; min-width:180px; }
-    .pr-meta-label { font-size:0.7rem; text-transform:uppercase; letter-spacing:0.06em; color:#777; margin-bottom:3px; }
-    .pr-meta-value { font-size:0.9rem; font-weight:600; color:#111; }
-
-    .pr-section-title {
-      font-family:'Syne',sans-serif; font-size:1rem; font-weight:700;
-      color:#0a5f7a; border-bottom:1px solid #c8dfe6; padding-bottom:6px; margin-bottom:16px;
-    }
-
-    .pr-design-grid {
-      display:grid; grid-template-columns:1fr 1fr; gap:24px; margin-bottom:32px;
-    }
-
-    .pr-bom table { width:100%; border-collapse:collapse; font-size:0.85rem; }
-    .pr-bom th {
-      text-align:left; padding:8px 10px; background:#e8f4f8;
-      font-size:0.72rem; text-transform:uppercase; letter-spacing:0.05em; color:#0a5f7a;
-    }
-    .pr-bom td { padding:8px 10px; border-bottom:1px solid #e0ecf0; vertical-align:middle; }
-    .pr-bom tr:last-child td { border-bottom:none; }
-    .pr-bom .dot { display:inline-block; width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle; }
-
-    .pr-vessel { display:flex; flex-direction:column; align-items:center; }
-    .pr-vessel svg { max-width:180px; width:100%; }
-    .pr-legend {
-      display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; justify-content:center;
-    }
-    .pr-legend-item { display:flex; align-items:center; gap:5px; font-size:0.7rem; color:#333; }
-    .pr-legend-dot { width:10px;height:10px;border-radius:2px;flex-shrink:0; }
-
-    .pr-vessel-model {
-      margin-top:16px; text-align:center;
-      font-size:0.82rem; color:#555;
-    }
-    .pr-vessel-model strong { color:#0a5f7a; }
-
-    .pr-footer {
-      border-top:1px solid #c8dfe6; padding-top:12px; margin-top:24px;
-      font-size:0.72rem; color:#888; display:flex; justify-content:space-between;
-    }
+    *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+    body>*{display:none!important;}
+    body::before,body::after{display:none!important;}
+    #printReport{display:block!important;}
+    #printReport{font-family:'DM Sans',sans-serif;color:#111;background:#fff;padding:32px;max-width:800px;margin:0 auto;}
+    .pr-header{display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0a5f7a;padding-bottom:16px;margin-bottom:28px;}
+    .pr-logo{height:52px;width:auto;}
+    .pr-title{text-align:right;}
+    .pr-title h1{font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:800;color:#0a5f7a;}
+    .pr-title p{font-size:0.8rem;color:#555;margin-top:4px;}
+    .pr-meta{display:flex;gap:24px;margin-bottom:28px;flex-wrap:wrap;}
+    .pr-meta-item{flex:1;min-width:180px;}
+    .pr-meta-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#777;margin-bottom:3px;}
+    .pr-meta-value{font-size:0.9rem;font-weight:600;color:#111;}
+    .pr-section-title{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:#0a5f7a;border-bottom:1px solid #c8dfe6;padding-bottom:6px;margin-bottom:16px;}
+    .pr-design-grid{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:32px;}
+    .pr-bom table{width:100%;border-collapse:collapse;font-size:0.85rem;}
+    .pr-bom th{text-align:left;padding:8px 10px;background:#e8f4f8;font-size:0.72rem;text-transform:uppercase;letter-spacing:0.05em;color:#0a5f7a;}
+    .pr-bom td{padding:8px 10px;border-bottom:1px solid #e0ecf0;vertical-align:middle;}
+    .pr-bom tr:last-child td{border-bottom:none;}
+    .pr-bom .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:8px;vertical-align:middle;}
+    .pr-vessel{display:flex;flex-direction:column;align-items:center;}
+    .pr-vessel svg{max-width:180px;width:100%;}
+    .pr-legend{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px;justify-content:center;}
+    .pr-legend-item{display:flex;align-items:center;gap:5px;font-size:0.7rem;color:#333;}
+    .pr-legend-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0;}
+    .pr-footer{border-top:1px solid #c8dfe6;padding-top:12px;margin-top:24px;font-size:0.72rem;color:#888;display:flex;justify-content:space-between;}
   }
 </style>
 </head>
 <body>
 
-<!-- ═══════════════════════════════════════════
-     PRINT REPORT (hidden on screen, shown on print)
-═══════════════════════════════════════════ -->
+<!-- Print report (hidden on screen) -->
 <div id="printReport" style="display:none;">
   <div class="pr-header">
-    <img class="pr-logo" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxETEhUSExIWFREXFhUVFxgQFRURFhUYFRUXGBgWFRYZHSoiGRolHhcWIjEhJikrLy4uFx8zODMsNygtLi0BCgoKDg0OGxAQGy0lICYtLTAtLSstLS0rLTUtLS8tLy0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAOEA4QMBEQACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABAUDBgcCAf/EAEUQAAEDAgMECAEHCQcFAAAAAAEAAgMEEQUSIQYxQVEHEyIyYXGBkaEUM0JScpLRI2JjgqKxweHwFiRDVJOy0hUXRFOD/8QAGwEBAAMBAQEBAAAAAAAAAAAAAAECAwQFBgf/xAAzEQEAAgIBAwIDBgQHAQAAAAAAAQIDEQQSITEFQRMyURQiYYGR0UJxofAVIzNSscHxBv/aAAwDAQACEQMRAD8A7igICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICCJUYjEzQuF+TdT/ACWlcV7eIY35GOnaZRTi9+63734Baxx/rLH7VvxD0yrcePsonHELRlmUlkypNWkWYpZFNaq2shSzOG5xHkStopE+znteY8SwOxOVu51/tAFX+BSfZlPJyV92WDaJu6RtvFuo9Rv/AHqluHb+GV6eo1/jjS5p6hjxmY4OHMarltWazqYd9Mlbxus7ZVVcQEBAQEBAQEBAQEBAQEBAQEFTi+PwwdknNJ9Ru/8AWP0V04OLky948fVwcv1HDxu0zu30j++zWKnHppt5yt+qzQep3n+tF6NOJTH+MvEv6jlzT9I+kEDlNoXx2WNO6+g1PgsLdnZj3PhbQUcnGw8yuS2Wruphv7pHyV3MfFU+JDX4VkeoY5u8ac94WlLRPhleLV8oEr1vWHNayDO9bVhy3lXVDlvWHFlsiwYjJC7PG6x4g6td4OHFaXwVyxqzkpy8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vbW35xSIiEYsFMW+n3Vdb0cUEjnOyyNc4lxySE6uNye1fio6IY34OG07mGbDNgKCFweIi9w1HXOLwDzy90+oSKxC2Ph4qTuITNptlKeu6vry/wDJ5svVuyjt5b3017oXRhz3xb6fd0WrE+VGOirDv03+p/Jbfb834for8KrZsCwGmpGGOnjDGk3cblznHm5ziSf4LmyZb5J3aV4iI8KbGOjvD6h7pHRuZI4kuMLywEnecpu2/HQanetsfLy0jUT2VmkS+4R0eYdA8SCIveDdpmcZACNxDe7fxsmTl5bxqZIpWE/afZanrgxs5fZhcQI3ZNXAAk6a7viVnizWxbmqbVi3lcU8IYxrGizWtDQOQaLD9yzmdztZr+FbE0tPUmqh6xkhL7gP7BEhuW5bd29iBwsOS2vyL3p0W8KxSIna4xfDWVEL4JC4MeMrshym1wbA+iypeaWi0JmNxpg2ewOGjh6mEHJmc7tnMSXb7n29lOTJbJbqsRGuyzVEiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIP//Z" alt="Chemsbury Solutions">
+    <img class="pr-logo" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
     <div class="pr-title">
       <h1>Water Filtration System Report</h1>
       <p id="pr-date">Generated: —</p>
     </div>
   </div>
-
   <div class="pr-meta">
-    <div class="pr-meta-item">
-      <div class="pr-meta-label">Lab / Source</div>
-      <div class="pr-meta-value" id="pr-lab">—</div>
-    </div>
-    <div class="pr-meta-item">
-      <div class="pr-meta-label">Sample Info</div>
-      <div class="pr-meta-value" id="pr-sample">—</div>
-    </div>
-    <div class="pr-meta-item">
-      <div class="pr-meta-label">Filter Type Selected</div>
-      <div class="pr-meta-value" id="pr-filter">—</div>
-    </div>
-    <div class="pr-meta-item">
-      <div class="pr-meta-label">Vessel Model</div>
-      <div class="pr-meta-value" id="pr-model">—</div>
-    </div>
+    <div class="pr-meta-item"><div class="pr-meta-label">Lab / Source</div><div class="pr-meta-value" id="pr-lab">—</div></div>
+    <div class="pr-meta-item"><div class="pr-meta-label">Sample Info</div><div class="pr-meta-value" id="pr-sample">—</div></div>
+    <div class="pr-meta-item"><div class="pr-meta-label">Filter Type</div><div class="pr-meta-value" id="pr-filter">—</div></div>
+    <div class="pr-meta-item"><div class="pr-meta-label">Vessel Model</div><div class="pr-meta-value" id="pr-model">—</div></div>
   </div>
-
   <p class="pr-section-title">Vessel Design &amp; Bill of Materials</p>
   <div class="pr-design-grid">
-    <div class="pr-bom">
-      <table>
-        <thead>
-          <tr>
-            <th>Media / Component</th>
-            <th>Volume (L)</th>
-            <th>Weight (kg)</th>
-          </tr>
-        </thead>
-        <tbody id="pr-bom-rows"></tbody>
-      </table>
-    </div>
-    <div class="pr-vessel">
-      <div id="pr-vessel-svg"></div>
-      <div class="pr-legend" id="pr-legend"></div>
-      <div class="pr-vessel-model">Vessel Model: <strong id="pr-model2">—</strong></div>
-    </div>
+    <div class="pr-bom"><table><thead><tr><th>Media / Component</th><th>Volume (L)</th><th>Weight (kg)</th></tr></thead><tbody id="pr-bom-rows"></tbody></table></div>
+    <div class="pr-vessel"><div id="pr-vessel-svg"></div><div class="pr-legend" id="pr-legend"></div><div style="margin-top:16px;text-align:center;font-size:0.82rem;color:#555;">Vessel Model: <strong id="pr-model2">—</strong></div></div>
   </div>
-
-  <div class="pr-footer">
-    <span>Chemsbury Environmental Solutions</span>
-    <span id="pr-footer-date">—</span>
-  </div>
+  <div class="pr-footer"><span>Chemsbury Environmental Solutions</span><span id="pr-footer-date">—</span></div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     SCREEN UI
-═══════════════════════════════════════════ -->
+<!-- Screen UI -->
 <header>
   <a href="#" class="logo">
-    <img class="logo-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxETEhUSExIWFREXFhUVFxgQFRURFhUYFRUXGBgWFRYZHSoiGRolHhcWIjEhJikrLy4uFx8zODMsNygtLi0BCgoKDg0OGxAQGy0lICYtLTAtLSstLS0rLTUtLS8tLy0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAOEA4QMBEQACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABAUDBgcCAf/EAEUQAAEDAgMECAEHCQcFAAAAAAEAAgMEEQUSIQYxQVEHEyIyYXGBkaEUM0JScpLRI2JjgqKxweHwFiRDVJOy0hUXRFOD/8QAGwEBAAMBAQEBAAAAAAAAAAAAAAECAwQFBgf/xAAzEQEAAgIBAwIDBgQHAQAAAAAAAQIDEQQSITEFQRMyURQiYYGR0UJxofAVIzNSscHxBv/aAAwDAQACEQMRAD8A7igICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICCJUYjEzQuF+TdT/ACWlcV7eIY35GOnaZRTi9+63734Baxx/rLH7VvxD0yrcePsonHELRlmUlkypNWkWYpZFNaq2shSzOG5xHkStopE+znteY8SwOxOVu51/tAFX+BSfZlPJyV92WDaJu6RtvFuo9Rv/AHqluHb+GV6eo1/jjS5p6hjxmY4OHMarltWazqYd9Mlbxus7ZVVcQEBAQEBAQEBAQEBAQEBAQEFTi+PwwdknNJ9Ru/8AWP0V04OLky948fVwcv1HDxu0zu30j++zWKnHppt5yt+qzQep3n+tF6NOJTH+MvEv6jlzT9I+kEDlNoXx2WNO6+g1PgsLdnZj3PhbQUcnGw8yuS2Wruphv7pHyV3MfFU+JDX4VkeoY5u8ac94WlLRPhleLV8oEr1vWHNayDO9bVhy3lXVDlvWHFlsiwYjJC7PG6x4g6td4OHFaXwVyxqzkpy8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vbW35xSIiEYsFMW+n3Vdb0cUEjnOyyNc4lxySE6uNye1fio6IY34OG07mGbDNgKCFweIi9w1HXOLwDzy90+oSKxC2Ph4qTuITNptlKeu6vry/wDJ5svVuyjt5b3017oXRhz3xb6fd0WrE+VGOirDv03+p/Jbfb834for8KrZsCwGmpGGOnjDGk3cblznHm5ziSf4LmyZb5J3aV4iI8KbGOjvD6h7pHRuZI4kuMLywEnecpu2/HQanetsfLy0jUT2VmkS+4R0eYdA8SCIveDdpmcZACNxDe7fxsmTl5bxqZIpWE/afZanrgxs5fZhcQI3ZNXAAk6a7viVnizWxbmqbVi3lcU8IYxrGizWtDQOQaLD9yzmdztZr+FbE0tPUmqh6xkhL7gP7BEhuW5bd29iBwsOS2vyL3p0W8KxSIna4xfDWVEL4JC4MeMrshym1wbA+iypeaWi0JmNxpg2ewOGjh6mEHJmc7tnMSXb7n29lOTJbJbqsRGuyzVEiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIP//Z" alt="Chemsbury Solutions">
+    <img class="logo-img" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
     <span class="logo-text">Chemsbury <span>Solutions</span></span>
   </a>
-  <nav id="mainNav">
+  <nav style="display:flex;gap:4px;">
     <a href="/dashboard">📊 Dashboard</a>
     <a href="/admin" id="adminLink" style="display:none;">⚙️ Admin</a>
   </nav>
   <div class="header-right">
     <div class="user-chip">
       <div class="user-avatar" id="navAvatar">?</div>
-      <span id="navUserName">…</span>
+      <span id="navUserName" style="display:none;">…</span>
     </div>
-    <button onclick="authLogout()" class="nav-btn ghost">Sign Out</button>
+    <button onclick="authLogout()" class="btn btn-ghost">Sign Out</button>
   </div>
 </header>
 
 <section class="hero">
   <div class="hero-tag">🔬 AI-Powered Water Analysis</div>
-  <h1>Precision Water Quality<br><em>Diagnosis & Filter Design</em></h1>
-  <p>Upload a water test report PDF or enter parameters manually. Our system extracts all values, assesses safety, and recommends the ideal filtration system.</p>
+  <h1>Precision Water Quality<br><em>Diagnosis &amp; Filter Design</em></h1>
+  <p>Upload a water test report PDF or enter parameters manually. Our system extracts all values, assesses IS:10500 safety, and recommends the ideal filtration system.</p>
 </section>
 
 <div class="main">
 
-  <!-- STEP 1: INPUT METHOD -->
+  <!-- STEP 1 -->
   <div id="inputSection">
     <div class="section-label">
       <div class="step-badge">1</div>
       <h2>Choose Input Method</h2>
     </div>
-
     <div class="input-methods">
       <div class="method-card" id="methodUpload" onclick="selectMethod('upload')">
         <span class="icon">📂</span>
@@ -542,48 +320,45 @@
       </div>
     </div>
 
-    <!-- UPLOAD DROP ZONE -->
     <div class="drop-zone" id="dropZone"
          ondragover="event.preventDefault();this.classList.add('drag-over')"
          ondragleave="this.classList.remove('drag-over')"
          ondrop="handleDrop(event)">
       <div class="dz-icon">☁️</div>
       <h3>Drop your water report here</h3>
-      <p>Supports JPG, PNG, PDF</p>
+      <p>Supports JPG, PNG, PDF — max 10 MB</p>
       <button class="browse-btn" onclick="document.getElementById('fileInput').click()">Browse Files</button>
     </div>
 
-    <!-- MANUAL ENTRY -->
-    <div id="manualSection">
-      <div style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:clamp(16px,3vw,24px);">
+    <div id="manualSection" style="display:none;">
+      <div class="card" style="padding:clamp(16px,3vw,24px);">
         <p style="font-size:0.85rem;color:var(--text2);margin-bottom:18px;">Enter values from your water test report. Leave blank if not tested.</p>
         <div id="manualGrid"></div>
         <button class="analyze-btn" style="display:block;margin-top:18px;" onclick="runManualAnalysis()">🔍 Analyse Water Quality</button>
       </div>
     </div>
 
-    <!-- IMAGE PREVIEW -->
     <div id="imagePreview">
       <img id="previewImg" src="" alt="Preview">
       <div class="preview-footer">
         <span id="previewName">report.pdf</span>
-        <button class="restart-btn" onclick="clearPreview()">Remove</button>
+        <button class="btn btn-ghost" onclick="clearPreview()">Remove</button>
       </div>
     </div>
 
-    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeImage()">🔍 Analyse Water Report</button>
+    <button class="analyze-btn" id="analyzeBtn" onclick="analyzeFile()">🔍 Analyse Water Report</button>
   </div>
 
   <!-- LOADING -->
   <div id="loadingState">
-    <div class="spinner"></div>
-    <p style="font-family:'Syne',sans-serif;font-weight:600;font-size:1rem;margin-bottom:8px;">Analysing Water Report…</p>
-    <p class="loading-steps" id="loadingStep">Extracting parameters…</p>
+    <div class="load-spinner"></div>
+    <div class="loading-icon" id="loadingIcon">📤</div>
+    <p style="font-family:'Syne',sans-serif;font-weight:600;font-size:1rem;margin-bottom:4px;">Analysing Water Report…</p>
+    <p class="loading-stage" id="loadingStage">Preparing upload…</p>
   </div>
 
   <!-- RESULTS -->
   <div id="resultsSection">
-
     <div id="safetyBanner" class="safety-banner">
       <div class="banner-icon" id="bannerIcon"></div>
       <div class="banner-content">
@@ -592,18 +367,15 @@
       </div>
     </div>
 
-    <!-- STEP 2: PARAMS -->
     <div class="section-label">
       <div class="step-badge">2</div>
       <h2>Extracted Parameters <span style="font-size:0.78rem;font-weight:400;color:var(--text3);font-family:'DM Sans'">— click values to edit</span></h2>
     </div>
     <div class="params-grid" id="paramsGrid"></div>
-
     <div style="display:flex;justify-content:flex-end;margin-bottom:24px;">
-      <button class="cam-btn primary" style="font-size:0.82rem;" onclick="reEvaluate()">↻ Re-evaluate</button>
+      <button class="btn btn-primary" style="font-size:0.82rem;" onclick="reEvaluate()">↻ Re-evaluate</button>
     </div>
 
-    <!-- STEP 3: FILTER -->
     <div class="filter-section" id="filterSection">
       <div class="section-label">
         <div class="step-badge">3</div>
@@ -613,14 +385,13 @@
       <div class="filter-grid" id="filterGrid"></div>
     </div>
 
-    <!-- STEP 4: VESSEL -->
     <div id="vesselSection">
       <div class="section-label" style="margin-top:24px;">
         <div class="step-badge">4</div>
         <h2>System Design &amp; Bill of Materials</h2>
       </div>
       <div class="design-grid">
-        <div class="bom-card">
+        <div class="card bom-card">
           <h4>Bill of Materials</h4>
           <div id="bomList"></div>
           <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
@@ -636,9 +407,8 @@
       </div>
     </div>
 
-    <!-- DEBUG -->
     <div id="debugPanel">
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:14px;overflow:hidden;">
+      <div class="card" style="overflow:hidden;padding:0;">
         <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);cursor:pointer;" onclick="toggleDebug()">
           <span style="font-family:'Syne',sans-serif;font-weight:600;font-size:0.82rem;color:var(--text2);">🐛 Raw OCR Debug</span>
           <span id="debugToggleIcon" style="color:var(--text3);font-size:0.78rem;">▼ show</span>
@@ -649,518 +419,464 @@
       </div>
     </div>
 
-    <!-- ACTIONS -->
     <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap;align-items:center;">
-      <button class="restart-btn" onclick="restartApp()">← Start Over</button>
-      <button class="report-btn" onclick="printReport()" style="flex:1;min-width:180px;">
-        📄 Export PDF Report
-      </button>
+      <button class="btn btn-ghost" onclick="restartApp()">← Start Over</button>
+      <button style="display:flex;align-items:center;justify-content:center;gap:8px;flex:1;min-width:180px;padding:14px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:'Syne',sans-serif;font-weight:600;font-size:0.95rem;border-radius:12px;cursor:pointer;transition:all 0.25s;letter-spacing:0.02em;"
+              onmouseover="this.style.borderColor='var(--accent2)';this.style.color='var(--accent2)'"
+              onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text)'"
+              onclick="printReport()">📄 Export PDF Report</button>
     </div>
   </div>
 </div>
 
-<input type="file" id="fileInput" accept="image/*,.pdf" onchange="handleFileSelect(event)">
-<canvas id="canvasCapture" style="display:none;"></canvas>
+<input type="file" id="fileInput" accept="image/*,.pdf" onchange="handleFileSelect(event)" style="display:none;">
 
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/params.js"></script>
 <script>
-// ════════════════════════════════
-// STATE
-// ════════════════════════════════
-let currentMethod = null;
-let capturedImageBase64 = null;
-let currentParams = {};
-let selectedFilter = null;
-let currentFilterObj = null;
-let currentVessel = null;
+// ── Auth init ─────────────────────────────────────────────────────────────────
+(async () => {
+  const user = await Auth.requireAuth();
+  if (!user) return;
+  Auth.initNav(user);
+  document.getElementById('navUserName').style.display = '';
+  await loadParamDefs();   // fetch live limits from server
+})();
 
-// ════════════════════════════════
-// PARAM DEFINITIONS
-// ════════════════════════════════
-const PARAM_DEFS = [
-  { key:'ph', label:'pH', unit:'', safe:[6.5,8.5], warnLow:6.5, warnHigh:8.5 },
-  { key:'tds', label:'TDS', unit:'ppm', safe:[0,500], warnHigh:500 },
-  { key:'iron', label:'Iron (Fe)', unit:'mg/L', safe:[0,0.3], warnHigh:0.3 },
-  { key:'hardness', label:'Hardness', unit:'mg/L', safe:[0,300], warnHigh:300 },
-  { key:'chloride', label:'Chloride', unit:'mg/L', safe:[0,250], warnHigh:250 },
-  { key:'turbidity', label:'Turbidity', unit:'NTU', safe:[0,5], warnHigh:5 },
-  { key:'h2s', label:'H₂S', unit:'mg/L', safe:[0,0.05], warnHigh:0.05 },
-  { key:'nitrate', label:'Nitrate', unit:'mg/L', safe:[0,45], warnHigh:45 },
-  { key:'manganese', label:'Manganese', unit:'mg/L', safe:[0,0.1], warnHigh:0.1 },
-  { key:'fluoride', label:'Fluoride', unit:'mg/L', safe:[0,1.5], warnHigh:1.5 },
-  { key:'alkalinity', label:'Alkalinity', unit:'mg/L', safe:[0,200], warnHigh:200 },
-  { key:'calcium', label:'Calcium', unit:'mg/L', safe:[0,75], warnHigh:75 },
-  { key:'magnesium', label:'Magnesium', unit:'mg/L', safe:[0,30], warnHigh:30 },
-  { key:'sulphate', label:'Sulphate', unit:'mg/L', safe:[0,200], warnHigh:200 },
-  { key:'tss', label:'TSS', unit:'mg/L', safe:[0,10], warnHigh:10 },
-  { key:'bod', label:'BOD', unit:'mg/L', safe:[0,3], warnHigh:3 },
-  { key:'cod', label:'COD', unit:'mg/L', safe:[0,10], warnHigh:10 },
-  { key:'coliform', label:'Coliform', unit:'MPN/100mL', safe:[0,0], warnHigh:0 },
-  { key:'arsenic', label:'Arsenic', unit:'mg/L', safe:[0,0.01], warnHigh:0.01 },
-  { key:'lead', label:'Lead', unit:'mg/L', safe:[0,0.01], warnHigh:0.01 },
-  { key:'copper', label:'Copper', unit:'mg/L', safe:[0,0.05], warnHigh:0.05 },
-  { key:'zinc', label:'Zinc', unit:'mg/L', safe:[0,5], warnHigh:5 },
-  { key:'ammonia', label:'Ammonia', unit:'mg/L', safe:[0,0.5], warnHigh:0.5 },
-  { key:'nitrite', label:'Nitrite', unit:'mg/L', safe:[0,0.5], warnHigh:0.5 },
-  { key:'ecoli', label:'E. coli', unit:'MPN/100mL', safe:[0,0], warnHigh:0 },
-  { key:'aluminium', label:'Aluminium', unit:'mg/L', safe:[0,0.03], warnHigh:0.03 },
-  { key:'chromium', label:'Chromium', unit:'mg/L', safe:[0,0.05], warnHigh:0.05 },
-  { key:'boron', label:'Boron', unit:'mg/L', safe:[0,0.5], warnHigh:0.5 },
-  { key:'phenol', label:'Phenolic Compounds', unit:'mg/L', safe:[0,0.001], warnHigh:0.001 },
-  { key:'colour', label:'Colour', unit:'Hz units', safe:[0,5], warnHigh:5 },
+// ── State ─────────────────────────────────────────────────────────────────────
+let currentMethod        = null;
+let capturedImageBase64  = null;
+let capturedFileType     = 'image/jpeg';
+let currentParams        = {};
+let selectedFilter       = null;
+let currentFilterObj     = null;
+let currentVessel        = null;
+
+// ── Animated loading stages ───────────────────────────────────────────────────
+const LOAD_STAGES = [
+  { icon:'📤', text:'Uploading file to OCR engine…'     },
+  { icon:'🔍', text:'Detecting table structure…'         },
+  { icon:'⚗️', text:'Extracting parameter values…'      },
+  { icon:'📊', text:'Comparing against IS:10500 limits…' },
+  { icon:'💡', text:'Generating recommendations…'        },
 ];
 
-const FILTER_TYPES = [
-  { id:'sediment', icon:'🪨', name:'Sediment Filter', desc:'Removes suspended particles, dirt, sand and silt. Ideal for high turbidity water.', media:['Multi-Grade Sand','Anthracite','Gravel Support'], addresses:['turbidity'], contactTime:10 },
-  { id:'iron_removal', icon:'⚙️', name:'Iron Removal Filter', desc:'Oxidises and filters dissolved iron and manganese from borewell water.', media:['Manganese Dioxide','Birm','Gravel Base'], addresses:['iron','manganese'], contactTime:15 },
-  { id:'activated_carbon', icon:'🖤', name:'Activated Carbon Filter', desc:'Removes chlorine, chloramines, H₂S odour and organic compounds. Improves taste.', media:['Catalytic Carbon','Activated Carbon','Gravel Support'], addresses:['h2s','chloride'], contactTime:12 },
-  { id:'softener', icon:'🔵', name:'Water Softener', desc:'Ion exchange removes calcium and magnesium to reduce hardness.', media:['Cation Exchange Resin','Brine / NaCl','Gravel Base'], addresses:['hardness'], contactTime:10 },
-  { id:'ro', icon:'💎', name:'RO Membrane System', desc:'Reverse osmosis for high TDS and broad-spectrum contaminant removal.', media:['TFC RO Membrane','Pre-Carbon','Post-Carbon','Antiscalant'], addresses:['tds','fluoride','nitrate'], contactTime:0 },
-  { id:'multimedia', icon:'🔩', name:'Multi-Media Filter', desc:'Layered filtration combining multiple media to address several parameters simultaneously.', media:['Anthracite','Sand','Garnet','Gravel'], addresses:['turbidity','iron','h2s'], contactTime:15 },
-];
+let _stageIdx = 0, _stageTimer = null;
 
-const VESSEL_SIZES = [
-  { model:'0844', dia:8, height:44, maxVol:20 },
-  { model:'1054', dia:10, height:54, maxVol:40 },
-  { model:'1252', dia:12, height:52, maxVol:60 },
-  { model:'1354', dia:13, height:54, maxVol:80 },
-  { model:'1465', dia:14, height:65, maxVol:120 },
-  { model:'1665', dia:16, height:65, maxVol:160 },
-  { model:'2162', dia:21, height:62, maxVol:250 },
-];
+function startLoadingAnimation() {
+  _stageIdx = 0;
+  _stageTimer = setInterval(() => {
+    const stage = LOAD_STAGES[Math.min(_stageIdx, LOAD_STAGES.length - 1)];
+    document.getElementById('loadingIcon').textContent  = stage.icon;
+    document.getElementById('loadingStage').textContent = stage.text;
+    _stageIdx++;
+    if (_stageIdx >= LOAD_STAGES.length) clearInterval(_stageTimer);
+  }, 900);
+}
+function stopLoadingAnimation() { clearInterval(_stageTimer); }
 
-const MEDIA_COLORS = {
-  'Multi-Grade Sand':'#c8a96e','Anthracite':'#3a3f50','Gravel Support':'#8a7a60',
-  'Gravel Base':'#8a7a60','Manganese Dioxide':'#6d4c2a','Birm':'#855e3a',
-  'Catalytic Carbon':'#1e2330','Activated Carbon':'#252b3b','Cation Exchange Resin':'#c9830a',
-  'Brine / NaCl':'#e0d7c8','TFC RO Membrane':'#3a78b0','Pre-Carbon':'#2a3545',
-  'Post-Carbon':'#2a3545','Antiscalant':'#4a8fa8','Garnet':'#7a2a2a',
-  'Sand':'#c8a96e','Gravel':'#8a7a60',
-};
-
-// ════════════════════════════════
-// METHOD SELECTION
-// ════════════════════════════════
+// ── Method selection ──────────────────────────────────────────────────────────
 function selectMethod(m) {
   currentMethod = m;
-  document.querySelectorAll('.method-card').forEach(c=>c.classList.remove('active'));
-  document.getElementById('dropZone').style.display='none';
-  document.getElementById('manualSection').style.display='none';
-  document.getElementById('analyzeBtn').style.display='none';
-  if(m==='upload') {
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+  document.getElementById('dropZone').style.display     = 'none';
+  document.getElementById('manualSection').style.display = 'none';
+  document.getElementById('analyzeBtn').style.display   = 'none';
+  if (m === 'upload') {
     document.getElementById('methodUpload').classList.add('active');
-    document.getElementById('dropZone').style.display='block';
-  } else if(m==='manual') {
+    document.getElementById('dropZone').style.display = 'block';
+  } else {
     document.getElementById('methodManual').classList.add('active');
     showManualForm();
   }
 }
 
-// ════════════════════════════════
-// FILE HANDLING
-// ════════════════════════════════
+// ── File handling ─────────────────────────────────────────────────────────────
 function handleDrop(e) {
   e.preventDefault();
   document.getElementById('dropZone').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if(file) processFile(file);
+  if (file) processFile(file);
 }
 function handleFileSelect(e) {
   const file = e.target.files[0];
-  if(file) processFile(file);
+  if (file) processFile(file);
 }
 function processFile(file) {
-  window._currentFileType = file.type;
+  capturedFileType = file.type;
   const reader = new FileReader();
   reader.onload = ev => {
     capturedImageBase64 = ev.target.result.split(',')[1];
-    showPreview(file.type==='application/pdf' ? null : ev.target.result, file.name, file.type==='application/pdf');
+    const isPdf = file.type === 'application/pdf';
+    showPreview(isPdf ? null : ev.target.result, file.name, isPdf);
   };
   reader.readAsDataURL(file);
 }
-function showPreview(dataUrl, name, isPdf=false) {
-  const preview = document.getElementById('imagePreview');
-  const img = document.getElementById('previewImg');
-  img.src = isPdf
+function showPreview(dataUrl, name, isPdf = false) {
+  document.getElementById('previewImg').src = isPdf
     ? 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="160"><rect fill="%23131c2e" width="400" height="160"/><text x="200" y="70" text-anchor="middle" fill="%233ecfcf" font-size="36">📄</text><text x="200" y="110" text-anchor="middle" fill="%238ba3cc" font-size="15">PDF Document</text></svg>'
     : dataUrl;
-  document.getElementById('previewName').textContent = name;
-  preview.style.display='block';
-  document.getElementById('dropZone').style.display='none';
-  document.getElementById('analyzeBtn').style.display='block';
+  document.getElementById('previewName').textContent       = name;
+  document.getElementById('imagePreview').style.display    = 'block';
+  document.getElementById('dropZone').style.display        = 'none';
+  document.getElementById('analyzeBtn').style.display      = 'block';
 }
 function clearPreview() {
   capturedImageBase64 = null;
-  document.getElementById('imagePreview').style.display='none';
-  document.getElementById('analyzeBtn').style.display='none';
-  if(currentMethod==='upload') document.getElementById('dropZone').style.display='block';
+  document.getElementById('imagePreview').style.display  = 'none';
+  document.getElementById('analyzeBtn').style.display    = 'none';
+  if (currentMethod === 'upload') document.getElementById('dropZone').style.display = 'block';
 }
 
-// ════════════════════════════════
-// MANUAL FORM
-// ════════════════════════════════
+// ── Manual form ───────────────────────────────────────────────────────────────
 function showManualForm() {
   const grid = document.getElementById('manualGrid');
-  grid.innerHTML = PARAM_DEFS.map(p=>`
-    <div>
-      <label style="display:block;font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;">${p.label}${p.unit?' ('+p.unit+')':''}</label>
-      <input type="number" step="any" placeholder="${p.safe[1]*0.5}" id="manual_${p.key}"
+  grid.innerHTML = PARAM_DEFS.map(p => `
+    <div style="margin-bottom:14px;">
+      <label style="display:block;font-size:0.72rem;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;margin-bottom:5px;">${escHtml(p.label)}${p.unit ? ' (' + escHtml(p.unit) + ')' : ''}</label>
+      <input type="number" step="any" placeholder="${p.warnHigh != null ? p.warnHigh * 0.5 : ''}" id="manual_${p.key}"
         style="width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:8px 10px;color:var(--text);font-size:0.9rem;outline:none;font-family:'DM Sans',sans-serif;"
         onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
-    </div>
-  `).join('');
-  document.getElementById('manualSection').style.display='block';
+    </div>`).join('');
+  document.getElementById('manualSection').style.display = 'block';
 }
+
 function runManualAnalysis() {
   const params = {};
-  PARAM_DEFS.forEach(p=>{
-    const v = document.getElementById('manual_'+p.key).value;
-    if(v!=='') params[p.key] = parseFloat(v);
+  PARAM_DEFS.forEach(p => {
+    const v = document.getElementById('manual_' + p.key)?.value;
+    if (v !== '' && v != null) params[p.key] = parseFloat(v);
   });
   currentParams = params;
   showResults(params);
 }
 
-// ════════════════════════════════
-// ANALYZE (OCR backend)
-// ════════════════════════════════
-async function analyzeImage() {
-  if(!capturedImageBase64) return;
-  document.getElementById('inputSection').style.display='none';
-  document.getElementById('loadingState').style.display='block';
-  const steps = ['Uploading file to OCR engine…','Detecting table structure…','Extracting parameter values…','Running safety evaluation…','Generating recommendations…'];
-  let si=0;
-  const stepInterval = setInterval(()=>{
-    document.getElementById('loadingStep').textContent = steps[Math.min(si++,steps.length-1)];
-  }, 900);
+// ── OCR analysis ──────────────────────────────────────────────────────────────
+async function analyzeFile() {
+  if (!capturedImageBase64) return;
+  document.getElementById('inputSection').style.display  = 'none';
+  document.getElementById('loadingState').style.display  = 'block';
+  startLoadingAnimation();
+
   try {
-    const _tok = localStorage.getItem('chem_token') || '';
-    const resp = await fetch('/analyze', {
-      method:'POST',
-      headers:{'Content-Type':'application/json','Authorization':'Bearer '+_tok},
-      body: JSON.stringify({ file: capturedImageBase64, type: window._currentFileType || 'image/jpeg' })
+    const data = await API.post('/analyze', {
+      file: capturedImageBase64,
+      type: capturedFileType,
     });
-    if(resp.status===401) { window.location.href='/'; return; }
-    const data = await resp.json();
-    clearInterval(stepInterval);
-    if(data.error) throw new Error(data.error);
+    if (!data) return;
+
+    stopLoadingAnimation();
     currentParams = {};
-    Object.entries(data.params||{}).forEach(([k,v])=>{ if(v!==null&&v!==undefined&&!isNaN(v)) currentParams[k]=parseFloat(v); });
-    window._reportMeta = { sampleInfo:data.sampleInfo||'', labInfo:data.labInfo||'', confidence:data.confidence||'medium', notes:data.notes||'' };
-    window._rawGeminiResponse = JSON.stringify(data.params,null,2);
-    window._parsedGeminiParams = data.params||{};
-    document.getElementById('loadingState').style.display='none';
+    Object.entries(data.params || {}).forEach(([k, v]) => {
+      if (v !== null && v !== undefined && !isNaN(v)) currentParams[k] = parseFloat(v);
+    });
+    window._reportMeta         = { sampleInfo: data.sampleInfo || '', labInfo: data.labInfo || '', confidence: data.confidence || 'medium', notes: data.notes || '' };
+    window._rawOcrResponse     = JSON.stringify(data.params, null, 2);
+    window._parsedOcrParams    = data.params || {};
+
+    document.getElementById('loadingState').style.display = 'none';
     showResults(currentParams);
-  } catch(e) {
-    clearInterval(stepInterval);
-    document.getElementById('loadingState').style.display='none';
-    alert('Analysis error: '+e.message);
-    document.getElementById('inputSection').style.display='block';
+  } catch (e) {
+    stopLoadingAnimation();
+    document.getElementById('loadingState').style.display = 'none';
+    alert('Analysis error: ' + e.message);
+    document.getElementById('inputSection').style.display = 'block';
   }
 }
 
-// ════════════════════════════════
-// SHOW RESULTS
-// ════════════════════════════════
+// ── Show results ──────────────────────────────────────────────────────────────
 function showResults(params) {
-  document.getElementById('inputSection').style.display='none';
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('resultsSection').style.display='block';
-  if(window._rawGeminiResponse) {
-    document.getElementById('debugPanel').style.display='block';
-    const got = window._parsedGeminiParams||{};
-    let debugText = '=== EXTRACTED VALUES ===\n' + JSON.stringify(got,null,2);
-    Object.entries(got).forEach(([k,v])=>{ if(v&&v>1000) debugText += `\n⚠️ ${k} unusually high: ${v}`; });
-    document.getElementById('debugRaw').textContent = debugText;
+  document.getElementById('inputSection').style.display   = 'none';
+  document.getElementById('loadingState').style.display   = 'none';
+  document.getElementById('resultsSection').style.display = 'block';
+
+  if (window._rawOcrResponse) {
+    document.getElementById('debugPanel').style.display = 'block';
+    document.getElementById('debugRaw').textContent     = '=== EXTRACTED VALUES ===\n' + window._rawOcrResponse;
   }
-  renderSafetyBanner(params);
+
   renderMetaInfo();
+  renderSafetyBanner(params);
   renderParamsGrid(params);
   renderFilterGrid(params);
 }
 
 function renderMetaInfo() {
   const meta = window._reportMeta;
-  if(!meta) return;
-  let existing = document.getElementById('metaInfoBar');
-  if(existing) existing.remove();
-  if(!meta.sampleInfo&&!meta.labInfo&&!meta.confidence) return;
+  if (!meta) return;
+  const existing = document.getElementById('metaInfoBar');
+  if (existing) existing.remove();
+  if (!meta.sampleInfo && !meta.labInfo && !meta.confidence) return;
+
   const bar = document.createElement('div');
-  bar.id='metaInfoBar';
-  bar.style.cssText='display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;';
-  const confColor = meta.confidence==='high'?'var(--success)':meta.confidence==='medium'?'var(--warning)':'var(--danger)';
-  const items=[];
-  if(meta.labInfo) items.push(['🏢',meta.labInfo]);
-  if(meta.sampleInfo) items.push(['📋',meta.sampleInfo]);
-  if(meta.confidence) items.push(['🎯','OCR Confidence: <strong style="color:'+confColor+'">'+meta.confidence.toUpperCase()+'</strong>']);
-  if(meta.notes) items.push(['📝',meta.notes]);
-  items.forEach(([icon,text])=>{
-    const chip=document.createElement('div');
-    chip.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 12px;font-size:0.76rem;color:var(--text2);display:flex;align-items:flex-start;gap:6px;flex:1;min-width:180px;';
-    chip.innerHTML='<span style="flex-shrink:0">'+icon+'</span><span>'+text+'</span>';
+  bar.id = 'metaInfoBar';
+  bar.style.cssText = 'display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;';
+
+  const confColor = meta.confidence === 'high' ? 'var(--success)' : meta.confidence === 'medium' ? 'var(--warning)' : 'var(--danger)';
+  const items = [];
+  if (meta.labInfo)    items.push(['🏢', escHtml(meta.labInfo)]);
+  if (meta.sampleInfo) items.push(['📋', escHtml(meta.sampleInfo)]);
+  if (meta.confidence) items.push(['🎯', `OCR Confidence: <strong style="color:${confColor}">${escHtml(meta.confidence.toUpperCase())}</strong>`]);
+  if (meta.notes)      items.push(['📝', escHtml(meta.notes)]);
+
+  items.forEach(([icon, text]) => {
+    const chip = document.createElement('div');
+    chip.style.cssText = 'background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:7px 12px;font-size:0.76rem;color:var(--text2);display:flex;align-items:flex-start;gap:6px;flex:1;min-width:180px;';
+    chip.innerHTML = `<span style="flex-shrink:0">${icon}</span><span>${text}</span>`;
     bar.appendChild(chip);
   });
-  document.getElementById('safetyBanner').parentNode.insertBefore(bar,document.getElementById('safetyBanner'));
+
+  document.getElementById('safetyBanner').parentNode.insertBefore(bar, document.getElementById('safetyBanner'));
 }
 
 function renderSafetyBanner(params) {
-  const issues=[];
-  let unsafe=false, caution=false;
-  PARAM_DEFS.forEach(p=>{
-    const v=params[p.key];
-    if(v===undefined||v===null) return;
-    if(p.warnHigh!==undefined&&v>p.warnHigh) {
-      const ratio=v/p.warnHigh;
-      if(ratio>1.5) unsafe=true; else caution=true;
-      issues.push(`${p.label} is ${v>p.warnHigh*2?'critically ':''}high at ${v} ${p.unit} (limit: ${p.warnHigh} ${p.unit})`);
+  const issues = [];
+  let unsafe = false, caution = false;
+
+  PARAM_DEFS.forEach(p => {
+    const v = params[p.key];
+    if (v === undefined || v === null) return;
+    if (p.warnHigh != null && v > p.warnHigh) {
+      const ratio = p.warnHigh > 0 ? v / p.warnHigh : Infinity;
+      if (ratio > 1.5 || p.warnHigh === 0) unsafe = true; else caution = true;
+      issues.push(`${p.label} is ${ratio > 2 ? 'critically ' : ''}high at ${v} ${p.unit} (limit: ${p.warnHigh} ${p.unit})`);
     }
-    if(p.warnLow!==undefined&&v<p.warnLow) { caution=true; issues.push(`${p.label} is low at ${v} ${p.unit} (safe range: ${p.warnLow}–${p.warnHigh})`); }
+    if (p.warnLow != null && v < p.warnLow) {
+      caution = true;
+      issues.push(`${p.label} is low at ${v} ${p.unit} (safe range: ${p.warnLow}–${p.warnHigh})`);
+    }
   });
-  const banner=document.getElementById('safetyBanner');
-  banner.className='safety-banner '+(unsafe?'unsafe':caution?'caution':'safe');
-  document.getElementById('bannerIcon').textContent=unsafe?'⚠️':caution?'🔔':'✅';
-  document.getElementById('bannerTitle').textContent=unsafe?'Water is Unsafe for Consumption':caution?'Water Requires Treatment':'Water Quality is Acceptable';
-  document.getElementById('bannerReasons').innerHTML=issues.length?issues.map(i=>`<li>${i}</li>`).join(''):'<li>All tested parameters are within permissible limits.</li>';
+
+  const banner = document.getElementById('safetyBanner');
+  banner.className = 'safety-banner ' + (unsafe ? 'unsafe' : caution ? 'caution' : 'safe');
+  document.getElementById('bannerIcon').textContent  = unsafe ? '⚠️' : caution ? '🔔' : '✅';
+  document.getElementById('bannerTitle').textContent = unsafe ? 'Water is Unsafe for Consumption' : caution ? 'Water Requires Treatment' : 'Water Quality is Acceptable';
+  document.getElementById('bannerReasons').innerHTML = issues.length
+    ? issues.map(i => `<li>${escHtml(i)}</li>`).join('')
+    : '<li>All tested parameters are within permissible limits.</li>';
 }
 
 function renderParamsGrid(params) {
-  const grid=document.getElementById('paramsGrid');
-  grid.innerHTML='';
-  PARAM_DEFS.forEach(p=>{
-    const v=params[p.key];
-    let status='ok',cls='';
-    if(v!==undefined&&v!==null) {
-      if((p.warnHigh&&v>p.warnHigh)||(p.warnLow&&v<p.warnLow)) {
-        const ratio=p.warnHigh?v/p.warnHigh:0;
-        if(ratio>1.5){status='high';cls='exceeded';}else{status='warn';cls='warning-level';}
+  const grid = document.getElementById('paramsGrid');
+  grid.innerHTML = '';
+
+  PARAM_DEFS.forEach((p, idx) => {
+    const v = params[p.key];
+    let status = 'ok', cls = '';
+    let meterPct = 0, meterColor = 'var(--success)';
+
+    if (v !== undefined && v !== null) {
+      if (p.warnHigh != null) {
+        meterPct  = p.warnHigh > 0 ? Math.min((v / p.warnHigh) * 100, 150) : (v > 0 ? 150 : 0);
+        meterColor = meterPct > 100 ? 'var(--danger)' : meterPct > 75 ? 'var(--warning)' : 'var(--success)';
+        if ((p.warnHigh === 0 && v > 0) || (p.warnHigh > 0 && v > p.warnHigh * 1.5)) { status = 'high'; cls = 'exceeded'; }
+        else if (p.warnHigh > 0 && v > p.warnHigh) { status = 'warn'; cls = 'warning-level'; }
       }
+      if (p.warnLow != null && v < p.warnLow) { status = 'warn'; cls = 'warning-level'; }
     }
-    const badge=status==='ok'?'OK':status==='high'?'HIGH':'WARN';
-    const badgeCls=status==='ok'?'ok':status==='high'?'high':'warn';
-    const card=document.createElement('div');
-    card.className=`param-card ${cls}`;
-    card.innerHTML=`
-      <div class="param-name">${p.label}</div>
-      <input type="number" step="any" class="param-val" value="${v!==undefined&&v!==null?v:''}"
-        placeholder="—" id="pv_${p.key}" oninput="updateParam('${p.key}',this.value)">
-      <div class="param-unit">${p.unit}</div>
-      ${p.warnHigh?`<div class="param-limit">Limit: ≤ ${p.warnHigh} ${p.unit}</div>`:''}
-      <div class="param-badge ${badgeCls}">${badge}</div>
-    `;
+
+    const badge = status === 'ok' ? 'OK' : status === 'high' ? 'HIGH' : 'WARN';
+    const card  = document.createElement('div');
+    card.className = `param-card ${cls}`;
+    card.style.animationDelay = `${idx * 0.04}s`;
+    card.innerHTML = `
+      <div class="param-name">${escHtml(p.label)}</div>
+      <input type="number" step="any" class="param-val"
+        value="${v !== undefined && v !== null ? v : ''}"
+        placeholder="—" id="pv_${p.key}"
+        oninput="updateParam('${p.key}',this.value)">
+      <div class="param-unit">${escHtml(p.unit)}</div>
+      ${p.warnHigh != null ? `<div class="param-limit">Limit: ≤ ${p.warnHigh} ${escHtml(p.unit)}</div>` : ''}
+      ${v !== undefined && v !== null && p.warnHigh != null ? `
+        <div class="param-meter">
+          <div class="param-meter-fill" style="width:${Math.min(meterPct,100)}%;background:${meterColor};"></div>
+        </div>` : ''}
+      <div class="param-badge ${status === 'ok' ? 'ok' : status === 'high' ? 'high' : 'warn'}">${badge}</div>`;
     grid.appendChild(card);
   });
 }
 
-function updateParam(key,val) {
-  if(val==='') delete currentParams[key]; else currentParams[key]=parseFloat(val);
+function updateParam(key, val) {
+  if (val === '') delete currentParams[key]; else currentParams[key] = parseFloat(val);
 }
+
 function reEvaluate() {
-  PARAM_DEFS.forEach(p=>{ const inp=document.getElementById('pv_'+p.key); if(inp){ const v=inp.value; if(v==='') delete currentParams[p.key]; else currentParams[p.key]=parseFloat(v); } });
-  renderSafetyBanner(currentParams); renderParamsGrid(currentParams); renderFilterGrid(currentParams);
-  document.getElementById('vesselSection').style.display='none'; selectedFilter=null;
+  PARAM_DEFS.forEach(p => {
+    const inp = document.getElementById('pv_' + p.key);
+    if (inp) { const v = inp.value; if (v === '') delete currentParams[p.key]; else currentParams[p.key] = parseFloat(v); }
+  });
+  renderSafetyBanner(currentParams);
+  renderParamsGrid(currentParams);
+  renderFilterGrid(currentParams);
+  document.getElementById('vesselSection').style.display = 'none';
+  selectedFilter = null;
 }
 
 function renderFilterGrid(params) {
-  const grid=document.getElementById('filterGrid');
-  grid.innerHTML='';
-  const exceedParams=new Set();
-  PARAM_DEFS.forEach(p=>{ const v=params[p.key]; if(v!==undefined&&p.warnHigh&&v>p.warnHigh) exceedParams.add(p.key); });
-  FILTER_TYPES.forEach(f=>{
-    const isRec=f.addresses.some(a=>exceedParams.has(a));
-    const card=document.createElement('div');
-    card.className=`filter-card${isRec?' recommended':''}${selectedFilter===f.id?' selected':''}`;
-    card.onclick=()=>selectFilter(f.id,params);
-    card.innerHTML=`
+  const grid        = document.getElementById('filterGrid');
+  grid.innerHTML    = '';
+  const exceedParams = new Set();
+  PARAM_DEFS.forEach(p => {
+    const v = params[p.key];
+    if (v !== undefined && p.warnHigh != null && v > p.warnHigh) exceedParams.add(p.key);
+  });
+
+  FILTER_TYPES.forEach(f => {
+    const isRec = f.addresses.some(a => exceedParams.has(a));
+    const card  = document.createElement('div');
+    card.className = `filter-card${isRec ? ' recommended' : ''}${selectedFilter === f.id ? ' selected' : ''}`;
+    card.onclick = () => selectFilter(f.id, params);
+    card.innerHTML = `
       <div class="fc-icon">${f.icon}</div>
-      <h3>${f.name}</h3>
-      <p>${f.desc}</p>
-      <div class="media-tags">${f.media.map(m=>`<span class="media-tag">${m}</span>`).join('')}</div>
-    `;
+      <h3>${escHtml(f.name)}</h3>
+      <p>${escHtml(f.desc)}</p>
+      <div class="media-tags">${f.media.map(m => `<span class="media-tag">${escHtml(m)}</span>`).join('')}</div>`;
     grid.appendChild(card);
   });
 }
 
-// ════════════════════════════════
-// FILTER SELECTION
-// ════════════════════════════════
 function selectFilter(id, params) {
-  selectedFilter=id;
-  document.querySelectorAll('.filter-card').forEach(c=>{
-    c.classList.toggle('selected', c.querySelector('h3').textContent===FILTER_TYPES.find(f=>f.id===id).name);
+  selectedFilter = id;
+  document.querySelectorAll('.filter-card').forEach(c => {
+    c.classList.toggle('selected', c.querySelector('h3').textContent === FILTER_TYPES.find(f => f.id === id).name);
   });
   generateVesselDesign(id, params);
 }
 
 function generateVesselDesign(filterId, params) {
-  const filter=FILTER_TYPES.find(f=>f.id===filterId);
-  if(!filter) return;
-  currentFilterObj=filter;
-  const flowRate=2000;
-  const Vm=(flowRate*(filter.contactTime||10))/60;
-  const vessel=VESSEL_SIZES.find(v=>v.maxVol>=Vm)||VESSEL_SIZES[VESSEL_SIZES.length-1];
-  currentVessel=vessel;
+  const filter = FILTER_TYPES.find(f => f.id === filterId);
+  if (!filter) return;
+  currentFilterObj = filter;
 
-  document.getElementById('vesselModel').textContent='Model '+vessel.model;
+  const flowRate = 2000;
+  const Vm       = (flowRate * (filter.contactTime || 10)) / 60;
+  const vessel   = VESSEL_SIZES.find(v => v.maxVol >= Vm) || VESSEL_SIZES[VESSEL_SIZES.length - 1];
+  currentVessel  = vessel;
 
-  const mediaCount=filter.media.length;
-  const perMedia=Math.round((Vm/mediaCount)*10)/10;
-  const bomList=document.getElementById('bomList');
-  bomList.innerHTML=filter.media.map(m=>{
-    const col=MEDIA_COLORS[m]||'#5b9cf6';
-    const kg=Math.round(perMedia*0.85*10)/10;
+  document.getElementById('vesselModel').textContent = 'Model ' + vessel.model;
+
+  const perMedia = Math.round((Vm / filter.media.length) * 10) / 10;
+  document.getElementById('bomList').innerHTML = filter.media.map(m => {
+    const col = MEDIA_COLORS[m] || '#5b9cf6';
+    const kg  = Math.round(perMedia * 0.85 * 10) / 10;
     return `<div class="bom-item">
-      <div class="bom-name"><div class="bom-dot" style="background:${col}"></div><span>${m}</span></div>
+      <div class="bom-name"><div class="bom-dot" style="background:${col}"></div><span>${escHtml(m)}</span></div>
       <span class="bom-qty">${perMedia}L / ${kg}kg</span>
     </div>`;
   }).join('');
 
   drawVessel(filter, vessel);
-  document.getElementById('vesselSection').style.display='block';
-  document.getElementById('vesselSection').scrollIntoView({behavior:'smooth',block:'start'});
+  document.getElementById('vesselSection').style.display = 'block';
+  document.getElementById('vesselSection').scrollIntoView({ behavior:'smooth', block:'start' });
 }
 
 function drawVessel(filter, vessel) {
-  const svg=document.getElementById('vesselDiagram');
-  const vx=40,vy=30,vw=120,vh=300,wallR=10;
-  const layers=[...filter.media].reverse();
-  const layerH=Math.floor(vh/layers.length);
-  let content=`<defs>
-    <clipPath id="tankClip"><rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" rx="${wallR}"/></clipPath>
-  </defs>
-  <rect x="${vx}" y="${vy}" width="${vw}" height="${Math.round(vh*0.15)}" rx="${wallR}" fill="rgba(62,207,207,0.12)" clip-path="url(#tankClip)"/>
-  <text x="${vx+vw/2}" y="${vy+Math.round(vh*0.075)+4}" text-anchor="middle" fill="rgba(62,207,207,0.5)" font-size="9" font-family="DM Sans">FREEBOARD</text>`;
+  const svg = document.getElementById('vesselDiagram');
+  const vx = 40, vy = 30, vw = 120, vh = 300, wallR = 10;
+  const layers = [...filter.media].reverse();
+  const layerH = Math.floor(vh / layers.length);
 
-  layers.forEach((m,i)=>{
-    const ly=vy+Math.round(vh*0.15)+i*layerH;
-    const col=MEDIA_COLORS[m]||'#5b9cf6';
-    const lh=i===layers.length-1?(vh-Math.round(vh*0.15)-i*layerH):layerH;
-    content+=`<rect x="${vx}" y="${ly}" width="${vw}" height="${lh}" fill="${col}" opacity="0.85" clip-path="url(#tankClip)"/>
-    <text x="${vx+vw/2}" y="${ly+lh/2+4}" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-size="8.5" font-family="DM Sans" font-weight="500">${m}</text>`;
+  let content = `<defs><clipPath id="tankClip"><rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" rx="${wallR}"/></clipPath></defs>
+    <rect x="${vx}" y="${vy}" width="${vw}" height="${Math.round(vh*0.15)}" rx="${wallR}" fill="rgba(62,207,207,0.12)" clip-path="url(#tankClip)"/>
+    <text x="${vx+vw/2}" y="${vy+Math.round(vh*0.075)+4}" text-anchor="middle" fill="rgba(62,207,207,0.5)" font-size="9" font-family="DM Sans">FREEBOARD</text>`;
+
+  layers.forEach((m, i) => {
+    const ly  = vy + Math.round(vh * 0.15) + i * layerH;
+    const col = MEDIA_COLORS[m] || '#5b9cf6';
+    const lh  = i === layers.length - 1 ? (vh - Math.round(vh * 0.15) - i * layerH) : layerH;
+    content  += `<rect x="${vx}" y="${ly}" width="${vw}" height="${lh}" fill="${col}" opacity="0.85" clip-path="url(#tankClip)"/>
+      <text x="${vx+vw/2}" y="${ly+lh/2+4}" text-anchor="middle" fill="rgba(255,255,255,0.78)" font-size="8.5" font-family="DM Sans" font-weight="500">${escHtml(m)}</text>`;
   });
 
-  content+=`<rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" rx="${wallR}" fill="none" stroke="rgba(99,179,237,0.4)" stroke-width="2"/>
-  <ellipse cx="${vx+vw/2}" cy="${vy}" rx="${vw/2}" ry="10" fill="none" stroke="rgba(99,179,237,0.3)" stroke-width="1.5"/>
-  <ellipse cx="${vx+vw/2}" cy="${vy+vh}" rx="${vw/2}" ry="10" fill="rgba(20,30,50,0.8)" stroke="rgba(99,179,237,0.3)" stroke-width="1.5"/>
-  <rect x="${vx+vw/2-4}" y="${vy-20}" width="8" height="22" rx="3" fill="rgba(99,179,237,0.4)"/>
-  <rect x="${vx+vw/2-4}" y="${vy+vh-2}" width="8" height="22" rx="3" fill="rgba(99,179,237,0.4)"/>
-  <text x="${vx+vw/2}" y="${vy-24}" text-anchor="middle" fill="rgba(62,207,207,0.7)" font-size="9">▼ IN</text>
-  <text x="${vx+vw/2}" y="${vy+vh+38}" text-anchor="middle" fill="rgba(62,207,207,0.7)" font-size="9">▼ OUT</text>
-  <text x="${vx-8}" y="${vy+vh/2}" text-anchor="middle" fill="rgba(99,179,237,0.5)" font-size="8" transform="rotate(-90,${vx-8},${vy+vh/2})">${vessel.model}</text>`;
+  content += `<rect x="${vx}" y="${vy}" width="${vw}" height="${vh}" rx="${wallR}" fill="none" stroke="rgba(99,179,237,0.4)" stroke-width="2"/>
+    <ellipse cx="${vx+vw/2}" cy="${vy}" rx="${vw/2}" ry="10" fill="none" stroke="rgba(99,179,237,0.3)" stroke-width="1.5"/>
+    <ellipse cx="${vx+vw/2}" cy="${vy+vh}" rx="${vw/2}" ry="10" fill="rgba(20,30,50,0.8)" stroke="rgba(99,179,237,0.3)" stroke-width="1.5"/>
+    <rect x="${vx+vw/2-4}" y="${vy-20}" width="8" height="22" rx="3" fill="rgba(99,179,237,0.4)"/>
+    <rect x="${vx+vw/2-4}" y="${vy+vh-2}" width="8" height="22" rx="3" fill="rgba(99,179,237,0.4)"/>
+    <text x="${vx+vw/2}" y="${vy-24}" text-anchor="middle" fill="rgba(62,207,207,0.7)" font-size="9">▼ IN</text>
+    <text x="${vx+vw/2}" y="${vy+vh+38}" text-anchor="middle" fill="rgba(62,207,207,0.7)" font-size="9">▼ OUT</text>
+    <text x="${vx-8}" y="${vy+vh/2}" text-anchor="middle" fill="rgba(99,179,237,0.5)" font-size="8" transform="rotate(-90,${vx-8},${vy+vh/2})">${escHtml(vessel.model)}</text>`;
 
-  svg.innerHTML=content;
+  svg.innerHTML = content;
 
-  document.getElementById('layerLegend').innerHTML=layers.map(m=>{
-    const col=MEDIA_COLORS[m]||'#5b9cf6';
+  document.getElementById('layerLegend').innerHTML = layers.map(m => {
+    const col = MEDIA_COLORS[m] || '#5b9cf6';
     return `<div style="display:flex;align-items:center;gap:5px;font-size:0.68rem;color:var(--text2);">
-      <div style="width:9px;height:9px;border-radius:2px;background:${col};flex-shrink:0;"></div>${m}</div>`;
+      <div style="width:9px;height:9px;border-radius:2px;background:${col};flex-shrink:0;"></div>${escHtml(m)}</div>`;
   }).join('');
 }
 
-// ════════════════════════════════
-// PRINT REPORT
-// ════════════════════════════════
+// ── Print report ──────────────────────────────────────────────────────────────
 function printReport() {
-  if(!currentFilterObj||!currentVessel) {
-    alert('Please select a filter type first to generate the report.');
-    return;
-  }
+  if (!currentFilterObj || !currentVessel) { alert('Please select a filter type first.'); return; }
+  const now     = new Date();
+  const dateStr = now.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
+  const meta    = window._reportMeta || {};
 
-  const now = new Date();
-  const dateStr = now.toLocaleDateString('en-IN', {day:'2-digit',month:'short',year:'numeric'});
-  const meta = window._reportMeta || {};
-
-  document.getElementById('pr-date').textContent = 'Generated: ' + dateStr;
-  document.getElementById('pr-lab').textContent = meta.labInfo || '—';
-  document.getElementById('pr-sample').textContent = meta.sampleInfo || '—';
-  document.getElementById('pr-filter').textContent = currentFilterObj.name;
-  document.getElementById('pr-model').textContent = 'Model ' + currentVessel.model;
-  document.getElementById('pr-model2').textContent = 'Model ' + currentVessel.model;
+  document.getElementById('pr-date').textContent    = 'Generated: ' + dateStr;
+  document.getElementById('pr-lab').textContent     = meta.labInfo    || '—';
+  document.getElementById('pr-sample').textContent  = meta.sampleInfo || '—';
+  document.getElementById('pr-filter').textContent  = currentFilterObj.name;
+  document.getElementById('pr-model').textContent   = 'Model ' + currentVessel.model;
+  document.getElementById('pr-model2').textContent  = 'Model ' + currentVessel.model;
   document.getElementById('pr-footer-date').textContent = dateStr;
 
-  // Build BOM table rows
-  const flowRate=2000;
-  const Vm=(flowRate*(currentFilterObj.contactTime||10))/60;
-  const mediaCount=currentFilterObj.media.length;
-  const perMedia=Math.round((Vm/mediaCount)*10)/10;
-  document.getElementById('pr-bom-rows').innerHTML = currentFilterObj.media.map(m=>{
-    const col=MEDIA_COLORS[m]||'#5b9cf6';
-    const kg=Math.round(perMedia*0.85*10)/10;
-    return `<tr>
-      <td><span class="dot" style="background:${col}"></span>${m}</td>
-      <td>${perMedia}</td>
-      <td>${kg}</td>
-    </tr>`;
+  const Vm       = (2000 * (currentFilterObj.contactTime || 10)) / 60;
+  const perMedia = Math.round((Vm / currentFilterObj.media.length) * 10) / 10;
+  document.getElementById('pr-bom-rows').innerHTML = currentFilterObj.media.map(m => {
+    const col = MEDIA_COLORS[m] || '#5b9cf6';
+    const kg  = Math.round(perMedia * 0.85 * 10) / 10;
+    return `<tr><td><span class="dot" style="background:${col}"></span>${escHtml(m)}</td><td>${perMedia}</td><td>${kg}</td></tr>`;
   }).join('');
 
-  // Copy SVG to print report
   const srcSvg = document.getElementById('vesselDiagram');
-  const prSvg = document.createElement('svg');
-  prSvg.setAttribute('viewBox','0 0 200 400');
-  prSvg.setAttribute('xmlns','http://www.w3.org/2000/svg');
-  prSvg.style.cssText='max-width:180px;width:100%;';
+  const prSvg  = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  prSvg.setAttribute('viewBox', '0 0 200 400');
+  prSvg.style.cssText = 'max-width:180px;width:100%;';
   prSvg.innerHTML = srcSvg.innerHTML;
   const prVesselDiv = document.getElementById('pr-vessel-svg');
-  prVesselDiv.innerHTML='';
+  prVesselDiv.innerHTML = '';
   prVesselDiv.appendChild(prSvg);
 
-  // Build legend for print
-  const layers=[...currentFilterObj.media].reverse();
-  document.getElementById('pr-legend').innerHTML = layers.map(m=>{
-    const col=MEDIA_COLORS[m]||'#5b9cf6';
-    return `<div class="pr-legend-item"><div class="pr-legend-dot" style="background:${col}"></div>${m}</div>`;
+  document.getElementById('pr-legend').innerHTML = [...currentFilterObj.media].reverse().map(m => {
+    const col = MEDIA_COLORS[m] || '#5b9cf6';
+    return `<div class="pr-legend-item"><div class="pr-legend-dot" style="background:${col}"></div>${escHtml(m)}</div>`;
   }).join('');
 
   window.print();
 }
 
-// ════════════════════════════════
-// MISC
-// ════════════════════════════════
+// ── Debug panel ───────────────────────────────────────────────────────────────
 function toggleDebug() {
-  const content=document.getElementById('debugContent');
-  const icon=document.getElementById('debugToggleIcon');
-  const visible=content.style.display!=='none';
-  content.style.display=visible?'none':'block';
-  icon.textContent=visible?'▼ show':'▲ hide';
+  const content = document.getElementById('debugContent');
+  const icon    = document.getElementById('debugToggleIcon');
+  const visible = content.style.display !== 'none';
+  content.style.display = visible ? 'none' : 'block';
+  icon.textContent      = visible ? '▼ show' : '▲ hide';
 }
 
+// ── Reset ─────────────────────────────────────────────────────────────────────
 function restartApp() {
-  capturedImageBase64=null; currentParams={}; selectedFilter=null;
-  currentFilterObj=null; currentVessel=null;
-  document.getElementById('inputSection').style.display='block';
-  document.getElementById('resultsSection').style.display='none';
-  document.getElementById('loadingState').style.display='none';
-  document.getElementById('imagePreview').style.display='none';
-  document.getElementById('analyzeBtn').style.display='none';
-  document.getElementById('dropZone').style.display='none';
-  document.getElementById('manualSection').style.display='none';
-  document.getElementById('vesselSection').style.display='none';
-  document.getElementById('debugPanel').style.display='none';
-  document.querySelectorAll('.method-card').forEach(c=>c.classList.remove('active'));
-  currentMethod=null;
-  document.getElementById('fileInput').value='';
-  const bar=document.getElementById('metaInfoBar');
-  if(bar) bar.remove();
+  capturedImageBase64 = null; currentParams = {};
+  selectedFilter = null; currentFilterObj = null; currentVessel = null;
+  document.getElementById('inputSection').style.display   = 'block';
+  document.getElementById('resultsSection').style.display = 'none';
+  document.getElementById('loadingState').style.display   = 'none';
+  document.getElementById('imagePreview').style.display   = 'none';
+  document.getElementById('analyzeBtn').style.display     = 'none';
+  document.getElementById('dropZone').style.display       = 'none';
+  document.getElementById('manualSection').style.display  = 'none';
+  document.getElementById('vesselSection').style.display  = 'none';
+  document.getElementById('debugPanel').style.display     = 'none';
+  document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+  currentMethod = null;
+  document.getElementById('fileInput').value = '';
+  const bar = document.getElementById('metaInfoBar');
+  if (bar) bar.remove();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
 }
-
-// ════════════════════════════════
-// AUTH
-// ════════════════════════════════
-(function(){
-  const token=localStorage.getItem('chem_token');
-  if(!token){window.location.href='/';return;}
-  fetch('/api/me',{headers:{'Authorization':'Bearer '+token}})
-    .then(r=>{if(!r.ok){localStorage.removeItem('chem_token');window.location.href='/';return;}return r.json();})
-    .then(user=>{
-      if(!user) return;
-      const nameEl=document.getElementById('navUserName');
-      const avatarEl=document.getElementById('navAvatar');
-      if(nameEl) nameEl.textContent=user.name.split(' ')[0];
-      if(avatarEl) avatarEl.textContent=user.name.charAt(0).toUpperCase();
-      if(user.role==='admin'){const al=document.getElementById('adminLink');if(al)al.style.display='';}
-      localStorage.setItem('chem_user',JSON.stringify(user));
-    }).catch(()=>{});
-})();
-function authLogout(){localStorage.removeItem('chem_token');localStorage.removeItem('chem_user');window.location.href='/';}
 </script>
 </body>
 </html>

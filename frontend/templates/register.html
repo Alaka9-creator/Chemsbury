@@ -4,205 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Create Account — Chemsbury Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
 <style>
-  :root {
-    --bg: #0a0f1a;
-    --bg2: #0e1525;
-    --bg3: #131c2e;
-    --surface: #1a2540;
-    --surface2: #1f2d4a;
-    --border: rgba(99,179,237,0.12);
-    --border2: rgba(99,179,237,0.22);
-    --accent: #3ecfcf;
-    --accent2: #5b9cf6;
-    --danger: #f87171;
-    --success: #34d399;
-    --text: #e8f0fe;
-    --text2: #8ba3cc;
-    --text3: #4a6080;
-    --glow: 0 0 40px rgba(62,207,207,0.15);
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  body::before {
-    content:'';
-    position:fixed; inset:0;
-    background:
-      radial-gradient(ellipse 70% 60% at 15% 10%, rgba(62,207,207,0.07) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 50% at 85% 90%, rgba(91,156,246,0.07) 0%, transparent 60%);
-    pointer-events:none; z-index:0;
-  }
+  body { display:flex; align-items:center; justify-content:center; }
   body::after {
-    content:'';
-    position:fixed; inset:0;
+    content:''; position:fixed; inset:0;
     background-image:
       linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(99,179,237,0.03) 1px, transparent 1px);
-    background-size: 60px 60px;
-    pointer-events:none; z-index:0;
-    animation: gridShift 20s linear infinite;
+      linear-gradient(90deg,rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size:60px 60px; pointer-events:none; z-index:0;
+    animation:gridShift 20s linear infinite;
   }
-  @keyframes gridShift {
-    0% { background-position: 0 0; }
-    100% { background-position: 60px 60px; }
-  }
+  @keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
 
   .form-panel {
-    position: relative; z-index: 1;
-    width: 100%; max-width: 500px;
-    padding: 40px 32px;
-    margin: 40px auto;
+    position:relative; z-index:1;
+    width:100%; max-width:500px; padding:40px 32px; margin:40px auto;
   }
-
-  .form-header { margin-bottom: 32px; }
-  .logo {
-    display: flex; align-items: center; gap: 10px;
-    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.1rem;
-    margin-bottom: 32px; text-decoration: none; color: var(--text);
-  }
-  .logo-icon {
-    width: 32px; height: 32px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    border-radius: 8px;
-    display: grid; place-items: center;
-    font-size: 16px;
-  }
-  .logo span { color: var(--accent); }
-
+  .form-header { margin-bottom:32px; }
   .form-header h2 {
-    font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem;
-    letter-spacing: -0.02em; margin-bottom: 8px;
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:1.8rem; letter-spacing:-0.02em; margin-bottom:8px;
   }
-  .form-header p { font-size: 0.9rem; color: var(--text2); }
+  .form-header p { font-size:0.9rem; color:var(--text2); }
 
-  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-  @media(max-width:520px) { .form-row { grid-template-columns: 1fr; } }
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:520px){ .form-row{grid-template-columns:1fr;} }
 
-  .form-group { margin-bottom: 20px; }
-  .form-group label {
-    display: block;
-    font-size: 0.78rem; font-weight: 500;
-    text-transform: uppercase; letter-spacing: 0.06em;
-    color: var(--text3); margin-bottom: 8px;
-  }
-  .optional-tag {
-    font-size: 0.68rem; color: var(--text3); font-weight: 400;
-    text-transform: none; letter-spacing: 0; margin-left: 6px;
-  }
-  .input-wrap { position: relative; }
-  .input-wrap .input-icon {
-    position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-    font-size: 15px; opacity: 0.5; pointer-events: none;
-  }
-  .form-group input {
-    width: 100%;
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 10px;
-    padding: 12px 14px 12px 40px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif; font-size: 0.95rem;
-    outline: none;
-    transition: border-color 0.2s, box-shadow 0.2s;
-  }
-  .form-group input:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 3px rgba(62,207,207,0.1);
-  }
-  .form-group input::placeholder { color: var(--text3); }
-  .form-group input.invalid { border-color: var(--danger); }
-  .form-group input.valid { border-color: rgba(52,211,153,0.5); }
+  .optional-tag { font-size:0.68rem; color:var(--text3); font-weight:400; text-transform:none; letter-spacing:0; margin-left:6px; }
+  .field-hint { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:0.75rem; color:var(--text3); }
 
-  .field-hint {
-    display: flex; align-items: center; gap: 6px;
-    margin-top: 6px; font-size: 0.75rem; color: var(--text3);
-  }
-  .field-hint.error { color: var(--danger); }
-
-  /* Password strength */
-  .pw-strength { margin-top: 8px; }
-  .pw-bar {
-    height: 3px; border-radius: 3px;
-    background: var(--surface2);
-    overflow: hidden; margin-bottom: 5px;
-  }
-  .pw-bar-fill {
-    height: 100%; border-radius: 3px;
-    width: 0%; transition: width 0.3s, background 0.3s;
-  }
-  .pw-label { font-size: 0.72rem; color: var(--text3); }
-
-
+  .pw-strength { margin-top:8px; }
+  .pw-bar { height:3px; border-radius:3px; background:var(--surface2); overflow:hidden; margin-bottom:5px; }
+  .pw-bar-fill { height:100%; border-radius:3px; width:0%; transition:width 0.3s, background 0.3s; }
+  .pw-label { font-size:0.72rem; color:var(--text3); }
 
   .submit-btn {
-    width: 100%; padding: 13px;
-    background: linear-gradient(135deg, var(--accent), var(--accent2));
-    color: #0a0f1a; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.95rem;
-    border: none; border-radius: 10px; cursor: pointer;
-    transition: all 0.25s; letter-spacing: 0.02em;
-    margin-top: 8px;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
+    width:100%; padding:13px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0a0f1a; font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem;
+    border:none; border-radius:10px; cursor:pointer;
+    transition:all 0.25s; letter-spacing:0.02em; margin-top:8px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
   }
-  .submit-btn:hover { transform: translateY(-1px); box-shadow: var(--glow); }
-  .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+  .submit-btn:hover { transform:translateY(-1px); box-shadow:var(--glow); }
+  .submit-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
 
-  .form-footer {
-    margin-top: 24px; text-align: center;
-    font-size: 0.875rem; color: var(--text2);
+  .form-footer { margin-top:24px; text-align:center; font-size:0.875rem; color:var(--text2); }
+  .form-footer a { color:var(--accent); text-decoration:none; font-weight:500; }
+  .form-footer a:hover { opacity:0.8; }
+
+  .pw-toggle {
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer; color:var(--text3);
+    font-size:16px; display:flex; align-items:center; z-index:10; outline:none;
   }
-  .form-footer a {
-    color: var(--accent); text-decoration: none; font-weight: 500;
-  }
-  .form-footer a:hover { opacity: 0.8; }
-
-  .error-msg {
-    display: none;
-    background: rgba(248,113,113,0.1);
-    border: 1px solid rgba(248,113,113,0.3);
-    border-radius: 10px; padding: 12px 16px;
-    font-size: 0.85rem; color: var(--danger);
-    margin-bottom: 20px;
-    animation: fadeIn 0.3s ease;
-  }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(-6px); } to { opacity:1; transform: none; } }
-
-  .spinner-small {
-    width: 16px; height: 16px; border-radius: 50%;
-    border: 2px solid rgba(10,15,26,0.3);
-    border-top-color: #0a0f1a;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .divider {
-    height: 1px; background: var(--border);
-    margin: 28px 0;
-  }
-
-
-  .logo-img { height:40px; width:auto; object-fit:contain; border-radius:4px; }
-  .logo-text-wrap { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; letter-spacing:-0.02em; color:var(--text); }
-  .logo-text-wrap span { color:var(--accent); }
-  ::-webkit-scrollbar { width: 5px; }
-  ::-webkit-scrollbar-track { background: var(--bg); }
-  ::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 10px; }
 </style>
 </head>
 <body>
-
 <div class="form-panel">
-  <a href="/" class="logo">
-    <img class="logo-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxETEhUSExIWFREXFhUVFxgQFRURFhUYFRUXGBgWFRYZHSoiGRolHhcWIjEhJikrLy4uFx8zODMsNygtLi0BCgoKDg0OGxAQGy0lICYtLTAtLSstLS0rLTUtLS8tLy0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAOEA4QMBEQACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABAUDBgcCAf/EAEUQAAEDAgMECAEHCQcFAAAAAAEAAgMEEQUSIQYxQVEHEyIyYXGBkaEUM0JScpLRI2JjgqKxweHwFiRDVJOy0hUXRFOD/8QAGwEBAAMBAQEBAAAAAAAAAAAAAAECAwQFBgf/xAAzEQEAAgIBAwIDBgQHAQAAAAAAAQIDEQQSITEFQRMyURQiYYGR0UJxofAVIzNSscHxBv/aAAwDAQACEQMRAD8A7igICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICCJUYjEzQuF+TdT/ACWlcV7eIY35GOnaZRTi9+63734Baxx/rLH7VvxD0yrcePsonHELRlmUlkypNWkWYpZFNaq2shSzOG5xHkStopE+znteY8SwOxOVu51/tAFX+BSfZlPJyV92WDaJu6RtvFuo9Rv/AHqluHb+GV6eo1/jjS5p6hjxmY4OHMarltWazqYd9Mlbxus7ZVVcQEBAQEBAQEBAQEBAQEBAQEFTi+PwwdknNJ9Ru/8AWP0V04OLky948fVwcv1HDxu0zu30j++zWKnHppt5yt+qzQep3n+tF6NOJTH+MvEv6jlzT9I+kEDlNoXx2WNO6+g1PgsLdnZj3PhbQUcnGw8yuS2Wruphv7pHyV3MfFU+JDX4VkeoY5u8ac94WlLRPhleLV8oEr1vWHNayDO9bVhy3lXVDlvWHFlsiwYjJC7PG6x4g6td4OHFaXwVyxqzkpy8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vbW35xSIiEYsFMW+n3Vdb0cUEjnOyyNc4lxySE6uNye1fio6IY34OG07mGbDNgKCFweIi9w1HXOLwDzy90+oSKxC2Ph4qTuITNptlKeu6vry/wDJ5svVuyjt5b3017oXRhz3xb6fd0WrE+VGOirDv03+p/Jbfb834for8KrZsCwGmpGGOnjDGk3cblznHm5ziSf4LmyZb5J3aV4iI8KbGOjvD6h7pHRuZI4kuMLywEnecpu2/HQanetsfLy0jUT2VmkS+4R0eYdA8SCIveDdpmcZACNxDe7fxsmTl5bxqZIpWE/afZanrgxs5fZhcQI3ZNXAAk6a7viVnizWxbmqbVi3lcU8IYxrGizWtDQOQaLD9yzmdztZr+FbE0tPUmqh6xkhL7gP7BEhuW5bd29iBwsOS2vyL3p0W8KxSIna4xfDWVEL4JC4MeMrshym1wbA+iypeaWi0JmNxpg2ewOGjh6mEHJmc7tnMSXb7n29lOTJbJbqsRGuyzVEiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIP//Z" alt="Chemsbury Solutions" style="height:40px;"><span class="logo-text-wrap">Chemsbury <span>Solutions</span></span>
+  <a href="/" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:32px;">
+    <img class="logo-img" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
+    <span class="logo-text">Chemsbury <span>Solutions</span></span>
   </a>
 
   <div class="form-header">
@@ -217,14 +81,14 @@
       <label>Full Name</label>
       <div class="input-wrap">
         <span class="input-icon">👤</span>
-        <input type="text" id="name" placeholder="Anika Sharma" autocomplete="name">
+        <input type="text" id="name" class="form-input" placeholder="Anika Sharma" autocomplete="name">
       </div>
     </div>
     <div class="form-group">
       <label>Company <span class="optional-tag">optional</span></label>
       <div class="input-wrap">
         <span class="input-icon">🏢</span>
-        <input type="text" id="company" placeholder="Chemsbury Ltd." autocomplete="organization">
+        <input type="text" id="company" class="form-input" placeholder="Chemsbury Ltd." autocomplete="organization">
       </div>
     </div>
   </div>
@@ -233,43 +97,44 @@
     <label>Email Address</label>
     <div class="input-wrap">
       <span class="input-icon">✉️</span>
-      <input type="email" id="email" placeholder="you@chemsbury.in" autocomplete="email" oninput="validateEmail(this)">
+      <input type="email" id="email" class="form-input" placeholder="you@chemsbury.in"
+             autocomplete="email" oninput="validateEmail(this)">
     </div>
     <div class="field-hint" id="emailHint">🔒 Must be a @chemsbury.in address</div>
   </div>
 
   <div class="form-group">
-  <label>Password</label>
-  <div class="input-wrap">
-    <span class="input-icon">🔑</span>
-    <input type="password" id="password" placeholder="Minimum 8 characters" autocomplete="new-password" oninput="checkStrength(this.value)">
-    <button type="button" onclick="toggleVisibility('password')" 
-            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text3); font-size:16px; display:flex; align-items:center;">
-      <span id="eye-icon-password">👁️</span>
-    </button>
+    <label>Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔑</span>
+      <input type="password" id="password" class="form-input" placeholder="Min 8 chars, mixed case, number, symbol"
+             autocomplete="new-password" oninput="checkStrength(this.value)">
+      <button type="button" class="pw-toggle" onclick="togglePw('password','eye1')" aria-label="Toggle">
+        <span id="eye1">👁️</span>
+      </button>
+    </div>
+    <div class="pw-strength">
+      <div class="pw-bar"><div class="pw-bar-fill" id="pwFill"></div></div>
+      <div class="pw-label" id="pwLabel">—</div>
+    </div>
   </div>
-  <div class="pw-strength">
-    <div class="pw-bar"><div class="pw-bar-fill" id="pwBarFill"></div></div>
-    <div class="pw-label" id="pwLabel">—</div>
-  </div>
-</div>
 
-<div class="form-group">
-  <label>Confirm Password</label>
-  <div class="input-wrap">
-    <span class="input-icon">🔑</span>
-    <input type="password" id="confirm" placeholder="Repeat your password" autocomplete="new-password" oninput="validateConfirm(this)">
-    <button type="button" onclick="toggleVisibility('confirm')" 
-            style="position:absolute; right:12px; top:50%; transform:translateY(-50%); background:none; border:none; cursor:pointer; color:var(--text3); font-size:16px; display:flex; align-items:center;">
-      <span id="eye-icon-confirm">👁️</span>
-    </button>
+  <div class="form-group">
+    <label>Confirm Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔑</span>
+      <input type="password" id="confirm" class="form-input" placeholder="Repeat your password"
+             autocomplete="new-password" oninput="validateConfirm(this)">
+      <button type="button" class="pw-toggle" onclick="togglePw('confirm','eye2')" aria-label="Toggle">
+        <span id="eye2">👁️</span>
+      </button>
+    </div>
+    <div class="field-hint" id="confirmHint"></div>
   </div>
-  <div class="field-hint" id="confirmHint"></div>
-</div>
 
   <button class="submit-btn" id="regBtn" onclick="doRegister()">
     <span id="regText">Create Account</span>
-    <div class="spinner-small" id="regSpinner"></div>
+    <div class="spinner-sm" id="regSpinner"></div>
   </button>
 
   <div class="form-footer">
@@ -277,165 +142,117 @@
   </div>
 </div>
 
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/utils.js"></script>
 <script>
-  // Redirect if already logged in
-  const token = localStorage.getItem('chem_token');
-  if (token) {
-    fetch('/api/me', { headers: { 'Authorization': 'Bearer ' + token } })
-      .then(r => { if (r.ok) window.location.href = '/app'; })
-      .catch(() => {});
+  Auth.redirectIfLoggedIn('/app');
+
+  document.getElementById('confirm').addEventListener('keydown', e => { if(e.key==='Enter') doRegister(); });
+
+  function togglePw(inputId, iconId) {
+    const inp = document.getElementById(inputId);
+    const ico = document.getElementById(iconId);
+    const hidden = inp.type === 'password';
+    inp.type = hidden ? 'text' : 'password';
+    ico.textContent = hidden ? '🙈' : '👁️';
   }
 
   function validateEmail(input) {
     const hint = document.getElementById('emailHint');
-    const val = input.value.trim().toLowerCase();
+    const val  = input.value.trim().toLowerCase();
     if (!val) {
-      input.classList.remove('valid', 'invalid');
-      hint.textContent = '🔒 Must be a @chemsbury.in address';
-      hint.className = 'field-hint';
+      input.classList.remove('valid','invalid');
+      hint.textContent  = '🔒 Must be a @chemsbury.in address';
+      hint.style.color  = '';
       return;
     }
-    if (val.endsWith('@chemsbury.in') && val.length > '@chemsbury.in'.length) {
-      input.classList.add('valid'); input.classList.remove('invalid');
-      hint.textContent = '✅ Valid domain';
-      hint.className = 'field-hint';
-      hint.style.color = 'var(--success)';
-    } else {
-      input.classList.add('invalid'); input.classList.remove('valid');
-      hint.textContent = '❌ Must end with @chemsbury.in';
-      hint.className = 'field-hint error';
-      hint.style.color = '';
-    }
+    const valid = val.endsWith('@chemsbury.in') && val.length > '@chemsbury.in'.length;
+    input.classList.toggle('valid',   valid);
+    input.classList.toggle('invalid', !valid);
+    hint.textContent = valid ? '✅ Valid domain' : '❌ Must end with @chemsbury.in';
+    hint.style.color = valid ? 'var(--success)' : 'var(--danger)';
   }
 
-  // Function to toggle password visibility
-function toggleVisibility(fieldId) {
-    const input = document.getElementById(fieldId);
-    const icon = document.getElementById('eye-icon-' + fieldId);
-    
-    if (input.type === "password") {
-        input.type = "text";
-        icon.textContent = "🙈"; // Change icon to 'hidden'
-    } else {
-        input.type = "password";
-        icon.textContent = "👁️"; // Change icon back to 'visible'
-    }
-}
-
-// Updated Register function with STRICT detailed validations
-async function doRegister() {
-    const name = document.getElementById('name').value.trim();
-    const email = document.getElementById('email').value.trim().toLowerCase();
-    const password = document.getElementById('password').value;
-    const confirm = document.getElementById('confirm').value;
-    const company = document.getElementById('company').value.trim();
-
-    // Reset Error Message
-    const errEl = document.getElementById('errorMsg');
-    errEl.style.display = 'none';
-
-    // 1. Basic Field Checks
-    if (!name) { showError('Full Name is required.'); return; }
-    if (!email) { showError('Email address is required.'); return; }
-    if (!email.endsWith('@chemsbury.in')) { showError('Please use your @chemsbury.in email.'); return; }
-
-    // 2. STRICT PASSWORD VALIDATIONS
-    if (password.length < 8) { 
-        showError('Password is too short (Minimum 8 characters).'); return; 
-    }
-    if (!/[A-Z]/.test(password)) { 
-        showError('Password must contain at least one uppercase letter (A-Z).'); return; 
-    }
-    if (!/[a-z]/.test(password)) { 
-        showError('Password must contain at least one lowercase letter (a-z).'); return; 
-    }
-    if (!/[0-9]/.test(password)) { 
-        showError('Password must contain at least one number (0-9).'); return; 
-    }
-    if (!/[^A-Za-z0-9]/.test(password)) { 
-        showError('Password must contain at least one special symbol (@, #, $, etc.).'); return; 
-    }
-
-    // 3. Match Check
-    if (password !== confirm) { 
-        showError('Passwords do not match.'); return; 
-    }
-
-    // If all validations pass, proceed to API call
-    const btn = document.getElementById('regBtn');
-    const spinner = document.getElementById('regSpinner');
-    const regText = document.getElementById('regText');
-
-    btn.disabled = true;
-    regText.textContent = 'Processing…';
-    spinner.style.display = 'block';
-
-    try {
-        const resp = await fetch('/api/register', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ name, email, password, company })
-        });
-        const data = await resp.json();
-
-        if (!resp.ok) {
-            showError(data.error || 'Registration failed.');
-            return;
-        }
-
-        localStorage.setItem('chem_token', data.token);
-        localStorage.setItem('chem_user', JSON.stringify(data.user));
-        window.location.href = '/app';
-    } catch (e) {
-        showError('Connection error. Please check your internet.');
-    } finally {
-        btn.disabled = false;
-        regText.textContent = 'Create Account';
-        spinner.style.display = 'none';
-    }
-}
-
   function checkStrength(pw) {
-    const fill = document.getElementById('pwBarFill');
+    const fill  = document.getElementById('pwFill');
     const label = document.getElementById('pwLabel');
     let score = 0;
-    if (pw.length >= 8) score++;
-    if (pw.length >= 12) score++;
-    if (/[A-Z]/.test(pw)) score++;
-    if (/[0-9]/.test(pw)) score++;
-    if (/[^A-Za-z0-9]/.test(pw)) score++;
+    if (pw.length >= 8)           score++;
+    if (pw.length >= 12)          score++;
+    if (/[A-Z]/.test(pw))         score++;
+    if (/[0-9]/.test(pw))         score++;
+    if (/[^A-Za-z0-9]/.test(pw))  score++;
     const levels = [
-      { pct: '0%', color: 'transparent', label: '—' },
-      { pct: '25%', color: 'var(--danger)', label: 'Weak' },
-      { pct: '50%', color: 'var(--warning, #fbbf24)', label: 'Fair' },
-      { pct: '75%', color: 'var(--accent2)', label: 'Good' },
-      { pct: '90%', color: 'var(--success)', label: 'Strong' },
-      { pct: '100%', color: 'var(--success)', label: 'Very Strong' },
+      { pct:'0%',   color:'transparent',            label:'—'           },
+      { pct:'25%',  color:'var(--danger)',            label:'Weak'        },
+      { pct:'50%',  color:'var(--warning)',           label:'Fair'        },
+      { pct:'75%',  color:'var(--accent2)',           label:'Good'        },
+      { pct:'90%',  color:'var(--success)',           label:'Strong'      },
+      { pct:'100%', color:'var(--success)',           label:'Very Strong' },
     ];
-    const lvl = levels[Math.min(score, levels.length-1)];
-    fill.style.width = lvl.pct;
+    const lvl = levels[Math.min(score, levels.length - 1)];
+    fill.style.width      = lvl.pct;
     fill.style.background = lvl.color;
-    label.textContent = pw.length ? lvl.label : '—';
+    label.textContent     = pw.length ? lvl.label : '—';
   }
 
   function validateConfirm(input) {
-    const pw = document.getElementById('password').value;
+    const pw   = document.getElementById('password').value;
     const hint = document.getElementById('confirmHint');
     if (!input.value) { hint.textContent = ''; return; }
-    if (input.value === pw) {
-      input.classList.add('valid'); input.classList.remove('invalid');
-      hint.textContent = '✅ Passwords match';
-      hint.style.color = 'var(--success)';
-    } else {
-      input.classList.add('invalid'); input.classList.remove('valid');
-      hint.textContent = '❌ Passwords do not match';
-      hint.style.color = 'var(--danger)';
+    const match = input.value === pw;
+    input.classList.toggle('valid',   match);
+    input.classList.toggle('invalid', !match);
+    hint.textContent = match ? '✅ Passwords match' : '❌ Passwords do not match';
+    hint.style.color = match ? 'var(--success)' : 'var(--danger)';
+  }
+
+  // ── Single, definitive doRegister function ────────────────────────────────
+  async function doRegister() {
+    const name     = document.getElementById('name').value.trim();
+    const company  = document.getElementById('company').value.trim();
+    const email    = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    const confirm  = document.getElementById('confirm').value;
+    const errEl    = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+
+    // Client-side validation mirrors server-side rules
+    if (!name)                                   { showError('Full name is required.');                                      return; }
+    if (!email)                                  { showError('Email address is required.');                                  return; }
+    if (!email.endsWith('@chemsbury.in'))         { showError('Only @chemsbury.in email addresses are allowed.');            return; }
+    if (password.length < 8)                     { showError('Password must be at least 8 characters.');                    return; }
+    if (!/[A-Z]/.test(password))                 { showError('Password must contain at least one uppercase letter (A–Z).'); return; }
+    if (!/[a-z]/.test(password))                 { showError('Password must contain at least one lowercase letter (a–z).'); return; }
+    if (!/[0-9]/.test(password))                 { showError('Password must contain at least one number (0–9).');           return; }
+    if (!/[^A-Za-z0-9]/.test(password))          { showError('Password must contain at least one special character.');      return; }
+    if (password !== confirm)                    { showError('Passwords do not match.');                                     return; }
+
+    const btn     = document.getElementById('regBtn');
+    const spinner = document.getElementById('regSpinner');
+    const text    = document.getElementById('regText');
+    setLoading(btn, text, spinner, true, 'Creating account…', 'Create Account');
+
+    try {
+      const resp = await fetch('/api/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ name, email, password, company }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) { showError(data.error || 'Registration failed. Please try again.'); return; }
+      Auth.saveSession(data.token, data.user);
+      window.location.href = '/app';
+    } catch {
+      showError('Connection error. Please try again.');
+    } finally {
+      setLoading(btn, text, spinner, false, 'Creating account…', 'Create Account');
     }
   }
 
   function showError(msg) {
     const el = document.getElementById('errorMsg');
-    el.textContent = msg;
+    el.textContent  = msg;
     el.style.display = 'block';
   }
 </script>

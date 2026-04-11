@@ -4,183 +4,58 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin Panel — Chemsbury Solutions</title>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
 <style>
-  :root {
-    --bg: #0a0f1a; --bg2: #0e1525; --bg3: #131c2e;
-    --surface: #1a2540; --surface2: #1f2d4a;
-    --border: rgba(99,179,237,0.12); --border2: rgba(99,179,237,0.22);
-    --accent: #3ecfcf; --accent2: #5b9cf6; --accent3: #a78bfa;
-    --danger: #f87171; --warning: #fbbf24; --success: #34d399;
-    --text: #e8f0fe; --text2: #8ba3cc; --text3: #4a6080;
-    --glow: 0 0 40px rgba(62,207,207,0.15);
-  }
-  * { box-sizing:border-box; margin:0; padding:0; }
-  body { font-family:'DM Sans',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; }
-  body::before {
-    content:''; position:fixed; inset:0;
-    background:
-      radial-gradient(ellipse 80% 60% at 20% 0%, rgba(62,207,207,0.06) 0%, transparent 60%),
-      radial-gradient(ellipse 60% 50% at 80% 100%, rgba(91,156,246,0.06) 0%, transparent 60%);
-    pointer-events:none; z-index:0;
-  }
+  .main { position:relative; z-index:1; padding:40px; max-width:1300px; margin:0 auto; }
+  .stats-row { grid-template-columns:repeat(4,1fr); }
 
-  header {
-    position:sticky; top:0; z-index:100;
-    display:flex; align-items:center; justify-content:space-between;
-    padding:0 40px; height:64px;
-    background:rgba(10,15,26,0.9); backdrop-filter:blur(20px);
-    border-bottom:1px solid var(--border);
-  }
-  .logo { display:flex; align-items:center; gap:10px; font-family:'Syne',sans-serif; font-weight:800; font-size:1.15rem; color:var(--text); text-decoration:none; }
-  .logo-icon { width:32px; height:32px; background:linear-gradient(135deg,var(--accent),var(--accent2)); border-radius:8px; display:grid; place-items:center; font-size:16px; }
-  .logo span { color:var(--accent); }
   .admin-badge {
     background:linear-gradient(90deg,rgba(167,139,250,0.2),rgba(91,156,246,0.2));
-    border:1px solid rgba(167,139,250,0.3);
-    color:var(--accent3); font-size:0.72rem; font-weight:600;
-    padding:3px 10px; border-radius:100px; text-transform:uppercase; letter-spacing:0.05em;
+    border:1px solid rgba(167,139,250,0.3); color:var(--accent3);
+    font-size:0.72rem; font-weight:600; padding:3px 10px;
+    border-radius:100px; text-transform:uppercase; letter-spacing:0.05em;
   }
-  .header-right { display:flex; align-items:center; gap:10px; }
-  .nav-btn {
-    padding:6px 14px; border-radius:6px; border:none; cursor:pointer;
-    font-family:'DM Sans',sans-serif; font-size:0.875rem;
-    transition:all 0.2s; text-decoration:none;
-    display:inline-flex; align-items:center; gap:6px;
-  }
-  .nav-btn.ghost { background:transparent; color:var(--text2); border:1px solid var(--border); }
-  .nav-btn.ghost:hover { color:var(--text); border-color:var(--border2); }
-  .nav-btn.primary { background:linear-gradient(135deg,var(--accent),var(--accent2)); color:#0a0f1a; font-weight:600; }
 
-  .main { position:relative; z-index:1; padding:40px; max-width:1300px; margin:0 auto; }
-
-  /* TABS */
-  .tabs { display:flex; gap:4px; margin-bottom:28px; background:var(--surface); border:1px solid var(--border); border-radius:10px; padding:4px; width:fit-content; }
-  .tab {
-    padding:8px 20px; border-radius:7px; cursor:pointer; border:none;
-    font-family:'DM Sans',sans-serif; font-size:0.875rem; font-weight:500;
-    color:var(--text2); background:transparent; transition:all 0.2s;
-  }
-  .tab.active { background:var(--surface2); color:var(--text); box-shadow:0 1px 4px rgba(0,0,0,0.3); }
-
-  /* STATS */
-  .stats-row { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:28px; }
-  .stat-card { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:18px 20px; }
-  .stat-val { font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; line-height:1; margin-bottom:6px; }
-  .stat-label { font-size:0.75rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.05em; }
-
-  /* TABLE */
-  .table-wrap { background:var(--surface); border:1px solid var(--border); border-radius:14px; overflow:hidden; }
-  .table-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-  .table-header h3 { font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem; }
-  .search-input {
-    background:var(--bg3); border:1px solid var(--border); border-radius:8px;
-    padding:7px 14px 7px 34px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.85rem;
-    outline:none; width:220px; transition:border-color 0.2s;
-  }
-  .search-input:focus { border-color:var(--accent); }
-  .search-wrap { position:relative; }
-  .search-wrap::before { content:'🔍'; position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:13px; opacity:0.5; pointer-events:none; }
-
-  table { width:100%; border-collapse:collapse; }
-  thead tr { border-bottom:1px solid var(--border); }
-  th { text-align:left; padding:12px 14px; font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text3); white-space:nowrap; }
-  td { padding:10px 14px; font-size:0.875rem; border-bottom:1px solid var(--border); vertical-align:middle; }
-  tr:last-child td { border-bottom:none; }
-  tr:hover td { background:rgba(99,179,237,0.03); }
-
-  .role-badge { padding:2px 10px; border-radius:100px; font-size:0.7rem; font-weight:600; }
-  .role-badge.admin { background:rgba(167,139,250,0.15); color:var(--accent3); }
-  .role-badge.user { background:rgba(99,179,237,0.1); color:var(--text2); }
-
-  .status-badge { display:inline-flex; align-items:center; gap:5px; padding:3px 10px; border-radius:100px; font-size:0.72rem; font-weight:600; }
-  .status-badge.safe { background:rgba(52,211,153,0.12); color:var(--success); }
-  .status-badge.caution { background:rgba(251,191,36,0.12); color:var(--warning); }
-  .status-badge.unsafe { background:rgba(248,113,113,0.12); color:var(--danger); }
-
-  .action-btn {
-    padding:4px 10px; border-radius:6px; cursor:pointer; border:none;
-    font-family:'DM Sans',sans-serif; font-size:0.78rem; font-weight:500;
-    transition:all 0.2s; margin-left:4px;
-  }
-  .action-btn.promote { background:rgba(167,139,250,0.15); color:var(--accent3); }
-  .action-btn.promote:hover { background:rgba(167,139,250,0.25); }
-  .action-btn.demote { background:rgba(99,179,237,0.1); color:var(--text2); }
-  .action-btn.demote:hover { background:rgba(99,179,237,0.2); }
-  .action-btn.delete { background:rgba(248,113,113,0.1); color:var(--danger); }
-  .action-btn.delete:hover { background:rgba(248,113,113,0.2); }
-  .action-btn.save { background:rgba(52,211,153,0.15); color:var(--success); }
-  .action-btn.save:hover { background:rgba(52,211,153,0.25); }
-  .action-btn.cancel { background:rgba(99,179,237,0.08); color:var(--text2); }
-  .action-btn.cancel:hover { background:rgba(99,179,237,0.15); }
-  .action-btn.edit { background:rgba(91,156,246,0.1); color:var(--accent2); }
-  .action-btn.edit:hover { background:rgba(91,156,246,0.2); }
-
-  /* INLINE EDIT INPUTS */
+  /* Param table inline edit */
   .param-input {
     background:var(--bg3); border:1px solid var(--border2); border-radius:6px;
-    padding:4px 8px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.82rem;
-    outline:none; width:80px; transition:border-color 0.2s;
+    padding:4px 8px; color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:0.82rem; outline:none; width:80px; transition:border-color 0.2s;
   }
   .param-input:focus { border-color:var(--accent); }
-  .param-input.unit { width:60px; }
-  .param-input.name { width:110px; }
+  .param-input.unit  { width:60px; }
 
-  /* TOGGLE */
-  .toggle-wrap { display:flex; align-items:center; gap:6px; }
-  .toggle { width:36px; height:20px; background:var(--bg3); border-radius:100px; cursor:pointer; border:1px solid var(--border2); position:relative; transition:background 0.2s; }
-  .toggle.on { background:var(--success); border-color:var(--success); }
-  .toggle::after { content:''; position:absolute; top:2px; left:2px; width:14px; height:14px; background:#fff; border-radius:50%; transition:transform 0.2s; }
-  .toggle.on::after { transform:translateX(16px); }
+  .limit-tag { font-size:0.7rem; padding:1px 6px; border-radius:4px; margin-left:4px; }
+  .limit-tag.hi { background:rgba(248,113,113,0.12); color:var(--danger); }
+  .limit-tag.lo { background:rgba(251,191,36,0.12);  color:var(--warning); }
 
-  /* ADD PARAM FORM */
-  .add-form { background:var(--bg3); border:1px solid var(--border2); border-radius:10px; padding:16px 18px; margin:14px 18px; display:none; }
+  .active-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .active-dot.on  { background:var(--success); }
+  .active-dot.off { background:var(--text3); }
+
+  /* Add-param form */
+  .add-form {
+    background:var(--bg3); border:1px solid var(--border2); border-radius:10px;
+    padding:16px 18px; margin:14px 18px; display:none;
+  }
   .add-form.show { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; }
   .add-form label { font-size:0.75rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:4px; }
   .add-form input {
     background:var(--surface); border:1px solid var(--border2); border-radius:7px;
-    padding:6px 10px; color:var(--text); font-family:'DM Sans',sans-serif; font-size:0.85rem;
-    outline:none; transition:border-color 0.2s;
+    padding:6px 10px; color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:0.85rem; outline:none; transition:border-color 0.2s;
   }
   .add-form input:focus { border-color:var(--accent); }
 
-  /* HI/LO INDICATORS */
-  .limit-tag { font-size:0.7rem; padding:1px 6px; border-radius:4px; margin-left:4px; }
-  .limit-tag.hi { background:rgba(248,113,113,0.12); color:var(--danger); }
-  .limit-tag.lo { background:rgba(251,191,36,0.12); color:var(--warning); }
-
-  .active-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
-  .active-dot.on { background:var(--success); }
-  .active-dot.off { background:var(--text3); }
-
-  .spinner { width:40px; height:40px; margin:40px auto; border-radius:50%; border:3px solid var(--border); border-top-color:var(--accent); animation:spin 0.9s linear infinite; }
-  @keyframes spin { to { transform:rotate(360deg); } }
-
-  .empty-state { text-align:center; padding:48px 20px; color:var(--text3); }
-  .empty-state .empty-icon { font-size:2.5rem; margin-bottom:12px; }
-
-  .toast {
-    position:fixed; bottom:24px; right:24px; z-index:999;
-    background:var(--surface2); border:1px solid var(--border2);
-    border-radius:10px; padding:12px 18px;
-    font-size:0.875rem; color:var(--text);
-    animation:slideUp 0.3s ease;
-    display:none;
-  }
-  @keyframes slideUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:none; } }
-
-
-  .logo-img { height:40px; width:auto; object-fit:contain; border-radius:4px; }
-  .logo-text-wrap { font-family:'Syne',sans-serif; font-weight:800; font-size:1.1rem; letter-spacing:-0.02em; color:var(--text); }
-  .logo-text-wrap span { color:var(--accent); }
-  @media(max-width:900px) {
+  @media(max-width:900px){
     header { padding:0 16px; }
-    .main { padding:20px 16px; }
+    .main  { padding:20px 16px; }
     .stats-row { grid-template-columns:repeat(2,1fr); }
   }
-  @media(max-width:600px) {
-    th:nth-child(3), td:nth-child(3),
-    th:nth-child(5), td:nth-child(5) { display:none; }
+  @media(max-width:600px){
+    th:nth-child(3),td:nth-child(3),
+    th:nth-child(5),td:nth-child(5){ display:none; }
   }
 </style>
 </head>
@@ -189,29 +64,29 @@
 <header>
   <div style="display:flex;align-items:center;gap:12px;">
     <a href="/app" class="logo">
-      <img class="logo-img" src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxETEhUSExIWFREXFhUVFxgQFRURFhUYFRUXGBgWFRYZHSoiGRolHhcWIjEhJikrLy4uFx8zODMsNygtLi0BCgoKDg0OGxAQGy0lICYtLTAtLSstLS0rLTUtLS8tLy0tLS0tKy0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAOEA4QMBEQACEQEDEQH/xAAbAAEAAgMBAQAAAAAAAAAAAAAABAUDBgcCAf/EAEUQAAEDAgMECAEHCQcFAAAAAAEAAgMEEQUSIQYxQVEHEyIyYXGBkaEUM0JScpLRI2JjgqKxweHwFiRDVJOy0hUXRFOD/8QAGwEBAAMBAQEBAAAAAAAAAAAAAAECAwQFBgf/xAAzEQEAAgIBAwIDBgQHAQAAAAAAAQIDEQQSITEFQRMyURQiYYGR0UJxofAVIzNSscHxBv/aAAwDAQACEQMRAD8A7igICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICCJUYjEzQuF+TdT/ACWlcV7eIY35GOnaZRTi9+63734Baxx/rLH7VvxD0yrcePsonHELRlmUlkypNWkWYpZFNaq2shSzOG5xHkStopE+znteY8SwOxOVu51/tAFX+BSfZlPJyV92WDaJu6RtvFuo9Rv/AHqluHb+GV6eo1/jjS5p6hjxmY4OHMarltWazqYd9Mlbxus7ZVVcQEBAQEBAQEBAQEBAQEBAQEFTi+PwwdknNJ9Ru/8AWP0V04OLky948fVwcv1HDxu0zu30j++zWKnHppt5yt+qzQep3n+tF6NOJTH+MvEv6jlzT9I+kEDlNoXx2WNO6+g1PgsLdnZj3PhbQUcnGw8yuS2Wruphv7pHyV3MfFU+JDX4VkeoY5u8ac94WlLRPhleLV8oEr1vWHNayDO9bVhy3lXVDlvWHFlsiwYjJC7PG6x4g6td4OHFaXwVyxqzkpy8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vbW35xSIiEYsFMW+n3Vdb0cUEjnOyyNc4lxySE6uNye1fio6IY34OG07mGbDNgKCFweIi9w1HXOLwDzy90+oSKxC2Ph4qTuITNptlKeu6vry/wDJ5svVuyjt5b3017oXRhz3xb6fd0WrE+VGOirDv03+p/Jbfb834for8KrZsCwGmpGGOnjDGk3cblznHm5ziSf4LmyZb5J3aV4iI8KbGOjvD6h7pHRuZI4kuMLywEnecpu2/HQanetsfLy0jUT2VmkS+4R0eYdA8SCIveDdpmcZACNxDe7fxsmTl5bxqZIpWE/afZanrgxs5fZhcQI3ZNXAAk6a7viVnizWxbmqbVi3lcU8IYxrGizWtDQOQaLD9yzmdztZr+FbE0tPUmqh6xkhL7gP7BEhuW5bd29iBwsOS2vyL3p0W8KxSIna4xfDWVEL4JC4MeMrshym1wbA+iypeaWi0JmNxpg2ewOGjh6mEHJmc7tnMSXb7n29lOTJbJbqsRGuyzVEiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgIP//Z" alt="Chemsbury Solutions" style="height:38px;"><span class="logo-text-wrap">Chemsbury <span>Solutions</span></span>
+      <img class="logo-img" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
+      <span class="logo-text">Chemsbury <span>Solutions</span></span>
     </a>
     <span class="admin-badge">Admin</span>
   </div>
   <div class="header-right">
-    <a href="/dashboard" class="nav-btn ghost">📊 My Dashboard</a>
-    <a href="/app" class="nav-btn primary">+ New Analysis</a>
-    <button class="nav-btn ghost" onclick="logout()">Sign Out</button>
+    <a href="/dashboard" class="btn btn-ghost">📊 My Dashboard</a>
+    <a href="/app"       class="btn btn-primary">+ New Analysis</a>
+    <button onclick="authLogout()" class="btn btn-ghost">Sign Out</button>
   </div>
 </header>
 
 <div class="main">
-
   <div style="margin-bottom:28px;">
     <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;letter-spacing:-0.02em;margin-bottom:6px;">Admin Panel</h1>
     <p style="color:var(--text2);font-size:0.9rem;">Manage users, view analyses, and configure IS:10500 water quality standards</p>
   </div>
 
-  <div class="stats-row" id="statsRow">
-    <div class="stat-card"><div class="stat-val" id="sTotalUsers">—</div><div class="stat-label">Total Users</div></div>
-    <div class="stat-card"><div class="stat-val" id="sTotalAnalyses">—</div><div class="stat-label">Total Analyses</div></div>
-    <div class="stat-card"><div class="stat-val" id="sSafeCount">—</div><div class="stat-label">Safe Results</div></div>
-    <div class="stat-card"><div class="stat-val" id="sUnsafeCount">—</div><div class="stat-label">Require Attention</div></div>
+  <div class="stats-row" style="display:grid;gap:14px;margin-bottom:28px;grid-template-columns:repeat(4,1fr);">
+    <div class="card"><div class="stat-val" id="sTotalUsers">—</div><div class="stat-label">Total Users</div></div>
+    <div class="card"><div class="stat-val" id="sTotalAnalyses">—</div><div class="stat-label">Total Analyses</div></div>
+    <div class="card"><div class="stat-val" id="sSafeCount">—</div><div class="stat-label">Safe Results</div></div>
+    <div class="card"><div class="stat-val" id="sUnsafeCount">—</div><div class="stat-label">Require Attention</div></div>
   </div>
 
   <div class="tabs">
@@ -220,33 +95,33 @@
     <button class="tab"        id="tabParameters" onclick="switchTab('parameters')">⚗️ Parameters</button>
   </div>
 
-  <!-- USERS TABLE -->
+  <!-- USERS -->
   <div id="usersPane">
     <div class="table-wrap">
       <div class="table-header">
         <h3>Registered Users</h3>
         <div class="search-wrap">
-          <input type="text" class="search-input" id="userSearch" placeholder="Search users…" oninput="filterUsers(this.value)">
+          <input class="search-input" id="userSearch" placeholder="Search users…" oninput="filterUsers(this.value)">
         </div>
       </div>
-      <div id="usersBody"><div class="spinner"></div></div>
+      <div id="usersBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
     </div>
   </div>
 
-  <!-- ANALYSES TABLE -->
+  <!-- ANALYSES -->
   <div id="analysesPane" style="display:none;">
     <div class="table-wrap">
       <div class="table-header">
         <h3>All Analyses</h3>
         <div class="search-wrap">
-          <input type="text" class="search-input" id="analysisSearch" placeholder="Search analyses…" oninput="filterAnalyses(this.value)">
+          <input class="search-input" id="analysisSearch" placeholder="Search analyses…" oninput="filterAnalyses(this.value)">
         </div>
       </div>
-      <div id="analysesBody"><div class="spinner"></div></div>
+      <div id="analysesBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
     </div>
   </div>
 
-  <!-- PARAMETERS TABLE -->
+  <!-- PARAMETERS -->
   <div id="parametersPane" style="display:none;">
     <div class="table-wrap">
       <div class="table-header">
@@ -256,483 +131,348 @@
         </div>
         <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
           <div class="search-wrap">
-            <input type="text" class="search-input" id="paramSearch" placeholder="Search parameters…" oninput="filterParams(this.value)">
+            <input class="search-input" id="paramSearch" placeholder="Search parameters…" oninput="filterParams(this.value)">
           </div>
-          <button class="nav-btn primary" style="padding:6px 14px;font-size:0.82rem;" onclick="toggleAddForm()">+ Add Parameter</button>
+          <button class="btn btn-primary" style="padding:6px 14px;font-size:0.82rem;" onclick="toggleAddForm()">+ Add Parameter</button>
         </div>
       </div>
 
-      <!-- ADD FORM -->
       <div class="add-form" id="addForm">
-        <div>
-          <label>Parameter Name *</label>
-          <input type="text" id="newName" placeholder="e.g. selenium" style="width:120px;">
-        </div>
-        <div>
-          <label>Unit</label>
-          <input type="text" id="newUnit" placeholder="mg/L" style="width:80px;">
-        </div>
-        <div>
-          <label>Permissible Limit</label>
-          <input type="number" id="newPermissible" placeholder="0.01" step="any" style="width:110px;">
-        </div>
-        <div>
-          <label>Acceptable Limit</label>
-          <input type="number" id="newAcceptable" placeholder="0.01" step="any" style="width:110px;">
-        </div>
-        <div>
-          <label>Low Limit (optional)</label>
-          <input type="number" id="newLoLimit" placeholder="e.g. 6.5" step="any" style="width:100px;">
-        </div>
+        <div><label>Parameter Name *</label><input type="text"   id="newName"        placeholder="e.g. selenium" style="width:120px;"></div>
+        <div><label>Unit</label>            <input type="text"   id="newUnit"        placeholder="mg/L"  style="width:80px;"></div>
+        <div><label>Permissible Limit</label><input type="number" id="newPermissible" placeholder="0.01" step="any" style="width:110px;"></div>
+        <div><label>Acceptable Limit</label><input type="number"  id="newAcceptable"  placeholder="0.01" step="any" style="width:110px;"></div>
+        <div><label>Low Limit (optional)</label><input type="number" id="newLoLimit" placeholder="e.g. 6.5" step="any" style="width:100px;"></div>
         <div style="display:flex;gap:6px;align-items:flex-end;">
-          <button class="action-btn save" onclick="addParameter()">✓ Add</button>
-          <button class="action-btn cancel" onclick="toggleAddForm()">✕ Cancel</button>
+          <button class="btn btn-success" onclick="addParameter()">✓ Add</button>
+          <button class="btn btn-ghost"   onclick="toggleAddForm()">✕ Cancel</button>
         </div>
       </div>
 
-      <div id="parametersBody"><div class="spinner"></div></div>
+      <div id="parametersBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
     </div>
     <p style="margin-top:10px;font-size:0.78rem;color:var(--text3);padding:0 4px;">
       ⚠️ Changes apply immediately to all future analyses. Historical analyses are not re-evaluated.
     </p>
   </div>
-
 </div>
 
 <div class="toast" id="toast"></div>
 
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/utils.js"></script>
 <script>
-  const token = localStorage.getItem('chem_token');
-  const me = JSON.parse(localStorage.getItem('chem_user') || '{}');
+let allUsers = [], allAnalyses = [], allParams = [];
+let editingParamId = null;
+let currentUser    = null;
 
-  if (!token) { window.location.href = '/'; }
-  if (me.role !== 'admin') { window.location.href = '/app'; }
+(async () => {
+  currentUser = await Auth.requireAuth();
+  if (!currentUser) return;
+  if (currentUser.role !== 'admin') { window.location.href = '/app'; return; }
+  loadAll();
+})();
 
-  let allUsers = [], allAnalyses = [], allParams = [];
-  let editingParamId = null;
+/* ── Load ── */
+async function loadAll() {
+  try {
+    const [users, analyses] = await Promise.all([
+      API.get('/api/admin/users'),
+      API.get('/api/admin/analyses'),
+    ]);
+    allUsers    = users    || [];
+    allAnalyses = analyses || [];
 
-  // ── LOAD ALL DATA ──────────────────────────────────────────────────────────
-  async function loadAll() {
-    try {
-      const [uResp, aResp] = await Promise.all([
-        fetch('/api/admin/users',    { headers: { 'Authorization': 'Bearer ' + token } }),
-        fetch('/api/admin/analyses', { headers: { 'Authorization': 'Bearer ' + token } })
-      ]);
-      if (uResp.status === 401 || uResp.status === 403) { window.location.href = '/'; return; }
-      allUsers    = await uResp.json();
-      allAnalyses = await aResp.json();
+    document.getElementById('sTotalUsers').textContent    = allUsers.length;
+    document.getElementById('sTotalAnalyses').textContent = allAnalyses.length;
+    document.getElementById('sSafeCount').textContent     = allAnalyses.filter(a => a.safety_status === 'safe').length;
+    document.getElementById('sUnsafeCount').textContent   = allAnalyses.filter(a => a.safety_status !== 'safe').length;
 
-      document.getElementById('sTotalUsers').textContent    = allUsers.length;
-      document.getElementById('sTotalAnalyses').textContent = allAnalyses.length;
-      document.getElementById('sSafeCount').textContent     = allAnalyses.filter(a => a.safety_status === 'safe').length;
-      document.getElementById('sUnsafeCount').textContent   = allAnalyses.filter(a => a.safety_status !== 'safe').length;
-
-      renderUsers(allUsers);
-      renderAnalyses(allAnalyses);
-    } catch(e) {
-      showToast('⚠️ Failed to load data');
-    }
+    renderUsers(allUsers);
+    renderAnalyses(allAnalyses);
+  } catch(e) {
+    showToast('⚠️ Failed to load data');
   }
+}
 
-  async function loadParameters() {
-    try {
-      const resp = await fetch('/api/admin/parameters', { headers: { 'Authorization': 'Bearer ' + token } });
-      allParams = await resp.json();
-      renderParams(allParams);
-    } catch(e) {
-      showToast('⚠️ Failed to load parameters');
-    }
+async function loadParameters() {
+  try {
+    allParams = await API.get('/api/admin/parameters') || [];
+    renderParams(allParams);
+  } catch(e) {
+    showToast('⚠️ Failed to load parameters');
   }
+}
 
-  // ── TABS ───────────────────────────────────────────────────────────────────
-  function switchTab(tab) {
-    ['users','analyses','parameters'].forEach(t => {
-      document.getElementById(t + 'Pane').style.display = t === tab ? 'block' : 'none';
-      document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1)).classList.toggle('active', t === tab);
-    });
-    if (tab === 'parameters' && allParams.length === 0) loadParameters();
+/* ── Tabs ── */
+function switchTab(tab) {
+  ['users','analyses','parameters'].forEach(t => {
+    document.getElementById(t + 'Pane').style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    btn.classList.toggle('active', t === tab);
+  });
+  if (tab === 'parameters' && allParams.length === 0) loadParameters();
+}
+
+/* ── Users ── */
+function renderUsers(data) {
+  const body = document.getElementById('usersBody');
+  if (!data.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>No users found.</p></div>';
+    return;
   }
+  body.innerHTML = `<table><thead><tr>
+    <th>Name</th><th>Email</th><th>Company</th><th>Role</th><th>Analyses</th><th>Joined</th><th>Actions</th>
+  </tr></thead><tbody>
+    ${data.map(u => `<tr id="urow_${u.id}">
+      <td style="font-weight:500;">${escHtml(u.name)}</td>
+      <td style="color:var(--text2);font-size:0.82rem;">${escHtml(u.email)}</td>
+      <td style="color:var(--text3);font-size:0.82rem;">${escHtml(u.company || '—')}</td>
+      <td><span class="role-badge ${escHtml(u.role)}">${escHtml(u.role)}</span></td>
+      <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);">${u.analysis_count}</td>
+      <td style="color:var(--text3);font-size:0.78rem;">${shortDate(u.created_at)}</td>
+      <td>${u.id !== currentUser.id ? `
+        ${u.role === 'user'
+          ? `<button class="btn btn-info"    style="font-size:0.78rem;padding:4px 10px;" onclick="setRole(${u.id},'admin')">↑ Admin</button>`
+          : `<button class="btn btn-ghost"   style="font-size:0.78rem;padding:4px 10px;" onclick="setRole(${u.id},'user')">↓ User</button>`}
+        <button class="btn btn-danger" style="font-size:0.78rem;padding:4px 10px;" onclick="deleteUser(${u.id},'${escHtml(u.name)}')">✕ Delete</button>
+      ` : '<span style="font-size:0.75rem;color:var(--text3);">You</span>'}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
 
-  // ── USERS ──────────────────────────────────────────────────────────────────
-  function renderUsers(data) {
-    const body = document.getElementById('usersBody');
-    if (!data.length) {
-      body.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>No users found.</p></div>';
-      return;
-    }
-    body.innerHTML = `<table>
-      <thead><tr>
-        <th>Name</th><th>Email</th><th>Company</th>
-        <th>Role</th><th>Analyses</th><th>Joined</th><th>Actions</th>
-      </tr></thead>
-      <tbody>
-        ${data.map(u => `
-          <tr id="urow_${u.id}">
-            <td style="font-weight:500;">${escHtml(u.name)}</td>
-            <td style="color:var(--text2);font-size:0.82rem;">${escHtml(u.email)}</td>
-            <td style="color:var(--text3);font-size:0.82rem;">${escHtml(u.company || '—')}</td>
-            <td><span class="role-badge ${u.role}">${u.role}</span></td>
-            <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);">${u.analysis_count}</td>
-            <td style="color:var(--text3);font-size:0.78rem;">${shortDate(u.created_at)}</td>
-            <td>
-              ${u.id !== me.id ? `
-                ${u.role === 'user'
-                  ? `<button class="action-btn promote" onclick="setRole(${u.id},'admin')">↑ Admin</button>`
-                  : `<button class="action-btn demote"  onclick="setRole(${u.id},'user')">↓ User</button>`
-                }
-                <button class="action-btn delete" onclick="deleteUser(${u.id}, '${escHtml(u.name)}')">✕ Delete</button>
-              ` : '<span style="font-size:0.75rem;color:var(--text3);">You</span>'}
-            </td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>`;
+function filterUsers(q) {
+  q = q.toLowerCase();
+  renderUsers(allUsers.filter(u =>
+    u.name.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q) ||
+    (u.company || '').toLowerCase().includes(q)
+  ));
+}
+
+async function setRole(uid, role) {
+  try {
+    await API.put(`/api/admin/users/${uid}/role`, { role });
+    const u = allUsers.find(u => u.id === uid);
+    if (u) u.role = role;
+    renderUsers(allUsers);
+    showToast(`✅ Role updated to ${role}`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+async function deleteUser(uid, name) {
+  if (!confirm(`Delete user "${name}" and all their analyses? This cannot be undone.`)) return;
+  try {
+    await API.delete(`/api/admin/users/${uid}`);
+    allUsers    = allUsers.filter(u => u.id !== uid);
+    allAnalyses = allAnalyses.filter(a => a.user_id !== uid);
+    renderUsers(allUsers); renderAnalyses(allAnalyses);
+    document.getElementById('sTotalUsers').textContent    = allUsers.length;
+    document.getElementById('sTotalAnalyses').textContent = allAnalyses.length;
+    showToast('🗑️ User deleted');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+/* ── Analyses ── */
+function renderAnalyses(data) {
+  const body = document.getElementById('analysesBody');
+  if (!data.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">🔬</div><p>No analyses yet.</p></div>';
+    return;
   }
-
-  function filterUsers(q) {
-    q = q.toLowerCase();
-    renderUsers(allUsers.filter(u =>
-      u.name.toLowerCase().includes(q) ||
-      u.email.toLowerCase().includes(q) ||
-      (u.company || '').toLowerCase().includes(q)
-    ));
-  }
-
-  async function setRole(uid, role) {
-    try {
-      const resp = await fetch(`/api/admin/users/${uid}/role`, {
-        method: 'PUT',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ role })
-      });
-      if (resp.ok) {
-        const u = allUsers.find(u => u.id === uid);
-        if (u) u.role = role;
-        renderUsers(allUsers);
-        showToast(`✅ Role updated to ${role}`);
-      }
-    } catch(e) { showToast('⚠️ Failed to update role'); }
-  }
-
-  async function deleteUser(uid, name) {
-    if (!confirm(`Delete user "${name}" and all their analyses? This cannot be undone.`)) return;
-    try {
-      const resp = await fetch(`/api/admin/users/${uid}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (resp.ok) {
-        allUsers    = allUsers.filter(u => u.id !== uid);
-        allAnalyses = allAnalyses.filter(a => a.user_id !== uid);
-        renderUsers(allUsers);
-        renderAnalyses(allAnalyses);
-        document.getElementById('sTotalUsers').textContent    = allUsers.length;
-        document.getElementById('sTotalAnalyses').textContent = allAnalyses.length;
-        showToast('🗑️ User deleted');
-      }
-    } catch(e) { showToast('⚠️ Failed to delete user'); }
-  }
-
-  // ── ANALYSES ───────────────────────────────────────────────────────────────
-  function renderAnalyses(data) {
-    const body = document.getElementById('analysesBody');
-    if (!data.length) {
-      body.innerHTML = '<div class="empty-state"><div class="empty-icon">🔬</div><p>No analyses yet.</p></div>';
-      return;
-    }
-    body.innerHTML = `<table>
-      <thead><tr>
-        <th>#</th><th>User</th><th>Sample / Lab</th>
-        <th>Status</th><th>Method</th><th>Date</th>
-      </tr></thead>
-      <tbody>
-        ${data.map(a => `
-          <tr>
-            <td style="color:var(--text3);font-size:0.78rem;">${a.id}</td>
-            <td>
-              <div style="font-weight:500;">${escHtml(a.user_name)}</div>
-              <div style="font-size:0.75rem;color:var(--text3);">${escHtml(a.user_email)}</div>
-            </td>
-            <td>
-              <div style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(a.lab_info || '—')}</div>
-              <div style="font-size:0.75rem;color:var(--text3);">${escHtml(a.sample_info || '')}</div>
-            </td>
-            <td>${statusBadge(a.safety_status)}</td>
-            <td style="color:var(--text2);font-size:0.82rem;">${a.method_used || '—'}</td>
-            <td style="color:var(--text3);font-size:0.78rem;white-space:nowrap;">${shortDate(a.created_at)}</td>
-          </tr>
-        `).join('')}
-      </tbody>
-    </table>`;
-  }
-
-  function filterAnalyses(q) {
-    q = q.toLowerCase();
-    renderAnalyses(allAnalyses.filter(a =>
-      (a.user_name  || '').toLowerCase().includes(q) ||
-      (a.user_email || '').toLowerCase().includes(q) ||
-      (a.lab_info   || '').toLowerCase().includes(q) ||
-      (a.sample_info|| '').toLowerCase().includes(q)
-    ));
-  }
-
-  // ── PARAMETERS ─────────────────────────────────────────────────────────────
-  function renderParams(data) {
-    const body = document.getElementById('parametersBody');
-    document.getElementById('paramCount').textContent =
-      `${data.filter(p=>p.is_active).length} active / ${data.length} total`;
-
-    if (!data.length) {
-      body.innerHTML = '<div class="empty-state"><div class="empty-icon">⚗️</div><p>No parameters found.</p></div>';
-      return;
-    }
-    body.innerHTML = `<table>
-      <thead><tr>
-        <th>Status</th>
-        <th>Parameter</th>
-        <th>Unit</th>
-        <th>Permissible Limit</th>
-        <th>Acceptable Limit</th>
-        <th>Low Limit</th>
-        <th>Last Updated</th>
-        <th>Actions</th>
-      </tr></thead>
-      <tbody id="paramTableBody">
-        ${data.map(p => renderParamRow(p)).join('')}
-      </tbody>
-    </table>`;
-  }
-
-  function renderParamRow(p, editing = false) {
-    const updatedInfo = p.updated_at
-      ? `<div style="font-size:0.72rem;color:var(--text3);">${shortDate(p.updated_at)}</div>
-         ${p.updated_by_name ? `<div style="font-size:0.7rem;color:var(--text3);">by ${escHtml(p.updated_by_name)}</div>` : ''}`
-      : `<span style="color:var(--text3);font-size:0.75rem;">Default</span>`;
-
-    if (!editing) {
-      return `<tr id="prow_${p.id}">
-        <td>
-          <span class="active-dot ${p.is_active ? 'on' : 'off'}"></span>
-          <span style="font-size:0.75rem;color:${p.is_active ? 'var(--success)' : 'var(--text3)'};">${p.is_active ? 'Active' : 'Inactive'}</span>
-        </td>
-        <td style="font-weight:600;color:var(--accent2);">${escHtml(p.parameter_name)}</td>
-        <td style="color:var(--text3);">${escHtml(p.unit || '—')}</td>
-        <td>
-          <span style="font-weight:500;">${p.permissible_limit ?? '—'}</span>
-          ${p.hi_is_bad ? '<span class="limit-tag hi">↑ bad</span>' : ''}
-        </td>
-        <td style="color:var(--text2);">${p.acceptable_limit ?? '—'}</td>
-        <td>
-          ${p.lo_limit != null
-            ? `<span style="font-weight:500;">${p.lo_limit}</span><span class="limit-tag lo">↓ bad</span>`
-            : '<span style="color:var(--text3);">—</span>'}
-        </td>
-        <td>${updatedInfo}</td>
-        <td style="white-space:nowrap;">
-          <button class="action-btn edit"   onclick="startEditParam(${p.id})">✎ Edit</button>
-          <button class="action-btn ${p.is_active ? 'demote' : 'promote'}"
-                  onclick="toggleParam(${p.id}, ${p.is_active ? 0 : 1})">
-            ${p.is_active ? '⏸ Disable' : '▶ Enable'}
-          </button>
-          <button class="action-btn delete" onclick="deleteParam(${p.id}, '${escHtml(p.parameter_name)}')">✕</button>
-        </td>
-      </tr>`;
-    }
-
-    // ── EDIT ROW ──
-    return `<tr id="prow_${p.id}" style="background:rgba(62,207,207,0.04);">
+  body.innerHTML = `<table><thead><tr>
+    <th>#</th><th>User</th><th>Sample / Lab</th><th>Status</th><th>Method</th><th>Date</th>
+  </tr></thead><tbody>
+    ${data.map(a => `<tr>
+      <td style="color:var(--text3);font-size:0.78rem;">${a.id}</td>
       <td>
-        <span class="active-dot ${p.is_active ? 'on' : 'off'}"></span>
-        <span style="font-size:0.75rem;color:${p.is_active ? 'var(--success)' : 'var(--text3)'};">${p.is_active ? 'Active' : 'Inactive'}</span>
+        <div style="font-weight:500;">${escHtml(a.user_name)}</div>
+        <div style="font-size:0.75rem;color:var(--text3);">${escHtml(a.user_email)}</div>
       </td>
+      <td>
+        <div style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(a.lab_info || '—')}</div>
+        <div style="font-size:0.75rem;color:var(--text3);">${escHtml(a.sample_info || '')}</div>
+      </td>
+      <td>${statusBadge(a.safety_status)}</td>
+      <td style="color:var(--text2);font-size:0.82rem;">${escHtml(a.method_used || '—')}</td>
+      <td style="color:var(--text3);font-size:0.78rem;white-space:nowrap;">${shortDate(a.created_at)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function filterAnalyses(q) {
+  q = q.toLowerCase();
+  renderAnalyses(allAnalyses.filter(a =>
+    (a.user_name   || '').toLowerCase().includes(q) ||
+    (a.user_email  || '').toLowerCase().includes(q) ||
+    (a.lab_info    || '').toLowerCase().includes(q) ||
+    (a.sample_info || '').toLowerCase().includes(q)
+  ));
+}
+
+/* ── Parameters ── */
+function renderParams(data) {
+  const body = document.getElementById('parametersBody');
+  document.getElementById('paramCount').textContent =
+    `${data.filter(p => p.is_active).length} active / ${data.length} total`;
+  if (!data.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">⚗️</div><p>No parameters found.</p></div>';
+    return;
+  }
+  body.innerHTML = `<table><thead><tr>
+    <th>Status</th><th>Parameter</th><th>Unit</th>
+    <th>Permissible</th><th>Acceptable</th><th>Low Limit</th><th>Updated</th><th>Actions</th>
+  </tr></thead><tbody id="paramTableBody">
+    ${data.map(p => renderParamRow(p)).join('')}
+  </tbody></table>`;
+}
+
+function renderParamRow(p, editing = false) {
+  const updatedInfo = p.updated_at
+    ? `<div style="font-size:0.72rem;color:var(--text3);">${shortDate(p.updated_at)}</div>
+       ${p.updated_by_name ? `<div style="font-size:0.7rem;color:var(--text3);">by ${escHtml(p.updated_by_name)}</div>` : ''}`
+    : `<span style="color:var(--text3);font-size:0.75rem;">Default</span>`;
+
+  if (!editing) {
+    return `<tr id="prow_${p.id}">
+      <td><span class="active-dot ${p.is_active?'on':'off'}"></span>
+          <span style="font-size:0.75rem;color:${p.is_active?'var(--success)':'var(--text3)'};">${p.is_active?'Active':'Inactive'}</span></td>
       <td style="font-weight:600;color:var(--accent2);">${escHtml(p.parameter_name)}</td>
-      <td><input class="param-input unit" id="eUnit_${p.id}" value="${escHtml(p.unit || '')}" placeholder="mg/L"></td>
-      <td><input class="param-input" id="ePerm_${p.id}" type="number" step="any" value="${p.permissible_limit ?? ''}" placeholder="limit"></td>
-      <td><input class="param-input" id="eAccept_${p.id}" type="number" step="any" value="${p.acceptable_limit ?? ''}" placeholder="limit"></td>
-      <td><input class="param-input" id="eLoLimit_${p.id}" type="number" step="any" value="${p.lo_limit ?? ''}" placeholder="none"></td>
-      <td style="font-size:0.72rem;color:var(--text3);">editing…</td>
+      <td style="color:var(--text3);">${escHtml(p.unit || '—')}</td>
+      <td><span style="font-weight:500;">${p.permissible_limit ?? '—'}</span>
+          ${p.hi_is_bad ? '<span class="limit-tag hi">↑ bad</span>':''}</td>
+      <td style="color:var(--text2);">${p.acceptable_limit ?? '—'}</td>
+      <td>${p.lo_limit != null
+        ? `<span style="font-weight:500;">${p.lo_limit}</span><span class="limit-tag lo">↓ bad</span>`
+        : '<span style="color:var(--text3);">—</span>'}</td>
+      <td>${updatedInfo}</td>
       <td style="white-space:nowrap;">
-        <button class="action-btn save"   onclick="saveParam(${p.id})">✓ Save</button>
-        <button class="action-btn cancel" onclick="cancelEditParam(${p.id})">✕</button>
+        <button class="btn btn-info"    style="font-size:0.78rem;padding:4px 10px;margin-left:4px;" onclick="startEditParam(${p.id})">✎ Edit</button>
+        <button class="btn ${p.is_active?'btn-ghost':'btn-success'}" style="font-size:0.78rem;padding:4px 10px;margin-left:4px;"
+                onclick="toggleParam(${p.id},${p.is_active?0:1})">${p.is_active?'⏸ Disable':'▶ Enable'}</button>
+        <button class="btn btn-danger"  style="font-size:0.78rem;padding:4px 10px;margin-left:4px;" onclick="deleteParam(${p.id},'${escHtml(p.parameter_name)}')">✕</button>
       </td>
     </tr>`;
   }
 
-  function filterParams(q) {
-    q = q.toLowerCase();
-    renderParams(allParams.filter(p => p.parameter_name.toLowerCase().includes(q)));
-  }
+  return `<tr id="prow_${p.id}" style="background:rgba(62,207,207,0.04);">
+    <td><span class="active-dot ${p.is_active?'on':'off'}"></span>
+        <span style="font-size:0.75rem;color:${p.is_active?'var(--success)':'var(--text3)'};">${p.is_active?'Active':'Inactive'}</span></td>
+    <td style="font-weight:600;color:var(--accent2);">${escHtml(p.parameter_name)}</td>
+    <td><input class="param-input unit" id="eUnit_${p.id}"  value="${escHtml(p.unit||'')}"           placeholder="mg/L"></td>
+    <td><input class="param-input"      id="ePerm_${p.id}"  type="number" step="any" value="${p.permissible_limit??''}" placeholder="limit"></td>
+    <td><input class="param-input"      id="eAccept_${p.id}" type="number" step="any" value="${p.acceptable_limit??''}" placeholder="limit"></td>
+    <td><input class="param-input"      id="eLoLimit_${p.id}" type="number" step="any" value="${p.lo_limit??''}"        placeholder="none"></td>
+    <td style="font-size:0.72rem;color:var(--text3);">editing…</td>
+    <td style="white-space:nowrap;">
+      <button class="btn btn-success" style="font-size:0.78rem;padding:4px 10px;" onclick="saveParam(${p.id})">✓ Save</button>
+      <button class="btn btn-ghost"   style="font-size:0.78rem;padding:4px 10px;" onclick="cancelEditParam(${p.id})">✕</button>
+    </td>
+  </tr>`;
+}
 
-  function startEditParam(pid) {
-    if (editingParamId && editingParamId !== pid) cancelEditParam(editingParamId);
-    editingParamId = pid;
-    const p = allParams.find(p => p.id === pid);
-    const row = document.getElementById('prow_' + pid);
-    if (row && p) row.outerHTML = renderParamRow(p, true);
-  }
+function filterParams(q) {
+  q = q.toLowerCase();
+  renderParams(allParams.filter(p => p.parameter_name.toLowerCase().includes(q)));
+}
 
-  function cancelEditParam(pid) {
+function startEditParam(pid) {
+  if (editingParamId && editingParamId !== pid) cancelEditParam(editingParamId);
+  editingParamId = pid;
+  const p = allParams.find(p => p.id === pid);
+  const row = document.getElementById('prow_' + pid);
+  if (row && p) row.outerHTML = renderParamRow(p, true);
+}
+
+function cancelEditParam(pid) {
+  editingParamId = null;
+  const p = allParams.find(p => p.id === pid);
+  const row = document.getElementById('prow_' + pid);
+  if (row && p) row.outerHTML = renderParamRow(p, false);
+}
+
+async function saveParam(pid) {
+  const unit   = document.getElementById('eUnit_'    + pid).value.trim();
+  const perm   = document.getElementById('ePerm_'    + pid).value;
+  const accept = document.getElementById('eAccept_'  + pid).value;
+  const lo     = document.getElementById('eLoLimit_' + pid).value;
+  const body   = {
+    unit,
+    permissible_limit: perm   !== '' ? parseFloat(perm)   : null,
+    acceptable_limit:  accept !== '' ? parseFloat(accept)  : null,
+    lo_limit:          lo     !== '' ? parseFloat(lo)      : null,
+    lo_is_bad:         lo     !== '' ? 1 : 0,
+  };
+  try {
+    const updated = await API.put(`/api/admin/parameters/${pid}`, body);
+    const idx = allParams.findIndex(p => p.id === pid);
+    if (idx !== -1) allParams[idx] = updated;
     editingParamId = null;
-    const p = allParams.find(p => p.id === pid);
     const row = document.getElementById('prow_' + pid);
-    if (row && p) row.outerHTML = renderParamRow(p, false);
-  }
+    if (row) row.outerHTML = renderParamRow(updated, false);
+    document.getElementById('paramCount').textContent =
+      `${allParams.filter(p=>p.is_active).length} active / ${allParams.length} total`;
+    showToast('✅ Parameter updated');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
 
-  async function saveParam(pid) {
-    const unit  = document.getElementById('eUnit_' + pid).value.trim();
-    const perm  = document.getElementById('ePerm_' + pid).value;
-    const accept= document.getElementById('eAccept_' + pid).value;
-    const lo    = document.getElementById('eLoLimit_' + pid).value;
+async function toggleParam(pid, newActive) {
+  try {
+    const updated = await API.put(`/api/admin/parameters/${pid}`, { is_active: newActive });
+    const idx = allParams.findIndex(p => p.id === pid);
+    if (idx !== -1) allParams[idx] = updated;
+    const row = document.getElementById('prow_' + pid);
+    if (row) row.outerHTML = renderParamRow(updated, false);
+    document.getElementById('paramCount').textContent =
+      `${allParams.filter(p=>p.is_active).length} active / ${allParams.length} total`;
+    showToast(newActive ? '▶ Parameter enabled' : '⏸ Parameter disabled');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
 
-    const body = {
-      unit,
-      permissible_limit: perm  !== '' ? parseFloat(perm)  : null,
-      acceptable_limit:  accept !== '' ? parseFloat(accept) : null,
-      lo_limit:          lo    !== '' ? parseFloat(lo)    : null,
-      lo_is_bad:         lo    !== '' ? 1 : 0,
-    };
+async function deleteParam(pid, name) {
+  if (!confirm(`Delete parameter "${name}"? This cannot be undone.`)) return;
+  try {
+    await API.delete(`/api/admin/parameters/${pid}`);
+    allParams = allParams.filter(p => p.id !== pid);
+    renderParams(allParams);
+    showToast(`🗑️ "${name}" deleted`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
 
-    try {
-      const resp = await fetch(`/api/admin/parameters/${pid}`, {
-        method: 'PUT',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      if (resp.ok) {
-        const updated = await resp.json();
-        const idx = allParams.findIndex(p => p.id === pid);
-        if (idx !== -1) allParams[idx] = updated;
-        editingParamId = null;
-        const row = document.getElementById('prow_' + pid);
-        if (row) row.outerHTML = renderParamRow(updated, false);
-        document.getElementById('paramCount').textContent =
-          `${allParams.filter(p=>p.is_active).length} active / ${allParams.length} total`;
-        showToast('✅ Parameter updated');
-      } else {
-        const err = await resp.json();
-        showToast('⚠️ ' + (err.error || 'Update failed'));
-      }
-    } catch(e) { showToast('⚠️ Failed to save parameter'); }
-  }
+function toggleAddForm() {
+  const form = document.getElementById('addForm');
+  form.classList.toggle('show');
+  if (form.classList.contains('show')) document.getElementById('newName').focus();
+}
 
-  async function toggleParam(pid, newActive) {
-    try {
-      const resp = await fetch(`/api/admin/parameters/${pid}`, {
-        method: 'PUT',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ is_active: newActive })
-      });
-      if (resp.ok) {
-        const updated = await resp.json();
-        const idx = allParams.findIndex(p => p.id === pid);
-        if (idx !== -1) allParams[idx] = updated;
-        const row = document.getElementById('prow_' + pid);
-        if (row) row.outerHTML = renderParamRow(updated, false);
-        document.getElementById('paramCount').textContent =
-          `${allParams.filter(p=>p.is_active).length} active / ${allParams.length} total`;
-        showToast(newActive ? '▶ Parameter enabled' : '⏸ Parameter disabled');
-      }
-    } catch(e) { showToast('⚠️ Failed to update parameter'); }
-  }
-
-  async function deleteParam(pid, name) {
-    if (!confirm(`Delete parameter "${name}"? This cannot be undone.`)) return;
-    try {
-      const resp = await fetch(`/api/admin/parameters/${pid}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': 'Bearer ' + token }
-      });
-      if (resp.ok) {
-        allParams = allParams.filter(p => p.id !== pid);
-        renderParams(allParams);
-        showToast(`🗑️ "${name}" deleted`);
-      }
-    } catch(e) { showToast('⚠️ Failed to delete parameter'); }
-  }
-
-  // ── ADD PARAMETER ──────────────────────────────────────────────────────────
-  function toggleAddForm() {
-    const form = document.getElementById('addForm');
-    form.classList.toggle('show');
-    if (form.classList.contains('show')) {
-      document.getElementById('newName').focus();
-    }
-  }
-
-  async function addParameter() {
-    const name   = document.getElementById('newName').value.trim().toLowerCase();
-    const unit   = document.getElementById('newUnit').value.trim();
-    const perm   = document.getElementById('newPermissible').value;
-    const accept = document.getElementById('newAcceptable').value;
-    const lo     = document.getElementById('newLoLimit').value;
-
-    if (!name) { showToast('⚠️ Parameter name is required'); return; }
-
-    const body = {
+async function addParameter() {
+  const name   = document.getElementById('newName').value.trim().toLowerCase();
+  const unit   = document.getElementById('newUnit').value.trim();
+  const perm   = document.getElementById('newPermissible').value;
+  const accept = document.getElementById('newAcceptable').value;
+  const lo     = document.getElementById('newLoLimit').value;
+  if (!name) { showToast('⚠️ Parameter name is required'); return; }
+  try {
+    const newParam = await API.post('/api/admin/parameters', {
       parameter_name:   name,
-      unit:             unit,
+      unit,
       permissible_limit: perm   !== '' ? parseFloat(perm)   : null,
       acceptable_limit:  accept !== '' ? parseFloat(accept)  : null,
       lo_limit:          lo     !== '' ? parseFloat(lo)      : null,
       lo_is_bad:         lo     !== '' ? 1 : 0,
-      hi_is_bad:         1,
-    };
-
-    try {
-      const resp = await fetch('/api/admin/parameters', {
-        method: 'POST',
-        headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
-        body: JSON.stringify(body)
-      });
-      if (resp.ok) {
-        const newParam = await resp.json();
-        allParams.push(newParam);
-        allParams.sort((a,b) => a.parameter_name.localeCompare(b.parameter_name));
-        renderParams(allParams);
-        // Clear form
-        ['newName','newUnit','newPermissible','newAcceptable','newLoLimit'].forEach(id => {
-          document.getElementById(id).value = '';
-        });
-        document.getElementById('addForm').classList.remove('show');
-        showToast(`✅ "${newParam.parameter_name}" added`);
-      } else {
-        const err = await resp.json();
-        showToast('⚠️ ' + (err.error || 'Add failed'));
-      }
-    } catch(e) { showToast('⚠️ Failed to add parameter'); }
-  }
-
-  // ── UTILITIES ──────────────────────────────────────────────────────────────
-  function statusBadge(s) {
-    const map = { safe:['✅','Safe','safe'], caution:['🔔','Caution','caution'], unsafe:['⚠️','Unsafe','unsafe'] };
-    const [icon, label, cls] = map[s] || ['—','Unknown','caution'];
-    return `<span class="status-badge ${cls}">${icon} ${label}</span>`;
-  }
-
-  function shortDate(dt) {
-    if (!dt) return '—';
-    const d = new Date(dt + (dt.endsWith('Z') ? '' : 'Z'));
-    return d.toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-  }
-
-  function escHtml(s) {
-    return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-  }
-
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    setTimeout(() => { t.style.display = 'none'; }, 3000);
-  }
-
-  function logout() {
-    localStorage.removeItem('chem_token');
-    localStorage.removeItem('chem_user');
-    window.location.href = '/';
-  }
-
-  loadAll();
+      hi_is_bad: 1,
+    });
+    allParams.push(newParam);
+    allParams.sort((a,b) => a.parameter_name.localeCompare(b.parameter_name));
+    renderParams(allParams);
+    ['newName','newUnit','newPermissible','newAcceptable','newLoLimit'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('addForm').classList.remove('show');
+    showToast(`✅ "${newParam.parameter_name}" added`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
 </script>
 </body>
 </html>
