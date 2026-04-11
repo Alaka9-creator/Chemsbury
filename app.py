@@ -1,5 +1,9 @@
 from flask import Flask, request, jsonify, Response
 from flask_cors import CORS
+from dotenv import load_dotenv
+load_dotenv()
+from collections import defaultdict
+import time
 from functools import wraps
 import pdfplumber
 import base64 as _b64
@@ -29,7 +33,9 @@ CORS(app, origins="*")
 PORT = int(os.environ.get('PORT', 3000))
 MAX_FILE_SIZE_MB = 10
 ALLOWED_DOMAIN = 'chemsbury.in'
-JWT_SECRET = os.environ.get('JWT_SECRET', secrets.token_hex(32))
+JWT_SECRET = os.environ.get('JWT_SECRET')
+if not JWT_SECRET:
+    raise RuntimeError("JWT_SECRET must be set")
 DB_PATH = os.environ.get('DB_PATH', 'chemsbury.db')
 
 # ─── IS:10500 DEFAULT PARAMETERS ─────────────────────────────────────────────
@@ -446,15 +452,21 @@ def compute_safety_status(params):
         hi_bad = limit_data.get('hi_is_bad', 1)
         lo_bad = limit_data.get('lo_is_bad', 0)
 
+        # High limit check
         if hi_bad and perm is not None:
-            if v > perm * 1.5:
-                return 'unsafe'          # immediate unsafe — no need to check further
-            if v > perm and overall == 'safe':
-                overall = 'caution'
+            if v > perm:
+                if v > perm * 1.5:
+                    return 'unsafe'   # critical
+                if overall == 'safe':
+                    overall = 'caution'
 
+        # Low limit check
         if lo_bad and lo is not None:
             if v < lo:
-                return 'unsafe'
+                if v < lo * 0.5:
+                    return 'unsafe'   # critical low
+                if overall == 'safe':
+                    overall = 'caution'
 
     return overall
 
@@ -496,9 +508,21 @@ def api_register():
     finally:
         conn.close()
 
+_login_attempts = defaultdict(list)
+
+def check_rate_limit(ip, max_attempts=5, window=300):
+    now = time.time()
+    attempts = [t for t in _login_attempts[ip] if now - t < window]
+    _login_attempts[ip] = attempts
+    if len(attempts) >= max_attempts:
+        return False
+    _login_attempts[ip].append(now)
+    return True
+
 @app.route('/api/login', methods=['POST'])
 def api_login():
     data = request.get_json()
+    ip = request.remote_addr
     email = (data.get('email') or '').strip().lower()
     password = data.get('password') or ''
     if not email or not password:
@@ -506,6 +530,8 @@ def api_login():
     conn = get_db()
     user = conn.execute('SELECT * FROM users WHERE email=?', (email,)).fetchone()
     conn.close()
+    if not check_rate_limit(ip):
+        return jsonify({'error': 'Too many attempts. Try again later.'}), 429
     if not user or not verify_password(password, user['password_hash']):
         return jsonify({'error': 'Invalid email or password.'}), 401
     token = create_token(user['id'], user['role'])
@@ -812,3 +838,10 @@ def admin_page():
 if __name__ == '__main__':
     logger.info(f"Starting Chemsbury on port {PORT}")
     app.run(host='0.0.0.0', port=PORT, debug=False)
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
