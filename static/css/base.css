@@ -1,0 +1,49 @@
+/* ═══════════════════════════════════════════════════════════
+   base.css  –  CSS variables, reset, typography
+═══════════════════════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap');
+
+:root {
+  --bg:       #0a0f1a;
+  --bg2:      #0e1525;
+  --bg3:      #131c2e;
+  --surface:  #1a2540;
+  --surface2: #1f2d4a;
+  --border:   rgba(99,179,237,0.12);
+  --border2:  rgba(99,179,237,0.22);
+  --accent:   #3ecfcf;
+  --accent2:  #5b9cf6;
+  --accent3:  #a78bfa;
+  --danger:   #f87171;
+  --warning:  #fbbf24;
+  --success:  #34d399;
+  --text:     #e8f0fe;
+  --text2:    #8ba3cc;
+  --text3:    #4a6080;
+  --glow:     0 0 40px rgba(62,207,207,0.15);
+}
+
+*  { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background:  var(--bg);
+  color:       var(--text);
+  min-height:  100vh;
+}
+
+/* Ambient gradient background */
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 20% 0%,   rgba(62,207,207,0.06) 0%, transparent 60%),
+    radial-gradient(ellipse 60% 50% at 80% 100%,  rgba(91,156,246,0.06) 0%, transparent 60%);
+  pointer-events: none; z-index: 0;
+}
+
+::-webkit-scrollbar       { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--surface2); border-radius: 10px; }
