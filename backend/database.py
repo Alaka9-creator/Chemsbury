@@ -4,9 +4,6 @@ from backend.config import DB_PATH
 
 logger = logging.getLogger(__name__)
 
-# ── IS:10500 DEFAULT PARAMETERS ───────────────────────────────────────────────
-# (parameter_name, unit, permissible_limit, acceptable_limit,
-#  hi_is_bad, lo_limit, lo_is_bad)
 IS10500_DEFAULTS = [
     ('ph',          '',           8.5,   6.5,  1, 6.5,  1),
     ('turbidity',   'NTU',        5.0,   1.0,  1, None, 0),
@@ -51,41 +48,50 @@ def init_db():
     conn = get_db()
     conn.executescript('''
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            company TEXT,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            role TEXT DEFAULT 'user',
-            created_at TEXT DEFAULT (datetime('now'))
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            name          TEXT    NOT NULL,
+            company       TEXT,
+            email         TEXT    UNIQUE NOT NULL,
+            password_hash TEXT    NOT NULL,
+            role          TEXT    DEFAULT 'user',
+            created_at    TEXT    DEFAULT (datetime('now'))
         );
 
         CREATE TABLE IF NOT EXISTS analyses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            lab_info TEXT,
-            sample_info TEXT,
-            params TEXT,
+            id            INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id       INTEGER NOT NULL,
+            lab_info      TEXT,
+            sample_info   TEXT,
+            params        TEXT,
             safety_status TEXT,
-            method_used TEXT,
-            confidence TEXT,
-            notes TEXT,
-            created_at TEXT DEFAULT (datetime('now')),
+            method_used   TEXT,
+            confidence    TEXT,
+            notes         TEXT,
+            created_at    TEXT DEFAULT (datetime('now')),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
 
         CREATE TABLE IF NOT EXISTS water_parameters (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            parameter_name TEXT NOT NULL UNIQUE,
-            unit TEXT,
+            id                INTEGER PRIMARY KEY AUTOINCREMENT,
+            parameter_name    TEXT    NOT NULL UNIQUE,
+            unit              TEXT,
             permissible_limit REAL,
-            acceptable_limit REAL,
-            hi_is_bad INTEGER DEFAULT 1,
-            lo_limit REAL,
-            lo_is_bad INTEGER DEFAULT 0,
-            is_active INTEGER DEFAULT 1,
-            updated_at TEXT,
-            updated_by INTEGER REFERENCES users(id)
+            acceptable_limit  REAL,
+            hi_is_bad         INTEGER DEFAULT 1,
+            lo_limit          REAL,
+            lo_is_bad         INTEGER DEFAULT 0,
+            is_active         INTEGER DEFAULT 1,
+            updated_at        TEXT,
+            updated_by        INTEGER REFERENCES users(id)
+        );
+
+        CREATE TABLE IF NOT EXISTS password_resets (
+            id         INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id    INTEGER NOT NULL REFERENCES users(id),
+            token_hash TEXT    NOT NULL UNIQUE,
+            expires_at TEXT    NOT NULL,
+            used       INTEGER DEFAULT 0,
+            created_at TEXT    DEFAULT (datetime('now'))
         );
     ''')
     conn.commit()
