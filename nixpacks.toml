@@ -1,2 +1,2 @@
 [phases.setup]
-nixPkgs = ["tesseract4"]
+nixPkgs = ["tesseract4","python3"]
