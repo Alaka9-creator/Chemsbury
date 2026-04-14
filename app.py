@@ -5,7 +5,7 @@ Flask application factory
 import os
 import logging
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_cors import CORS
 from dotenv import load_dotenv
 
@@ -22,7 +22,7 @@ def create_app() -> Flask:
     app = Flask(__name__, static_folder='static')
 
     # ── Config ────────────────────────────────────────────────────────────────
-    from backend.config import ALLOWED_ORIGINS, PORT  # noqa: F401 — validates env at import
+    from backend.config import ALLOWED_ORIGINS, PORT  # noqa — validates env at import
 
     CORS(app, origins=ALLOWED_ORIGINS)
 
@@ -41,13 +41,22 @@ def create_app() -> Flask:
     app.register_blueprint(admin_bp)
     app.register_blueprint(pages_bp)
 
+    # ── Health check (Railway uses this) ──────────────────────────────────────
+    @app.route('/health')
+    def health():
+        return jsonify({'status': 'ok'}), 200
+    
+    @app.route('/')
+def home():
+    return "Chemsbury backend is running", 200
+
     # ── Security headers ──────────────────────────────────────────────────────
     @app.after_request
     def set_security_headers(response):
-        response.headers['X-Content-Type-Options']  = 'nosniff'
-        response.headers['X-Frame-Options']          = 'DENY'
-        response.headers['Referrer-Policy']          = 'strict-origin-when-cross-origin'
-        response.headers['X-XSS-Protection']         = '1; mode=block'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options']         = 'DENY'
+        response.headers['Referrer-Policy']         = 'strict-origin-when-cross-origin'
+        response.headers['X-XSS-Protection']        = '1; mode=block'
         return response
 
     logger.info("Chemsbury app created successfully")
