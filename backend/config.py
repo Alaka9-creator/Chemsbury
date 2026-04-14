@@ -1,6 +1,7 @@
 import os
 import sys
-
+print("CONFIG FILE VERSION: NEW")
+print("SMTP_HOST exists?", "SMTP_HOST" in globals())
 # ── JWT ───────────────────────────────────────────────────────────────────────
 JWT_SECRET = os.environ.get('JWT_SECRET')
 if not JWT_SECRET:
