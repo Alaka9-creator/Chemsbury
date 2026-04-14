@@ -4,6 +4,7 @@ print("CONFIG FILE VERSION: NEW")
 print("SMTP_HOST exists?", "SMTP_HOST" in globals())
 # ── JWT ───────────────────────────────────────────────────────────────────────
 JWT_SECRET = os.environ.get('JWT_SECRET')
+print("JWT_SECRET VALUE:", JWT_SECRET)   # 👈 ADD THIS LINE
 if not JWT_SECRET:
     print("FATAL: JWT_SECRET environment variable must be set.", file=sys.stderr)
     sys.exit(1)
