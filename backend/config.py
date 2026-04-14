@@ -30,7 +30,6 @@ LOGIN_WINDOW_SECONDS = int(os.environ.get('LOGIN_WINDOW_SECONDS', 300))
 # ── Port ──────────────────────────────────────────────────────────────────────
 PORT = int(os.environ.get('PORT', 3000))
 
-import os
 
 # SMTP (optional — app works without these, just logs emails to console)
 SMTP_HOST     = os.environ.get('SMTP_HOST',     '')
