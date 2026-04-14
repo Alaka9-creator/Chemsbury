@@ -47,8 +47,8 @@ def create_app() -> Flask:
         return jsonify({'status': 'ok'}), 200
     
     @app.route('/')
-def home():
-    return "Chemsbury backend is running", 200
+    def home():
+        return "Chemsbury backend is running", 200
 
     # ── Security headers ──────────────────────────────────────────────────────
     @app.after_request
