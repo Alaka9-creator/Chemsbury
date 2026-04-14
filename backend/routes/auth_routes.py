@@ -6,19 +6,16 @@ import smtplib
 import logging
 from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
-from email.mime.text       import MIMEText
+from email.mime.text import MIMEText
 
 from flask import Blueprint, request, jsonify
 
-from backend.auth      import hash_password, verify_password_any, create_token, require_auth, check_rate_limit
-from backend.database  import get_db
-from backend.config    import (
-    ALLOWED_DOMAIN, SMTP_HOST, SMTP_PORT, SMTP_USER,
-    SMTP_PASSWORD, SMTP_FROM, FRONTEND_URL,
-)
+from backend.auth import hash_password, verify_password_any, create_token, require_auth, check_rate_limit
+from backend.database import get_db
+from backend import config   # ✅ FIXED IMPORT
 
-auth_bp   = Blueprint('auth', __name__)
-logger    = logging.getLogger(__name__)
+auth_bp = Blueprint('auth', __name__)
+logger = logging.getLogger(__name__)
 _EMAIL_RE = re.compile(r'^[^@\s]+@[^@\s]+\.[^@\s]+$')
 
 
@@ -31,7 +28,7 @@ def _validate_register(data: dict) -> str | None:
     if len(name) > 100:                            return 'Name must be under 100 characters.'
     if not email or not _EMAIL_RE.match(email):    return 'A valid email address is required.'
     if len(email) > 254:                           return 'Email address is too long.'
-    if not email.endswith(f'@{ALLOWED_DOMAIN}'):   return f'Only @{ALLOWED_DOMAIN} email addresses are allowed.'
+    if not email.endswith(f'@{config.ALLOWED_DOMAIN}'):   return f'Only @{config.ALLOWED_DOMAIN} email addresses are allowed.'
     if len(password) < 8:                          return 'Password must be at least 8 characters.'
     if not re.search(r'[A-Z]', password):          return 'Password must contain at least one uppercase letter.'
     if not re.search(r'[a-z]', password):          return 'Password must contain at least one lowercase letter.'
@@ -152,7 +149,7 @@ def forgot_password():
         )
         conn.commit()
 
-        reset_url = f"{FRONTEND_URL}/reset-password?token={raw_token}"
+        reset_url = f"{config.FRONTEND_URL}/reset-password?token={raw_token}"
         _send_reset_email(email, user['name'], reset_url)
 
     conn.close()
@@ -199,7 +196,7 @@ def reset_password():
 
 # ── Email helper ──────────────────────────────────────────────────────────────
 def _send_reset_email(to_email: str, name: str, reset_url: str):
-    if not SMTP_HOST:
+    if not config.SMTP_HOST:
         # No SMTP configured — log for development
         logger.warning(f"[DEV] Password reset link for {to_email}: {reset_url}")
         return
@@ -244,15 +241,15 @@ def _send_reset_email(to_email: str, name: str, reset_url: str):
     try:
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
-        msg['From']    = SMTP_FROM
+        msg['From']    = config.SMTP_FROM
         msg['To']      = to_email
         msg.attach(MIMEText(body_html, 'html'))
 
-        with smtplib.SMTP(SMTP_HOST, SMTP_PORT) as server:
+        with smtplib.SMTP(config.SMTP_HOST, config.SMTP_PORT) as server:
             server.ehlo()
             server.starttls()
-            server.login(SMTP_USER, SMTP_PASSWORD)
-            server.sendmail(SMTP_FROM, [to_email], msg.as_string())
+            server.login(config.SMTP_USER, config.SMTP_PASSWORD)
+            server.sendmail(config.SMTP_FROM, [to_email], msg.as_string())
         logger.info(f"Reset email sent to {to_email}")
     except Exception as e:
         logger.error(f"Failed to send reset email to {to_email}: {e}")
