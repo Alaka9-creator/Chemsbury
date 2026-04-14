@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign In — Chemsbury Solutions</title>
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
+<style>
+body {
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+}
+
+/* Animated grid background */
+body::after {
+  content: '';
+  position: fixed; inset: 0;
+  background-image:
+    linear-gradient(rgba(62,207,207,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(62,207,207,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  pointer-events: none; z-index: 0;
+  animation: gridDrift 30s linear infinite;
+}
+@keyframes gridDrift { 0%{background-position:0 0} 100%{background-position:48px 48px} }
+
+/* ── Left brand panel ── */
+.brand-panel {
+  display: none;
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 56px;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(160deg, rgba(14,22,42,1) 0%, rgba(8,13,26,1) 100%);
+  border-right: 1px solid var(--border);
+}
+@media(min-width: 900px) { .brand-panel { display: flex; } }
+
+/* Glow orbs */
+.brand-panel::before {
+  content: '';
+  position: absolute;
+  width: 500px; height: 500px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(62,207,207,0.07) 0%, transparent 65%);
+  top: -120px; left: -120px;
+  pointer-events: none;
+}
+.brand-panel::after {
+  content: '';
+  position: absolute;
+  width: 360px; height: 360px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(91,156,246,0.06) 0%, transparent 65%);
+  bottom: -80px; right: -80px;
+  pointer-events: none;
+}
+
+.brand-logo { display: flex; align-items: center; gap: 12px; position: relative; z-index: 1; }
+.brand-logo img { height: 38px; border-radius: 9px; }
+.brand-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.02em;
+}
+.brand-logo-text span { color: var(--accent); }
+
+.brand-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+.brand-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 14px;
+  background: rgba(62,207,207,0.08);
+  border: 1px solid rgba(62,207,207,0.2);
+  border-radius: 100px;
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 24px;
+  width: fit-content;
+}
+.brand-headline {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: clamp(1.9rem, 3.2vw, 2.8rem);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  margin-bottom: 20px;
+  color: var(--text);
+}
+.brand-headline em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.brand-desc {
+  font-size: 0.95rem;
+  color: var(--text2);
+  line-height: 1.75;
+  max-width: 380px;
+  margin-bottom: 36px;
+}
+
+.brand-features { display: flex; flex-direction: column; gap: 12px; }
+.brand-feature {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.875rem;
+  color: var(--text2);
+}
+.brand-feature-icon {
+  width: 32px; height: 32px;
+  border-radius: 8px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.brand-stats {
+  display: flex;
+  gap: 28px;
+  position: relative;
+  z-index: 1;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+.brand-stat-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.5rem;
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.brand-stat-lbl {
+  font-size: 0.72rem;
+  color: var(--text3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+/* ── Right form panel ── */
+.form-panel {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: clamp(32px, 5vw, 64px) clamp(24px, 5vw, 56px);
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 36px;
+}
+.mobile-logo img { height: 34px; border-radius: 8px; }
+.mobile-logo-text {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1rem;
+  letter-spacing: -0.02em;
+}
+.mobile-logo-text span { color: var(--accent); }
+@media(min-width: 900px) { .mobile-logo { display: none; } }
+
+.form-head { margin-bottom: 32px; }
+.form-head h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.75rem;
+  letter-spacing: -0.025em;
+  margin-bottom: 7px;
+}
+.form-head p { font-size: 0.9rem; color: var(--text2); }
+
+.domain-note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.76rem;
+  color: var(--text3);
+}
+
+.submit-btn {
+  width: 100%;
+  padding: 13px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  color: #080d1a;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.25s;
+  letter-spacing: 0.02em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.submit-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--glow); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.form-links {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 20px;
+  font-size: 0.875rem;
+  color: var(--text2);
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.form-links a { color: var(--accent); font-weight: 500; }
+
+.pw-toggle {
+  position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  background: none; border: none;
+  cursor: pointer;
+  color: var(--text3);
+  font-size: 15px;
+  display: flex; align-items: center;
+  z-index: 10; outline: none;
+  transition: color 0.2s;
+}
+.pw-toggle:hover { color: var(--text2); }
+</style>
+</head>
+<body>
+
+<div class="brand-panel">
+  <div class="brand-logo">
+    <img src="/static/images/logo.jpg" alt="Chemsbury">
+    <div class="brand-logo-text">Chemsbury <span>Solutions</span></div>
+  </div>
+
+  <div class="brand-main">
+    <div class="brand-tag">🔬 Water Quality Platform</div>
+    <h1 class="brand-headline">
+      Laboratory-grade<br>water analysis,<br><em>without the wait</em>
+    </h1>
+    <p class="brand-desc">
+      Upload your water test report, get IS:10500 compliance results instantly, and receive a complete filtration system design with bill of materials.
+    </p>
+    <div class="brand-features">
+      <div class="brand-feature">
+        <div class="brand-feature-icon">📄</div>
+        <span>Reads PDF and image lab reports automatically</span>
+      </div>
+      <div class="brand-feature">
+        <div class="brand-feature-icon">⚗️</div>
+        <span>Checks 30+ parameters against IS:10500 standards</span>
+      </div>
+      <div class="brand-feature">
+        <div class="brand-feature-icon">🏗️</div>
+        <span>Generates filter vessel design and priced BOM</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="brand-stats">
+    <div>
+      <div class="brand-stat-num">30+</div>
+      <div class="brand-stat-lbl">Parameters</div>
+    </div>
+    <div>
+      <div class="brand-stat-num">IS:10500</div>
+      <div class="brand-stat-lbl">Standard</div>
+    </div>
+    <div>
+      <div class="brand-stat-num">6</div>
+      <div class="brand-stat-lbl">Filter Types</div>
+    </div>
+  </div>
+</div>
+
+<div class="form-panel">
+  <div class="mobile-logo">
+    <img src="/static/images/logo.jpg" alt="Chemsbury">
+    <div class="mobile-logo-text">Chemsbury <span>Solutions</span></div>
+  </div>
+
+  <div class="form-head">
+    <h2>Welcome back</h2>
+    <p>Sign in to your Chemsbury account</p>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="form-group">
+    <label>Email Address</label>
+    <div class="input-wrap">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="email" class="form-input"
+             placeholder="you@chemsbury.in" autocomplete="email">
+    </div>
+    <div class="domain-note">🔒 Only @chemsbury.in addresses are accepted</div>
+  </div>
+
+  <div class="form-group">
+    <label>Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔑</span>
+      <input type="password" id="password" class="form-input"
+             placeholder="Your password" autocomplete="current-password">
+      <button type="button" class="pw-toggle" onclick="togglePw()" aria-label="Show/hide password">
+        <span id="eyeIcon">👁️</span>
+      </button>
+    </div>
+  </div>
+
+  <button class="submit-btn" id="loginBtn" onclick="doLogin()">
+    <span id="loginText">Sign In</span>
+    <div class="spinner-sm" id="loginSpinner"></div>
+  </button>
+
+  <div class="form-links">
+    <a href="/forgot-password">Forgot password?</a>
+    <span>No account? <a href="/register">Create one</a></span>
+  </div>
+</div>
+
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/utils.js"></script>
+<script>
+  Auth.redirectIfLoggedIn('/app');
+
+  document.getElementById('password').addEventListener('keydown', e => {
+    if (e.key === 'Enter') doLogin();
+  });
+  document.getElementById('email').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('password').focus();
+  });
+
+  function togglePw() {
+    const inp = document.getElementById('password');
+    const ico = document.getElementById('eyeIcon');
+    const hidden = inp.type === 'password';
+    inp.type = hidden ? 'text' : 'password';
+    ico.textContent = hidden ? '🙈' : '👁️';
+  }
+
+  async function doLogin() {
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const errEl    = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+
+    if (!email || !password) {
+      errEl.textContent = 'Please enter your email and password.';
+      errEl.style.display = 'block';
+      return;
+    }
+
+    const btn     = document.getElementById('loginBtn');
+    const spinner = document.getElementById('loginSpinner');
+    const text    = document.getElementById('loginText');
+    setLoading(btn, text, spinner, true, 'Signing in…', 'Sign In');
+
+    try {
+      const resp = await fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) {
+        errEl.textContent  = data.error || 'Login failed. Please try again.';
+        errEl.style.display = 'block';
+        return;
+      }
+      Auth.saveSession(data.token, data.user);
+      window.location.href = data.user.role === 'admin' ? '/admin' : '/app';
+    } catch {
+      errEl.textContent  = 'Connection error. Please try again.';
+      errEl.style.display = 'block';
+    } finally {
+      setLoading(btn, text, spinner, false, 'Signing in…', 'Sign In');
+    }
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin Panel — Chemsbury Solutions</title>
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
+<style>
+  .main { position:relative; z-index:1; padding:40px; max-width:1300px; margin:0 auto; }
+  .stats-row { grid-template-columns:repeat(4,1fr); }
+
+  .admin-badge {
+    background:linear-gradient(90deg,rgba(167,139,250,0.2),rgba(91,156,246,0.2));
+    border:1px solid rgba(167,139,250,0.3); color:var(--accent3);
+    font-size:0.72rem; font-weight:600; padding:3px 10px;
+    border-radius:100px; text-transform:uppercase; letter-spacing:0.05em;
+  }
+
+  /* Param table inline edit */
+  .param-input {
+    background:var(--bg3); border:1px solid var(--border2); border-radius:6px;
+    padding:4px 8px; color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:0.82rem; outline:none; width:80px; transition:border-color 0.2s;
+  }
+  .param-input:focus { border-color:var(--accent); }
+  .param-input.unit  { width:60px; }
+
+  .limit-tag { font-size:0.7rem; padding:1px 6px; border-radius:4px; margin-left:4px; }
+  .limit-tag.hi { background:rgba(248,113,113,0.12); color:var(--danger); }
+  .limit-tag.lo { background:rgba(251,191,36,0.12);  color:var(--warning); }
+
+  .active-dot { width:8px; height:8px; border-radius:50%; display:inline-block; margin-right:6px; }
+  .active-dot.on  { background:var(--success); }
+  .active-dot.off { background:var(--text3); }
+
+  /* Add-param form */
+  .add-form {
+    background:var(--bg3); border:1px solid var(--border2); border-radius:10px;
+    padding:16px 18px; margin:14px 18px; display:none;
+  }
+  .add-form.show { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; }
+  .add-form label { font-size:0.75rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:4px; }
+  .add-form input {
+    background:var(--surface); border:1px solid var(--border2); border-radius:7px;
+    padding:6px 10px; color:var(--text); font-family:'DM Sans',sans-serif;
+    font-size:0.85rem; outline:none; transition:border-color 0.2s;
+  }
+  .add-form input:focus { border-color:var(--accent); }
+
+  @media(max-width:900px){
+    header { padding:0 16px; }
+    .main  { padding:20px 16px; }
+    .stats-row { grid-template-columns:repeat(2,1fr); }
+  }
+  @media(max-width:600px){
+    th:nth-child(3),td:nth-child(3),
+    th:nth-child(5),td:nth-child(5){ display:none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div style="display:flex;align-items:center;gap:12px;">
+    <a href="/app" class="logo">
+      <img class="logo-img" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
+      <span class="logo-text">Chemsbury <span>Solutions</span></span>
+    </a>
+    <span class="admin-badge">Admin</span>
+  </div>
+  <div class="header-right">
+    <a href="/dashboard" class="btn btn-ghost">📊 My Dashboard</a>
+    <a href="/app"       class="btn btn-primary">+ New Analysis</a>
+    <button onclick="authLogout()" class="btn btn-ghost">Sign Out</button>
+  </div>
+</header>
+
+<div class="main">
+  <div style="margin-bottom:28px;">
+    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;letter-spacing:-0.02em;margin-bottom:6px;">Admin Panel</h1>
+    <p style="color:var(--text2);font-size:0.9rem;">Manage users, view analyses, and configure IS:10500 water quality standards</p>
+  </div>
+
+  <div class="stats-row" style="display:grid;gap:14px;margin-bottom:28px;grid-template-columns:repeat(4,1fr);">
+    <div class="card"><div class="stat-val" id="sTotalUsers">—</div><div class="stat-label">Total Users</div></div>
+    <div class="card"><div class="stat-val" id="sTotalAnalyses">—</div><div class="stat-label">Total Analyses</div></div>
+    <div class="card"><div class="stat-val" id="sSafeCount">—</div><div class="stat-label">Safe Results</div></div>
+    <div class="card"><div class="stat-val" id="sUnsafeCount">—</div><div class="stat-label">Require Attention</div></div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabUsers"      onclick="switchTab('users')">👥 Users</button>
+    <button class="tab"        id="tabAnalyses"   onclick="switchTab('analyses')">🔬 All Analyses</button>
+    <button class="tab"        id="tabParameters" onclick="switchTab('parameters')">⚗️ Parameters</button>
+  </div>
+
+  <!-- USERS -->
+  <div id="usersPane">
+    <div class="table-wrap">
+      <div class="table-header">
+        <h3>Registered Users</h3>
+        <div class="search-wrap">
+          <input class="search-input" id="userSearch" placeholder="Search users…" oninput="filterUsers(this.value)">
+        </div>
+      </div>
+      <div id="usersBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- ANALYSES -->
+  <div id="analysesPane" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header">
+        <h3>All Analyses</h3>
+        <div class="search-wrap">
+          <input class="search-input" id="analysisSearch" placeholder="Search analyses…" oninput="filterAnalyses(this.value)">
+        </div>
+      </div>
+      <div id="analysesBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
+    </div>
+  </div>
+
+  <!-- PARAMETERS -->
+  <div id="parametersPane" style="display:none;">
+    <div class="table-wrap">
+      <div class="table-header">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <h3>⚗️ IS:10500 Water Parameters</h3>
+          <span id="paramCount" style="font-size:0.75rem;color:var(--text3);"></span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+          <div class="search-wrap">
+            <input class="search-input" id="paramSearch" placeholder="Search parameters…" oninput="filterParams(this.value)">
+          </div>
+          <button class="btn btn-primary" style="padding:6px 14px;font-size:0.82rem;" onclick="toggleAddForm()">+ Add Parameter</button>
+        </div>
+      </div>
+
+      <div class="add-form" id="addForm">
+        <div><label>Parameter Name *</label><input type="text"   id="newName"        placeholder="e.g. selenium" style="width:120px;"></div>
+        <div><label>Unit</label>            <input type="text"   id="newUnit"        placeholder="mg/L"  style="width:80px;"></div>
+        <div><label>Permissible Limit</label><input type="number" id="newPermissible" placeholder="0.01" step="any" style="width:110px;"></div>
+        <div><label>Acceptable Limit</label><input type="number"  id="newAcceptable"  placeholder="0.01" step="any" style="width:110px;"></div>
+        <div><label>Low Limit (optional)</label><input type="number" id="newLoLimit" placeholder="e.g. 6.5" step="any" style="width:100px;"></div>
+        <div style="display:flex;gap:6px;align-items:flex-end;">
+          <button class="btn btn-success" onclick="addParameter()">✓ Add</button>
+          <button class="btn btn-ghost"   onclick="toggleAddForm()">✕ Cancel</button>
+        </div>
+      </div>
+
+      <div id="parametersBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
+    </div>
+    <p style="margin-top:10px;font-size:0.78rem;color:var(--text3);padding:0 4px;">
+      ⚠️ Changes apply immediately to all future analyses. Historical analyses are not re-evaluated.
+    </p>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/api.js"></script>
+<script src="/static/js/utils.js"></script>
+<script>
+let allUsers = [], allAnalyses = [], allParams = [];
+let editingParamId = null;
+let currentUser    = null;
+
+(async () => {
+  currentUser = await Auth.requireAuth();
+  if (!currentUser) return;
+  if (currentUser.role !== 'admin') { window.location.href = '/app'; return; }
+  loadAll();
+})();
+
+/* ── Load ── */
+async function loadAll() {
+  try {
+    const [users, analyses] = await Promise.all([
+      API.get('/api/admin/users'),
+      API.get('/api/admin/analyses'),
+    ]);
+    allUsers    = users    || [];
+    allAnalyses = analyses || [];
+
+    document.getElementById('sTotalUsers').textContent    = allUsers.length;
+    document.getElementById('sTotalAnalyses').textContent = allAnalyses.length;
+    document.getElementById('sSafeCount').textContent     = allAnalyses.filter(a => a.safety_status === 'safe').length;
+    document.getElementById('sUnsafeCount').textContent   = allAnalyses.filter(a => a.safety_status !== 'safe').length;
+
+    renderUsers(allUsers);
+    renderAnalyses(allAnalyses);
+  } catch(e) {
+    showToast('⚠️ Failed to load data');
+  }
+}
+
+async function loadParameters() {
+  try {
+    allParams = await API.get('/api/admin/parameters') || [];
+    renderParams(allParams);
+  } catch(e) {
+    showToast('⚠️ Failed to load parameters');
+  }
+}
+
+/* ── Tabs ── */
+function switchTab(tab) {
+  ['users','analyses','parameters'].forEach(t => {
+    document.getElementById(t + 'Pane').style.display = t === tab ? 'block' : 'none';
+    const btn = document.getElementById('tab' + t.charAt(0).toUpperCase() + t.slice(1));
+    btn.classList.toggle('active', t === tab);
+  });
+  if (tab === 'parameters' && allParams.length === 0) loadParameters();
+}
+
+/* ── Users ── */
+function renderUsers(data) {
+  const body = document.getElementById('usersBody');
+  if (!data.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">👥</div><p>No users found.</p></div>';
+    return;
+  }
+  body.innerHTML = `<table><thead><tr>
+    <th>Name</th><th>Email</th><th>Company</th><th>Role</th><th>Analyses</th><th>Joined</th><th>Actions</th>
+  </tr></thead><tbody>
+    ${data.map(u => `<tr id="urow_${u.id}">
+      <td style="font-weight:500;">${escHtml(u.name)}</td>
+      <td style="color:var(--text2);font-size:0.82rem;">${escHtml(u.email)}</td>
+      <td style="color:var(--text3);font-size:0.82rem;">${escHtml(u.company || '—')}</td>
+      <td><span class="role-badge ${escHtml(u.role)}">${escHtml(u.role)}</span></td>
+      <td style="font-family:'Syne',sans-serif;font-weight:700;color:var(--accent);">${u.analysis_count}</td>
+      <td style="color:var(--text3);font-size:0.78rem;">${shortDate(u.created_at)}</td>
+      <td>${u.id !== currentUser.id ? `
+        ${u.role === 'user'
+          ? `<button class="btn btn-info"    style="font-size:0.78rem;padding:4px 10px;" onclick="setRole(${u.id},'admin')">↑ Admin</button>`
+          : `<button class="btn btn-ghost"   style="font-size:0.78rem;padding:4px 10px;" onclick="setRole(${u.id},'user')">↓ User</button>`}
+        <button class="btn btn-danger" style="font-size:0.78rem;padding:4px 10px;" onclick="deleteUser(${u.id},'${escHtml(u.name)}')">✕ Delete</button>
+      ` : '<span style="font-size:0.75rem;color:var(--text3);">You</span>'}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function filterUsers(q) {
+  q = q.toLowerCase();
+  renderUsers(allUsers.filter(u =>
+    u.name.toLowerCase().includes(q) ||
+    u.email.toLowerCase().includes(q) ||
+    (u.company || '').toLowerCase().includes(q)
+  ));
+}
+
+async function setRole(uid, role) {
+  try {
+    await API.put(`/api/admin/users/${uid}/role`, { role });
+    const u = allUsers.find(u => u.id === uid);
+    if (u) u.role = role;
+    renderUsers(allUsers);
+    showToast(`✅ Role updated to ${role}`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+async function deleteUser(uid, name) {
+  if (!confirm(`Delete user "${name}" and all their analyses? This cannot be undone.`)) return;
+  try {
+    await API.delete(`/api/admin/users/${uid}`);
+    allUsers    = allUsers.filter(u => u.id !== uid);
+    allAnalyses = allAnalyses.filter(a => a.user_id !== uid);
+    renderUsers(allUsers); renderAnalyses(allAnalyses);
+    document.getElementById('sTotalUsers').textContent    = allUsers.length;
+    document.getElementById('sTotalAnalyses').textContent = allAnalyses.length;
+    showToast('🗑️ User deleted');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+/* ── Analyses ── */
+function renderAnalyses(data) {
+  const body = document.getElementById('analysesBody');
+  if (!data.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">🔬</div><p>No analyses yet.</p></div>';
+    return;
+  }
+  body.innerHTML = `<table><thead><tr>
+    <th>#</th><th>User</th><th>Sample / Lab</th><th>Status</th><th>Method</th><th>Date</th>
+  </tr></thead><tbody>
+    ${data.map(a => `<tr>
+      <td style="color:var(--text3);font-size:0.78rem;">${a.id}</td>
+      <td>
+        <div style="font-weight:500;">${escHtml(a.user_name)}</div>
+        <div style="font-size:0.75rem;color:var(--text3);">${escHtml(a.user_email)}</div>
+      </td>
+      <td>
+        <div style="font-weight:500;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escHtml(a.lab_info || '—')}</div>
+        <div style="font-size:0.75rem;color:var(--text3);">${escHtml(a.sample_info || '')}</div>
+      </td>
+      <td>${statusBadge(a.safety_status)}</td>
+      <td style="color:var(--text2);font-size:0.82rem;">${escHtml(a.method_used || '—')}</td>
+      <td style="color:var(--text3);font-size:0.78rem;white-space:nowrap;">${shortDate(a.created_at)}</td>
+    </tr>`).join('')}
+  </tbody></table>`;
+}
+
+function filterAnalyses(q) {
+  q = q.toLowerCase();
+  renderAnalyses(allAnalyses.filter(a =>
+    (a.user_name   || '').toLowerCase().includes(q) ||
+    (a.user_email  || '').toLowerCase().includes(q) ||
+    (a.lab_info    || '').toLowerCase().includes(q) ||
+    (a.sample_info || '').toLowerCase().includes(q)
+  ));
+}
+
+/* ── Parameters ── */
+function renderParams(data) {
+  const body = document.getElementById('parametersBody');
+  document.getElementById('paramCount').textContent =
+    `${data.filter(p => p.is_active).length} active / ${data.length} total`;
+  if (!data.length) {
+    body.innerHTML = '<div class="empty-state"><div class="empty-icon">⚗️</div><p>No parameters found.</p></div>';
+    return;
+  }
+  body.innerHTML = `<table><thead><tr>
+    <th>Status</th><th>Parameter</th><th>Unit</th>
+    <th>Permissible</th><th>Acceptable</th><th>Low Limit</th><th>Updated</th><th>Actions</th>
+  </tr></thead><tbody id="paramTableBody">
+    ${data.map(p => renderParamRow(p)).join('')}
+  </tbody></table>`;
+}
+
+function renderParamRow(p, editing = false) {
+  const updatedInfo = p.updated_at
+    ? `<div style="font-size:0.72rem;color:var(--text3);">${shortDate(p.updated_at)}</div>
+       ${p.updated_by_name ? `<div style="font-size:0.7rem;color:var(--text3);">by ${escHtml(p.updated_by_name)}</div>` : ''}`
+    : `<span style="color:var(--text3);font-size:0.75rem;">Default</span>`;
+
+  if (!editing) {
+    return `<tr id="prow_${p.id}">
+      <td><span class="active-dot ${p.is_active?'on':'off'}"></span>
+          <span style="font-size:0.75rem;color:${p.is_active?'var(--success)':'var(--text3)'};">${p.is_active?'Active':'Inactive'}</span></td>
+      <td style="font-weight:600;color:var(--accent2);">${escHtml(p.parameter_name)}</td>
+      <td style="color:var(--text3);">${escHtml(p.unit || '—')}</td>
+      <td><span style="font-weight:500;">${p.permissible_limit ?? '—'}</span>
+          ${p.hi_is_bad ? '<span class="limit-tag hi">↑ bad</span>':''}</td>
+      <td style="color:var(--text2);">${p.acceptable_limit ?? '—'}</td>
+      <td>${p.lo_limit != null
+        ? `<span style="font-weight:500;">${p.lo_limit}</span><span class="limit-tag lo">↓ bad</span>`
+        : '<span style="color:var(--text3);">—</span>'}</td>
+      <td>${updatedInfo}</td>
+      <td style="white-space:nowrap;">
+        <button class="btn btn-info"    style="font-size:0.78rem;padding:4px 10px;margin-left:4px;" onclick="startEditParam(${p.id})">✎ Edit</button>
+        <button class="btn ${p.is_active?'btn-ghost':'btn-success'}" style="font-size:0.78rem;padding:4px 10px;margin-left:4px;"
+                onclick="toggleParam(${p.id},${p.is_active?0:1})">${p.is_active?'⏸ Disable':'▶ Enable'}</button>
+        <button class="btn btn-danger"  style="font-size:0.78rem;padding:4px 10px;margin-left:4px;" onclick="deleteParam(${p.id},'${escHtml(p.parameter_name)}')">✕</button>
+      </td>
+    </tr>`;
+  }
+
+  return `<tr id="prow_${p.id}" style="background:rgba(62,207,207,0.04);">
+    <td><span class="active-dot ${p.is_active?'on':'off'}"></span>
+        <span style="font-size:0.75rem;color:${p.is_active?'var(--success)':'var(--text3)'};">${p.is_active?'Active':'Inactive'}</span></td>
+    <td style="font-weight:600;color:var(--accent2);">${escHtml(p.parameter_name)}</td>
+    <td><input class="param-input unit" id="eUnit_${p.id}"  value="${escHtml(p.unit||'')}"           placeholder="mg/L"></td>
+    <td><input class="param-input"      id="ePerm_${p.id}"  type="number" step="any" value="${p.permissible_limit??''}" placeholder="limit"></td>
+    <td><input class="param-input"      id="eAccept_${p.id}" type="number" step="any" value="${p.acceptable_limit??''}" placeholder="limit"></td>
+    <td><input class="param-input"      id="eLoLimit_${p.id}" type="number" step="any" value="${p.lo_limit??''}"        placeholder="none"></td>
+    <td style="font-size:0.72rem;color:var(--text3);">editing…</td>
+    <td style="white-space:nowrap;">
+      <button class="btn btn-success" style="font-size:0.78rem;padding:4px 10px;" onclick="saveParam(${p.id})">✓ Save</button>
+      <button class="btn btn-ghost"   style="font-size:0.78rem;padding:4px 10px;" onclick="cancelEditParam(${p.id})">✕</button>
+    </td>
+  </tr>`;
+}
+
+function filterParams(q) {
+  q = q.toLowerCase();
+  renderParams(allParams.filter(p => p.parameter_name.toLowerCase().includes(q)));
+}
+
+function startEditParam(pid) {
+  if (editingParamId && editingParamId !== pid) cancelEditParam(editingParamId);
+  editingParamId = pid;
+  const p = allParams.find(p => p.id === pid);
+  const row = document.getElementById('prow_' + pid);
+  if (row && p) row.outerHTML = renderParamRow(p, true);
+}
+
+function cancelEditParam(pid) {
+  editingParamId = null;
+  const p = allParams.find(p => p.id === pid);
+  const row = document.getElementById('prow_' + pid);
+  if (row && p) row.outerHTML = renderParamRow(p, false);
+}
+
+async function saveParam(pid) {
+  const unit   = document.getElementById('eUnit_'    + pid).value.trim();
+  const perm   = document.getElementById('ePerm_'    + pid).value;
+  const accept = document.getElementById('eAccept_'  + pid).value;
+  const lo     = document.getElementById('eLoLimit_' + pid).value;
+  const body   = {
+    unit,
+    permissible_limit: perm   !== '' ? parseFloat(perm)   : null,
+    acceptable_limit:  accept !== '' ? parseFloat(accept)  : null,
+    lo_limit:          lo     !== '' ? parseFloat(lo)      : null,
+    lo_is_bad:         lo     !== '' ? 1 : 0,
+  };
+  try {
+    const updated = await API.put(`/api/admin/parameters/${pid}`, body);
+    const idx = allParams.findIndex(p => p.id === pid);
+    if (idx !== -1) allParams[idx] = updated;
+    editingParamId = null;
+    const row = document.getElementById('prow_' + pid);
+    if (row) row.outerHTML = renderParamRow(updated, false);
+    document.getElementById('paramCount').textContent =
+      `${allParams.filter(p=>p.is_active).length} active / ${allParams.length} total`;
+    showToast('✅ Parameter updated');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+async function toggleParam(pid, newActive) {
+  try {
+    const updated = await API.put(`/api/admin/parameters/${pid}`, { is_active: newActive });
+    const idx = allParams.findIndex(p => p.id === pid);
+    if (idx !== -1) allParams[idx] = updated;
+    const row = document.getElementById('prow_' + pid);
+    if (row) row.outerHTML = renderParamRow(updated, false);
+    document.getElementById('paramCount').textContent =
+      `${allParams.filter(p=>p.is_active).length} active / ${allParams.length} total`;
+    showToast(newActive ? '▶ Parameter enabled' : '⏸ Parameter disabled');
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+async function deleteParam(pid, name) {
+  if (!confirm(`Delete parameter "${name}"? This cannot be undone.`)) return;
+  try {
+    await API.delete(`/api/admin/parameters/${pid}`);
+    allParams = allParams.filter(p => p.id !== pid);
+    renderParams(allParams);
+    showToast(`🗑️ "${name}" deleted`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+
+function toggleAddForm() {
+  const form = document.getElementById('addForm');
+  form.classList.toggle('show');
+  if (form.classList.contains('show')) document.getElementById('newName').focus();
+}
+
+async function addParameter() {
+  const name   = document.getElementById('newName').value.trim().toLowerCase();
+  const unit   = document.getElementById('newUnit').value.trim();
+  const perm   = document.getElementById('newPermissible').value;
+  const accept = document.getElementById('newAcceptable').value;
+  const lo     = document.getElementById('newLoLimit').value;
+  if (!name) { showToast('⚠️ Parameter name is required'); return; }
+  try {
+    const newParam = await API.post('/api/admin/parameters', {
+      parameter_name:   name,
+      unit,
+      permissible_limit: perm   !== '' ? parseFloat(perm)   : null,
+      acceptable_limit:  accept !== '' ? parseFloat(accept)  : null,
+      lo_limit:          lo     !== '' ? parseFloat(lo)      : null,
+      lo_is_bad:         lo     !== '' ? 1 : 0,
+      hi_is_bad: 1,
+    });
+    allParams.push(newParam);
+    allParams.sort((a,b) => a.parameter_name.localeCompare(b.parameter_name));
+    renderParams(allParams);
+    ['newName','newUnit','newPermissible','newAcceptable','newLoLimit'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    document.getElementById('addForm').classList.remove('show');
+    showToast(`✅ "${newParam.parameter_name}" added`);
+  } catch(e) { showToast('⚠️ ' + e.message); }
+}
+</script>
+</body>
+</html>

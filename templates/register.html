@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Create Account — Chemsbury Solutions</title>
+<link rel="stylesheet" href="/static/css/base.css">
+<link rel="stylesheet" href="/static/css/components.css">
+<style>
+  body { display:flex; align-items:center; justify-content:center; }
+  body::after {
+    content:''; position:fixed; inset:0;
+    background-image:
+      linear-gradient(rgba(99,179,237,0.03) 1px, transparent 1px),
+      linear-gradient(90deg,rgba(99,179,237,0.03) 1px, transparent 1px);
+    background-size:60px 60px; pointer-events:none; z-index:0;
+    animation:gridShift 20s linear infinite;
+  }
+  @keyframes gridShift{0%{background-position:0 0}100%{background-position:60px 60px}}
+
+  .form-panel {
+    position:relative; z-index:1;
+    width:100%; max-width:500px; padding:40px 32px; margin:40px auto;
+  }
+  .form-header { margin-bottom:32px; }
+  .form-header h2 {
+    font-family:'Syne',sans-serif; font-weight:800;
+    font-size:1.8rem; letter-spacing:-0.02em; margin-bottom:8px;
+  }
+  .form-header p { font-size:0.9rem; color:var(--text2); }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media(max-width:520px){ .form-row{grid-template-columns:1fr;} }
+
+  .optional-tag { font-size:0.68rem; color:var(--text3); font-weight:400; text-transform:none; letter-spacing:0; margin-left:6px; }
+  .field-hint { display:flex; align-items:center; gap:6px; margin-top:6px; font-size:0.75rem; color:var(--text3); }
+
+  .pw-strength { margin-top:8px; }
+  .pw-bar { height:3px; border-radius:3px; background:var(--surface2); overflow:hidden; margin-bottom:5px; }
+  .pw-bar-fill { height:100%; border-radius:3px; width:0%; transition:width 0.3s, background 0.3s; }
+  .pw-label { font-size:0.72rem; color:var(--text3); }
+
+  .submit-btn {
+    width:100%; padding:13px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));
+    color:#0a0f1a; font-family:'Syne',sans-serif; font-weight:700; font-size:0.95rem;
+    border:none; border-radius:10px; cursor:pointer;
+    transition:all 0.25s; letter-spacing:0.02em; margin-top:8px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .submit-btn:hover { transform:translateY(-1px); box-shadow:var(--glow); }
+  .submit-btn:disabled { opacity:0.6; cursor:not-allowed; transform:none; }
+
+  .form-footer { margin-top:24px; text-align:center; font-size:0.875rem; color:var(--text2); }
+  .form-footer a { color:var(--accent); text-decoration:none; font-weight:500; }
+  .form-footer a:hover { opacity:0.8; }
+
+  .pw-toggle {
+    position:absolute; right:12px; top:50%; transform:translateY(-50%);
+    background:none; border:none; cursor:pointer; color:var(--text3);
+    font-size:16px; display:flex; align-items:center; z-index:10; outline:none;
+  }
+</style>
+</head>
+<body>
+<div class="form-panel">
+  <a href="/" class="logo" style="display:flex;align-items:center;gap:10px;text-decoration:none;margin-bottom:32px;">
+    <img class="logo-img" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
+    <span class="logo-text">Chemsbury <span>Solutions</span></span>
+  </a>
+
+  <div class="form-header">
+    <h2>Create account</h2>
+    <p>Join Chemsbury — only @chemsbury.in addresses accepted</p>
+  </div>
+
+  <div class="error-msg" id="errorMsg"></div>
+
+  <div class="form-row">
+    <div class="form-group">
+      <label>Full Name</label>
+      <div class="input-wrap">
+        <span class="input-icon">👤</span>
+        <input type="text" id="name" class="form-input" placeholder="Anika Sharma" autocomplete="name">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Company <span class="optional-tag">optional</span></label>
+      <div class="input-wrap">
+        <span class="input-icon">🏢</span>
+        <input type="text" id="company" class="form-input" placeholder="Chemsbury Ltd." autocomplete="organization">
+      </div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Email Address</label>
+    <div class="input-wrap">
+      <span class="input-icon">✉️</span>
+      <input type="email" id="email" class="form-input" placeholder="you@chemsbury.in"
+             autocomplete="email" oninput="validateEmail(this)">
+    </div>
+    <div class="field-hint" id="emailHint">🔒 Must be a @chemsbury.in address</div>
+  </div>
+
+  <div class="form-group">
+    <label>Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔑</span>
+      <input type="password" id="password" class="form-input" placeholder="Min 8 chars, mixed case, number, symbol"
+             autocomplete="new-password" oninput="checkStrength(this.value)">
+      <button type="button" class="pw-toggle" onclick="togglePw('password','eye1')" aria-label="Toggle">
+        <span id="eye1">👁️</span>
+      </button>
+    </div>
+    <div class="pw-strength">
+      <div class="pw-bar"><div class="pw-bar-fill" id="pwFill"></div></div>
+      <div class="pw-label" id="pwLabel">—</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label>Confirm Password</label>
+    <div class="input-wrap">
+      <span class="input-icon">🔑</span>
+      <input type="password" id="confirm" class="form-input" placeholder="Repeat your password"
+             autocomplete="new-password" oninput="validateConfirm(this)">
+      <button type="button" class="pw-toggle" onclick="togglePw('confirm','eye2')" aria-label="Toggle">
+        <span id="eye2">👁️</span>
+      </button>
+    </div>
+    <div class="field-hint" id="confirmHint"></div>
+  </div>
+
+  <button class="submit-btn" id="regBtn" onclick="doRegister()">
+    <span id="regText">Create Account</span>
+    <div class="spinner-sm" id="regSpinner"></div>
+  </button>
+
+  <div class="form-footer">
+    Already have an account? <a href="/">Sign in</a>
+  </div>
+</div>
+
+<script src="/static/js/auth.js"></script>
+<script src="/static/js/utils.js"></script>
+<script>
+  Auth.redirectIfLoggedIn('/app');
+
+  document.getElementById('confirm').addEventListener('keydown', e => { if(e.key==='Enter') doRegister(); });
+
+  function togglePw(inputId, iconId) {
+    const inp = document.getElementById(inputId);
+    const ico = document.getElementById(iconId);
+    const hidden = inp.type === 'password';
+    inp.type = hidden ? 'text' : 'password';
+    ico.textContent = hidden ? '🙈' : '👁️';
+  }
+
+  function validateEmail(input) {
+    const hint = document.getElementById('emailHint');
+    const val  = input.value.trim().toLowerCase();
+    if (!val) {
+      input.classList.remove('valid','invalid');
+      hint.textContent  = '🔒 Must be a @chemsbury.in address';
+      hint.style.color  = '';
+      return;
+    }
+    const valid = val.endsWith('@chemsbury.in') && val.length > '@chemsbury.in'.length;
+    input.classList.toggle('valid',   valid);
+    input.classList.toggle('invalid', !valid);
+    hint.textContent = valid ? '✅ Valid domain' : '❌ Must end with @chemsbury.in';
+    hint.style.color = valid ? 'var(--success)' : 'var(--danger)';
+  }
+
+  function checkStrength(pw) {
+    const fill  = document.getElementById('pwFill');
+    const label = document.getElementById('pwLabel');
+    let score = 0;
+    if (pw.length >= 8)           score++;
+    if (pw.length >= 12)          score++;
+    if (/[A-Z]/.test(pw))         score++;
+    if (/[0-9]/.test(pw))         score++;
+    if (/[^A-Za-z0-9]/.test(pw))  score++;
+    const levels = [
+      { pct:'0%',   color:'transparent',            label:'—'           },
+      { pct:'25%',  color:'var(--danger)',            label:'Weak'        },
+      { pct:'50%',  color:'var(--warning)',           label:'Fair'        },
+      { pct:'75%',  color:'var(--accent2)',           label:'Good'        },
+      { pct:'90%',  color:'var(--success)',           label:'Strong'      },
+      { pct:'100%', color:'var(--success)',           label:'Very Strong' },
+    ];
+    const lvl = levels[Math.min(score, levels.length - 1)];
+    fill.style.width      = lvl.pct;
+    fill.style.background = lvl.color;
+    label.textContent     = pw.length ? lvl.label : '—';
+  }
+
+  function validateConfirm(input) {
+    const pw   = document.getElementById('password').value;
+    const hint = document.getElementById('confirmHint');
+    if (!input.value) { hint.textContent = ''; return; }
+    const match = input.value === pw;
+    input.classList.toggle('valid',   match);
+    input.classList.toggle('invalid', !match);
+    hint.textContent = match ? '✅ Passwords match' : '❌ Passwords do not match';
+    hint.style.color = match ? 'var(--success)' : 'var(--danger)';
+  }
+
+  // ── Single, definitive doRegister function ────────────────────────────────
+  async function doRegister() {
+    const name     = document.getElementById('name').value.trim();
+    const company  = document.getElementById('company').value.trim();
+    const email    = document.getElementById('email').value.trim().toLowerCase();
+    const password = document.getElementById('password').value;
+    const confirm  = document.getElementById('confirm').value;
+    const errEl    = document.getElementById('errorMsg');
+    errEl.style.display = 'none';
+
+    // Client-side validation mirrors server-side rules
+    if (!name)                                   { showError('Full name is required.');                                      return; }
+    if (!email)                                  { showError('Email address is required.');                                  return; }
+    if (!email.endsWith('@chemsbury.in'))         { showError('Only @chemsbury.in email addresses are allowed.');            return; }
+    if (password.length < 8)                     { showError('Password must be at least 8 characters.');                    return; }
+    if (!/[A-Z]/.test(password))                 { showError('Password must contain at least one uppercase letter (A–Z).'); return; }
+    if (!/[a-z]/.test(password))                 { showError('Password must contain at least one lowercase letter (a–z).'); return; }
+    if (!/[0-9]/.test(password))                 { showError('Password must contain at least one number (0–9).');           return; }
+    if (!/[^A-Za-z0-9]/.test(password))          { showError('Password must contain at least one special character.');      return; }
+    if (password !== confirm)                    { showError('Passwords do not match.');                                     return; }
+
+    const btn     = document.getElementById('regBtn');
+    const spinner = document.getElementById('regSpinner');
+    const text    = document.getElementById('regText');
+    setLoading(btn, text, spinner, true, 'Creating account…', 'Create Account');
+
+    try {
+      const resp = await fetch('/api/register', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ name, email, password, company }),
+      });
+      const data = await resp.json();
+      if (!resp.ok) { showError(data.error || 'Registration failed. Please try again.'); return; }
+      Auth.saveSession(data.token, data.user);
+      window.location.href = '/app';
+    } catch {
+      showError('Connection error. Please try again.');
+    } finally {
+      setLoading(btn, text, spinner, false, 'Creating account…', 'Create Account');
+    }
+  }
+
+  function showError(msg) {
+    const el = document.getElementById('errorMsg');
+    el.textContent  = msg;
+    el.style.display = 'block';
+  }
+</script>
+</body>
+</html>
