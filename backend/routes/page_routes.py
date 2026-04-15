@@ -1,29 +1,27 @@
 import os
-from flask import Blueprint, Response
-from flask import render_template
-from backend.database import get_db
-from flask import Blueprint, Response
-import os
+from flask import Blueprint, Response, render_template
+
+from backend.database import get_db, rows_to_dicts
 
 pages_bp = Blueprint('pages', __name__)
 
+
+# ── DEBUG ROUTE (REMOVE LATER) ──────────────────
 @pages_bp.route('/debug-users')
 def debug_users():
-    db = get_db()
-    users = db.execute("SELECT * FROM users").fetchall()
-    return [dict(u) for u in users]
+    conn = get_db()
+    cursor = conn.cursor()
+
+    cursor.execute("SELECT id, name, email, role FROM users")
+    rows = cursor.fetchall()
+
+    users = rows_to_dicts(cursor, rows)
+
+    conn.close()
+    return users
 
 
-_BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-
-def _serve(filename: str):
-    path = os.path.join(_BASE, 'templates', filename)
-    if os.path.exists(path):
-        with open(path, 'r', encoding='utf-8') as f:
-            return Response(f.read(), mimetype='text/html')
-    return f'{filename} not found', 404
-
+# ── TEMPLATE ROUTES ─────────────────────────────
 
 @pages_bp.route('/')
 def index():
