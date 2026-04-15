@@ -117,20 +117,41 @@ def init_db():
         );
     ''')
 
+    cursor = conn.cursor()
+
+# count rows
+conn = get_db()
+cursor = conn.cursor()
+
+cursor.execute('SELECT COUNT(*) FROM water_parameters')
+count = cursor.fetchone()[0]
+
+if count == 0:
+    cursor.executemany(
+        '''INSERT INTO water_parameters
+           (parameter_name, unit, permissible_limit, acceptable_limit,
+            hi_is_bad, lo_limit, lo_is_bad)
+           VALUES (%s,%s,%s,%s,%s,%s,%s)
+           ON CONFLICT (parameter_name) DO NOTHING''',
+        IS10500_DEFAULTS
+    )
+
     conn.commit()
 
-    count = conn.execute('SELECT COUNT(*) FROM water_parameters').fetchone()[0]
+conn.close()
 
-    if count == 0:
-        conn.executemany(
-            '''INSERT OR IGNORE INTO water_parameters
-               (parameter_name, unit, permissible_limit, acceptable_limit,
-                hi_is_bad, lo_limit, lo_is_bad)
-               VALUES (?,?,?,?,?,?,?)''',
-            IS10500_DEFAULTS
-        )
-        conn.commit()
-        logger.info(f"Seeded {len(IS10500_DEFAULTS)} parameters.")
+if count == 0:
+    cursor.executemany(
+        '''INSERT INTO water_parameters
+           (parameter_name, unit, permissible_limit, acceptable_limit,
+            hi_is_bad, lo_limit, lo_is_bad)
+           VALUES (%s,%s,%s,%s,%s,%s,%s)
+           ON CONFLICT (parameter_name) DO NOTHING''',
+        IS10500_DEFAULTS
+    )
 
-    conn.close()
-    logger.info("SQLite DB initialised.")
+    conn.commit()
+    logger.info(f"Seeded {len(IS10500_DEFAULTS)} parameters.")
+
+conn.close()
+logger.info("DB initialised.")
