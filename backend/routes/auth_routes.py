@@ -9,7 +9,7 @@ from email.mime.text import MIMEText
 
 from flask import Blueprint, request, jsonify
 
-from backend.auth import hash_password, verify_password_any, create_token, require_auth
+from backend.auth import hash_password, send_reset_email, verify_password_any, create_token, require_auth
 from backend.database import get_db, rows_to_dicts
 from backend import config
 
@@ -179,6 +179,7 @@ def forgot_password():
         conn.commit()
 
         reset_url = f"{config.FRONTEND_URL}/reset-password?token={raw_token}"
+        send_reset_email(email, reset_url)
         logger.warning(f"[DEV] Reset link: {reset_url}")
 
     conn.close()
@@ -235,3 +236,4 @@ def reset_password():
     conn.close()
 
     return jsonify({'message': 'Password reset successful'})
+
