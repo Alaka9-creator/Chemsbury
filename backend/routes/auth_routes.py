@@ -67,8 +67,8 @@ def _validate_register(data):
         return 'Full name is required.'
     if not email or not _EMAIL_RE.match(email):
         return 'Valid email required.'
-    if not email.endswith(f"@{config.ALLOWED_DOMAIN}"):
-        return f'Only @{config.ALLOWED_DOMAIN} emails allowed.'
+    #if not email.endswith(f"@{config.ALLOWED_DOMAIN}"):
+        #return f'Only @{config.ALLOWED_DOMAIN} emails allowed.'
     if len(password) < 8:
         return 'Password must be at least 8 characters.'
 
