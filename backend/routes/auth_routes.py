@@ -160,9 +160,10 @@ def forgot_password():
 
     cursor.execute("SELECT id, name FROM users WHERE email=%s", (email,))
     rows = cursor.fetchall()
+    rows = rows_to_dicts(cursor, rows)
 
     if rows:
-        user = rows_to_dicts(cursor, rows)[0]
+        user = rows[0]
 
         cursor.execute("DELETE FROM password_resets WHERE user_id=%s", (user['id'],))
 
@@ -196,23 +197,27 @@ def reset_password():
     if not raw_token or not new_pass:
         return jsonify({'error': 'Invalid request'}), 400
 
+    if len(new_pass) < 6:
+        return jsonify({'error': 'Password too short'}), 400
+
     token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
 
     conn = get_db()
     cursor = conn.cursor()
 
     cursor.execute(
-        "SELECT * FROM password_resets WHERE token_hash=%s",
+        "SELECT * FROM password_resets WHERE token_hash=%s AND expires_at > NOW()",
         (token_hash,)
     )
 
     rows = cursor.fetchall()
+    rows = rows_to_dicts(cursor, rows)
 
     if not rows:
         conn.close()
         return jsonify({'error': 'Invalid or expired token'}), 400
 
-    row = rows_to_dicts(cursor, rows)[0]
+    row = rows[0]
 
     pw_hash = hash_password(new_pass)
 
