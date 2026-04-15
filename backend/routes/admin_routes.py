@@ -3,7 +3,7 @@ import sqlite3
 
 from flask import Blueprint, request, jsonify
 
-from backend.auth import require_admin
+from backend.auth import require_admin, require_auth
 from backend.database import get_db
 
 admin_bp = Blueprint('admin', __name__)
