@@ -7,9 +7,46 @@ from datetime import datetime, timedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
+import os
+
+def send_reset_email(to_email, reset_link):
+    smtp_host = os.getenv("SMTP_HOST")
+    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_user = os.getenv("SMTP_USER")
+    smtp_pass = os.getenv("SMTP_PASS")
+    print("SMTP_HOST:", smtp_host)
+    print("SMTP_USER:", smtp_user)
+
+    msg = MIMEMultipart()
+    msg["Subject"] = "Reset Your Password — Chemsbury"
+    msg["From"] = f"Chemsbury <{smtp_user}>"
+    msg["To"] = to_email
+
+    body = f"""
+Hi,
+
+Click the link below to reset your password:
+
+{reset_link}
+
+This link expires in 1 hour.
+"""
+    msg.attach(MIMEText(body, "plain"))
+
+    try:
+        server = smtplib.SMTP(smtp_host, smtp_port)
+        server.starttls()
+        server.login(smtp_user, smtp_pass)
+        server.send_message(msg)
+        server.quit()
+        print("✅ Email sent")
+
+    except Exception as e:
+        print("❌ Email error:", str(e))
+
 from flask import Blueprint, request, jsonify
 
-from backend.auth import hash_password, send_reset_email, verify_password_any, create_token, require_auth
+from backend.auth import hash_password, verify_password_any, create_token, require_auth
 from backend.database import get_db, rows_to_dicts
 from backend import config
 
