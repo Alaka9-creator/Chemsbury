@@ -1,9 +1,9 @@
 import base64
 import json
 import logging
-auth_bp = Blueprint('auth', __name__)
-from flask import Blueprint, request, jsonify
 
+from flask import Blueprint, request, jsonify
+auth_bp = Blueprint('auth', __name__)
 from backend.auth import require_auth
 from backend.database import get_db
 from backend.ocr import extract_params, validate_upload
