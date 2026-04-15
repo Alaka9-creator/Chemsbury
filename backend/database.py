@@ -65,8 +65,6 @@ def init_db():
         logger.info("PostgreSQL detected — skipping init_db.")
         return
 
-    # 🟢 SQLite setup (local only)
-    conn = get_db()
 
     conn.executescript('''
         CREATE TABLE IF NOT EXISTS users (
