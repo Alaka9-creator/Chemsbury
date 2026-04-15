@@ -4,50 +4,141 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dashboard — Chemsbury Solutions</title>
+
 <link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/components.css">
+
 <style>
-  .main { position:relative; z-index:1; padding:40px; max-width:1100px; margin:0 auto; }
-  .page-title { margin-bottom:32px; }
-  .page-title h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.8rem; letter-spacing:-0.02em; margin-bottom:6px; }
-  .page-title p  { color:var(--text2); font-size:0.9rem; }
+.main {
+  position: relative;
+  z-index: 1;
+  padding: 32px 24px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
 
-  .stats-row { grid-template-columns:repeat(3,1fr); }
+.page-title {
+  margin-bottom: 28px;
+}
+.page-title h1 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800;
+  font-size: 1.8rem;
+  letter-spacing: -0.02em;
+}
+.page-title p {
+  color: var(--text2);
+  font-size: 0.9rem;
+}
 
-  .stat-card { display:flex; align-items:center; gap:16px; }
-  .stat-icon { font-size:2rem; }
+.stats-row {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 32px;
+  grid-template-columns: repeat(3, 1fr);
+}
 
-  .section-header { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; }
-  .section-header h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:1.1rem; }
+.stat-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: staggerIn 0.4s ease both;
+}
 
-  .spinner-wrap { display:flex; justify-content:center; padding:40px; }
+.stat-card:nth-child(1){ animation-delay:0.05s; }
+.stat-card:nth-child(2){ animation-delay:0.12s; }
+.stat-card:nth-child(3){ animation-delay:0.19s; }
 
-  /* Stagger card animation */
-  .stat-card { animation: staggerIn 0.4s ease both; }
-  .stat-card:nth-child(1){ animation-delay:0.05s; }
-  .stat-card:nth-child(2){ animation-delay:0.12s; }
-  .stat-card:nth-child(3){ animation-delay:0.19s; }
+/* Icon colors */
+.stat-card:nth-child(1) .stat-icon { color: var(--accent); }
+.stat-card:nth-child(2) .stat-icon { color: #22c55e; }
+.stat-card:nth-child(3) .stat-icon { color: #f59e0b; }
 
-  @media(max-width:700px){
-    header { padding:0 16px; }
-    .main  { padding:20px 16px; }
-    .stats-row { grid-template-columns:1fr; }
-    th:nth-child(3),td:nth-child(3),
-    th:nth-child(4),td:nth-child(4){ display:none; }
+.stat-icon {
+  font-size: 2rem;
+}
+
+.section-header {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+  margin-bottom: 16px;
+}
+
+.section-header h2 {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+
+/* Navigation */
+.nav-links {
+  display: flex;
+  gap: 6px;
+}
+.nav-links a {
+  color: var(--text2);
+  font-size: 0.82rem;
+  text-decoration: none;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+.nav-links a:hover {
+  background: var(--surface);
+  color: var(--accent);
+}
+
+/* Table styling */
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+th {
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--text3);
+  padding: 12px;
+}
+td {
+  padding: 14px 12px;
+  border-top: 1px solid var(--border);
+}
+tr:hover {
+  background: rgba(255,255,255,0.02);
+}
+
+.spinner-wrap {
+  display: flex;
+  justify-content: center;
+  padding: 40px;
+}
+
+@media(max-width:700px){
+  .main  { padding:20px 16px; }
+  .stats-row { grid-template-columns:1fr; }
+
+  th:nth-child(3),td:nth-child(3),
+  th:nth-child(4),td:nth-child(4){
+    display:none;
   }
+}
 </style>
 </head>
+
 <body>
 
 <header>
   <a href="/app" class="logo">
-    <img class="logo-img" src="/static/images/logo.jpg" alt="Chemsbury Solutions">
+    <img class="logo-img" src="/static/images/logo.jpg">
     <span class="logo-text">Chemsbury <span>Solutions</span></span>
   </a>
-  <nav style="display:flex;gap:4px;">
-    <a href="/app" style="color:var(--text2);font-size:0.82rem;text-decoration:none;padding:5px 10px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='transparent'">🔬 Analyser</a>
-    <a id="adminLink" href="/admin" style="display:none;color:var(--text2);font-size:0.82rem;text-decoration:none;padding:5px 10px;border-radius:6px;transition:all 0.2s;" onmouseover="this.style.background='var(--surface)'" onmouseout="this.style.background='transparent'">⚙️ Admin</a>
+
+  <nav class="nav-links">
+    <a href="/app">🔬 Analyser</a>
+    <a id="adminLink" href="/admin" style="display:none;">⚙️ Admin</a>
   </nav>
+
   <div class="header-right">
     <div class="user-chip">
       <div class="user-avatar" id="navAvatar">?</div>
@@ -59,23 +150,35 @@
 </header>
 
 <div class="main">
+
   <div class="page-title">
     <h1>My Dashboard</h1>
     <p>Your water analysis history and account overview</p>
   </div>
 
-  <div class="stats-row" style="display:grid;gap:14px;margin-bottom:32px;grid-template-columns:repeat(3,1fr);">
+  <div class="stats-row">
     <div class="stat-card card">
       <div class="stat-icon">🔬</div>
-      <div><div class="stat-val" id="totalCount">—</div><div class="stat-label">Total Analyses</div></div>
+      <div>
+        <div class="stat-val" id="totalCount">—</div>
+        <div class="stat-label">Total Analyses</div>
+      </div>
     </div>
+
     <div class="stat-card card">
       <div class="stat-icon">✅</div>
-      <div><div class="stat-val" id="safeCount">—</div><div class="stat-label">Safe Results</div></div>
+      <div>
+        <div class="stat-val" id="safeCount">—</div>
+        <div class="stat-label">Safe Results</div>
+      </div>
     </div>
+
     <div class="stat-card card">
       <div class="stat-icon">⚠️</div>
-      <div><div class="stat-val" id="issueCount">—</div><div class="stat-label">Require Attention</div></div>
+      <div>
+        <div class="stat-val" id="issueCount">—</div>
+        <div class="stat-label">Require Attention</div>
+      </div>
     </div>
   </div>
 
@@ -83,67 +186,99 @@
     <h2>Analysis History</h2>
   </div>
 
-  <div class="table-wrap" id="tableWrap">
-    <div class="spinner-wrap"><div class="spinner"></div></div>
+  <div class="table-wrap card" id="tableWrap">
+    <div class="spinner-wrap">
+      <div class="spinner"></div>
+    </div>
   </div>
+
 </div>
 
 <script src="/static/js/auth.js"></script>
 <script src="/static/js/api.js"></script>
 <script src="/static/js/utils.js"></script>
+
 <script>
+function animateCount(el, value) {
+  let i = 0;
+  const interval = setInterval(() => {
+    el.textContent = i;
+    i++;
+    if (i > value) clearInterval(interval);
+  }, 20);
+}
+
 (async () => {
   const user = await Auth.requireAuth();
   if (!user) return;
+
   Auth.initNav(user);
 
   try {
     const data = await API.get('/api/analyses');
     if (!data) return;
 
-    document.getElementById('totalCount').textContent = data.length;
-    document.getElementById('safeCount').textContent  = data.filter(d => d.safety_status === 'safe').length;
-    document.getElementById('issueCount').textContent = data.filter(d => d.safety_status !== 'safe').length;
+    animateCount(document.getElementById('totalCount'), data.length);
+    animateCount(document.getElementById('safeCount'),
+      data.filter(d => d.safety_status === 'safe').length);
+    animateCount(document.getElementById('issueCount'),
+      data.filter(d => d.safety_status !== 'safe').length);
 
     renderTable(data);
+
   } catch(e) {
     document.getElementById('tableWrap').innerHTML =
-      `<div class="empty-state"><div class="empty-icon">⚠️</div><p>Could not load data. Please refresh.</p></div>`;
+      `<div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <p>Could not load data. Please refresh.</p>
+      </div>`;
   }
 })();
 
 function renderTable(data) {
   const wrap = document.getElementById('tableWrap');
+
   if (!data.length) {
     wrap.innerHTML = `<div class="empty-state">
       <div class="empty-icon">💧</div>
-      <h3 style="font-family:'Syne',sans-serif;font-weight:700;font-size:1.1rem;margin-bottom:8px;color:var(--text2);">No analyses yet</h3>
-      <p style="font-size:0.875rem;margin-bottom:20px;">Upload your first water report to get started.</p>
-      <a href="/app" class="btn btn-primary" style="display:inline-flex;margin:0 auto;">+ New Analysis</a>
+      <h3 style="font-family:'Syne';font-weight:700;">No analyses yet</h3>
+      <p>Upload your first water report to get started.</p>
+      <a href="/app" class="btn btn-primary">+ New Analysis</a>
     </div>`;
     return;
   }
+
   wrap.innerHTML = `<table>
-    <thead><tr>
-      <th>#</th><th>Sample / Lab</th><th>Status</th>
-      <th>Method</th><th>Confidence</th><th>Date</th>
-    </tr></thead>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Sample / Lab</th>
+        <th>Status</th>
+        <th>Method</th>
+        <th>Confidence</th>
+        <th>Date</th>
+      </tr>
+    </thead>
     <tbody>
       ${data.map(r => `
         <tr>
-          <td style="color:var(--text3);font-size:0.78rem;">${r.id}</td>
+          <td>${r.id}</td>
           <td>
-            <div style="font-weight:500;">${escHtml(r.lab_info || '—')}</div>
-            <div style="font-size:0.78rem;color:var(--text3);margin-top:2px;">${escHtml(r.sample_info || '')}</div>
+            <div>${escHtml(r.lab_info || '—')}</div>
+            <div style="font-size:0.78rem;color:var(--text3);">
+              ${escHtml(r.sample_info || '')}
+            </div>
           </td>
           <td>${statusBadge(r.safety_status)}</td>
-          <td style="color:var(--text2);font-size:0.82rem;">${escHtml(r.method_used || '—')}</td>
+          <td>${escHtml(r.method_used || '—')}</td>
           <td>${confidenceBadge(r.confidence)}</td>
-          <td style="color:var(--text3);font-size:0.82rem;white-space:nowrap;">${longDate(r.created_at)}</td>
-        </tr>`).join('')}
+          <td>${longDate(r.created_at)}</td>
+        </tr>
+      `).join('')}
     </tbody>
   </table>`;
 }
 </script>
+
 </body>
 </html>

@@ -209,10 +209,16 @@ nav a:hover { color: var(--text); background: var(--surface); }
   background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
 }
 .filter-reasons {
-  margin-top: 8px; padding-top: 8px;
+  margin-top: 10px;
+  padding-top: 10px;
   border-top: 1px solid var(--border);
-  font-size: 0.72rem; color: var(--text3);
-  line-height: 1.5;
+  font-size: 0.75rem;
+  color: var(--text2);
+  line-height: 1.6;
+}
+
+.filter-reasons div {
+  margin-bottom: 4px;
 }
 
 /* ── Vessel ── */
@@ -775,7 +781,68 @@ function reEvaluate() {
   document.getElementById('vesselSection').style.display = 'none';
   selectedFilter = null;
 }
+function generateSmartExplanation(params, filter) {
+  const reasons = [];
 
+  PARAM_DEFS.forEach(p => {
+    const v = params[p.key];
+    if (v === undefined || v === null) return;
+
+    if (p.warnHigh != null && v > p.warnHigh) {
+      const severity = v > p.warnHigh * 1.5 ? 'high' : 'moderate';
+
+      // 🔥 Custom human explanations
+      switch (p.key) {
+        case 'tds':
+          reasons.push(
+            severity === 'high'
+              ? 'Very high TDS indicates heavy dissolved salts — requires multi-stage purification (e.g., RO + media filtration).'
+              : 'Elevated TDS suggests excess dissolved solids — treatment is recommended.'
+          );
+          break;
+
+        case 'hardness':
+          reasons.push(
+            'High hardness can cause scaling and damage pipes — softening or ion exchange is recommended.'
+          );
+          break;
+
+        case 'iron':
+          reasons.push(
+            'Iron content above limits can cause staining and metallic taste — oxidation + filtration is needed.'
+          );
+          break;
+
+        case 'fluoride':
+          reasons.push(
+            'Excess fluoride can be harmful over long-term consumption — specific removal media is required.'
+          );
+          break;
+
+        case 'turbidity':
+          reasons.push(
+            'High turbidity indicates suspended particles — pre-filtration is necessary.'
+          );
+          break;
+
+        default:
+          reasons.push(`${p.label} exceeds safe limits and requires treatment.`);
+      }
+    }
+  });
+
+  // 🔥 Add filter-level explanation
+  if (filter) {
+    if (filter.id.includes('ro')) {
+      reasons.push('Reverse osmosis is effective for removing dissolved impurities and salts.');
+    }
+    if (filter.id.includes('carbon')) {
+      reasons.push('Activated carbon helps remove odor, chlorine, and organic contaminants.');
+    }
+  }
+
+  return reasons;
+}
 // ── Filter rendering with combination logic ───────────────────────────────────
 function renderFilterGrid(params) {
   const grid = document.getElementById('filterGrid');
@@ -792,16 +859,22 @@ function renderFilterGrid(params) {
     card.onclick   = () => selectFilter(f.id, params);
 
     let reasonsHtml = '';
-    if (isRec && recMap[f.id].length) {
-      reasonsHtml = `<div class="filter-reasons">
-        ${recMap[f.id].map(r => `<div>· ${escHtml(r)}</div>`).join('')}
-      </div>`;
-    }
+
+if (isRec) {
+  const smartReasons = generateSmartExplanation(params, f);
+
+  reasonsHtml = `<div class="filter-reasons">
+    ${smartReasons.map(r => `<div>· ${escHtml(r)}</div>`).join('')}
+  </div>`;
+}
 
     card.innerHTML = `
       <div class="fc-icon">${f.icon}</div>
       <h3>${escHtml(f.name)}</h3>
       <p>${escHtml(f.desc)}</p>
+<div style="font-size:0.7rem;color:var(--accent);margin-top:6px;">
+  ✔ Recommended based on detected water quality
+</div>
       <div class="media-tags">${f.media.map(m => `<span class="media-tag">${escHtml(m)}</span>`).join('')}</div>
       ${reasonsHtml}`;
     grid.appendChild(card);
