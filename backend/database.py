@@ -61,10 +61,11 @@ def init_db():
     db_url = os.environ.get("DATABASE_URL")
 
     if db_url:
-        # 🔥 PostgreSQL → DO NOTHING (tables already created in Supabase)
+        # PostgreSQL → skip (Supabase handles schema)
         logger.info("PostgreSQL detected — skipping init_db.")
         return
 
+    conn = sqlite3.connect("chemsbury.db")
 
     conn.executescript('''
         CREATE TABLE IF NOT EXISTS users (
@@ -87,8 +88,7 @@ def init_db():
             method_used TEXT,
             confidence TEXT,
             notes TEXT,
-            created_at TEXT DEFAULT (datetime('now')),
-            FOREIGN KEY(user_id) REFERENCES users(id)
+            created_at TEXT DEFAULT (datetime('now'))
         );
 
         CREATE TABLE IF NOT EXISTS water_parameters (
@@ -100,56 +100,25 @@ def init_db():
             hi_is_bad INTEGER DEFAULT 1,
             lo_limit REAL,
             lo_is_bad INTEGER DEFAULT 0,
-            is_active INTEGER DEFAULT 1,
-            updated_at TEXT,
-            updated_by INTEGER
-        );
-
-        CREATE TABLE IF NOT EXISTS password_resets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            token_hash TEXT NOT NULL UNIQUE,
-            expires_at TEXT NOT NULL,
-            used INTEGER DEFAULT 0,
-            created_at TEXT DEFAULT (datetime('now'))
+            is_active INTEGER DEFAULT 1
         );
     ''')
 
+    # seed only for SQLite
     cursor = conn.cursor()
+    cursor.execute('SELECT COUNT(*) FROM water_parameters')
+    count = cursor.fetchone()[0]
 
-# count rows
-conn = get_db()
-cursor = conn.cursor()
+    if count == 0:
+        cursor.executemany(
+            '''INSERT INTO water_parameters
+               (parameter_name, unit, permissible_limit, acceptable_limit,
+                hi_is_bad, lo_limit, lo_is_bad)
+               VALUES (?,?,?,?,?,?,?)''',
+            IS10500_DEFAULTS
+        )
+        conn.commit()
+        logger.info(f"Seeded {len(IS10500_DEFAULTS)} parameters.")
 
-cursor.execute('SELECT COUNT(*) FROM water_parameters')
-count = cursor.fetchone()[0]
-
-if count == 0:
-    cursor.executemany(
-        '''INSERT INTO water_parameters
-           (parameter_name, unit, permissible_limit, acceptable_limit,
-            hi_is_bad, lo_limit, lo_is_bad)
-           VALUES (%s,%s,%s,%s,%s,%s,%s)
-           ON CONFLICT (parameter_name) DO NOTHING''',
-        IS10500_DEFAULTS
-    )
-
-    conn.commit()
-
-conn.close()
-
-if count == 0:
-    cursor.executemany(
-        '''INSERT INTO water_parameters
-           (parameter_name, unit, permissible_limit, acceptable_limit,
-            hi_is_bad, lo_limit, lo_is_bad)
-           VALUES (%s,%s,%s,%s,%s,%s,%s)
-           ON CONFLICT (parameter_name) DO NOTHING''',
-        IS10500_DEFAULTS
-    )
-
-    conn.commit()
-    logger.info(f"Seeded {len(IS10500_DEFAULTS)} parameters.")
-
-conn.close()
-logger.info("DB initialised.")
+    conn.close()
+    logger.info("SQLite DB initialised.")
