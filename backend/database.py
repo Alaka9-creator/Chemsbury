@@ -1,5 +1,7 @@
 import sqlite3
 import logging
+import os
+import psycopg2
 from backend.config import DB_PATH
 
 logger = logging.getLogger(__name__)
@@ -39,64 +41,86 @@ IS10500_DEFAULTS = [
 
 
 def get_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    return conn
+    db_url = os.environ.get("DATABASE_URL")
 
+    if db_url:
+        # 🔥 PostgreSQL (Railway + Supabase)
+        conn = psycopg2.connect(db_url)
+        return conn
+    else:
+        # 🟢 Local fallback
+        conn = sqlite3.connect("chemsbury.db")
+        conn.row_factory = sqlite3.Row
+        return conn
+    
+def rows_to_dicts(cursor, rows):
+    cols = [col[0] for col in cursor.description]
+    return [dict(zip(cols, row)) for row in rows]
 
 def init_db():
+    db_url = os.environ.get("DATABASE_URL")
+
+    if db_url:
+        # 🔥 PostgreSQL → DO NOTHING (tables already created in Supabase)
+        logger.info("PostgreSQL detected — skipping init_db.")
+        return
+
+    # 🟢 SQLite setup (local only)
     conn = get_db()
+
     conn.executescript('''
         CREATE TABLE IF NOT EXISTS users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            name          TEXT    NOT NULL,
-            company       TEXT,
-            email         TEXT    UNIQUE NOT NULL,
-            password_hash TEXT    NOT NULL,
-            role          TEXT    DEFAULT 'user',
-            created_at    TEXT    DEFAULT (datetime('now'))
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            company TEXT,
+            email TEXT UNIQUE NOT NULL,
+            password_hash TEXT NOT NULL,
+            role TEXT DEFAULT 'user',
+            created_at TEXT DEFAULT (datetime('now'))
         );
 
         CREATE TABLE IF NOT EXISTS analyses (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id       INTEGER NOT NULL,
-            lab_info      TEXT,
-            sample_info   TEXT,
-            params        TEXT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            lab_info TEXT,
+            sample_info TEXT,
+            params TEXT,
             safety_status TEXT,
-            method_used   TEXT,
-            confidence    TEXT,
-            notes         TEXT,
-            created_at    TEXT DEFAULT (datetime('now')),
+            method_used TEXT,
+            confidence TEXT,
+            notes TEXT,
+            created_at TEXT DEFAULT (datetime('now')),
             FOREIGN KEY(user_id) REFERENCES users(id)
         );
 
         CREATE TABLE IF NOT EXISTS water_parameters (
-            id                INTEGER PRIMARY KEY AUTOINCREMENT,
-            parameter_name    TEXT    NOT NULL UNIQUE,
-            unit              TEXT,
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            parameter_name TEXT NOT NULL UNIQUE,
+            unit TEXT,
             permissible_limit REAL,
-            acceptable_limit  REAL,
-            hi_is_bad         INTEGER DEFAULT 1,
-            lo_limit          REAL,
-            lo_is_bad         INTEGER DEFAULT 0,
-            is_active         INTEGER DEFAULT 1,
-            updated_at        TEXT,
-            updated_by        INTEGER REFERENCES users(id)
+            acceptable_limit REAL,
+            hi_is_bad INTEGER DEFAULT 1,
+            lo_limit REAL,
+            lo_is_bad INTEGER DEFAULT 0,
+            is_active INTEGER DEFAULT 1,
+            updated_at TEXT,
+            updated_by INTEGER
         );
 
         CREATE TABLE IF NOT EXISTS password_resets (
-            id         INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id    INTEGER NOT NULL REFERENCES users(id),
-            token_hash TEXT    NOT NULL UNIQUE,
-            expires_at TEXT    NOT NULL,
-            used       INTEGER DEFAULT 0,
-            created_at TEXT    DEFAULT (datetime('now'))
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            token_hash TEXT NOT NULL UNIQUE,
+            expires_at TEXT NOT NULL,
+            used INTEGER DEFAULT 0,
+            created_at TEXT DEFAULT (datetime('now'))
         );
     ''')
+
     conn.commit()
 
     count = conn.execute('SELECT COUNT(*) FROM water_parameters').fetchone()[0]
+
     if count == 0:
         conn.executemany(
             '''INSERT OR IGNORE INTO water_parameters
@@ -106,7 +130,7 @@ def init_db():
             IS10500_DEFAULTS
         )
         conn.commit()
-        logger.info(f"Seeded {len(IS10500_DEFAULTS)} IS:10500 parameters.")
+        logger.info(f"Seeded {len(IS10500_DEFAULTS)} parameters.")
 
     conn.close()
-    logger.info("Database initialised.")
+    logger.info("SQLite DB initialised.")
