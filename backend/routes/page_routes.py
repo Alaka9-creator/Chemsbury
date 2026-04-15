@@ -1,8 +1,18 @@
 import os
 from flask import Blueprint, Response
 from flask import render_template
+from backend.database import get_db
+from flask import Blueprint, Response
+import os
 
 pages_bp = Blueprint('pages', __name__)
+
+@pages_bp.route('/debug-users')
+def debug_users():
+    db = get_db()
+    users = db.execute("SELECT * FROM users").fetchall()
+    return [dict(u) for u in users]
+
 
 _BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
