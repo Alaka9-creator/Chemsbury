@@ -1,7 +1,7 @@
 import base64
 import json
 import logging
-
+auth_bp = Blueprint('auth', __name__)
 from flask import Blueprint, request, jsonify
 
 from backend.auth import require_auth
@@ -9,7 +9,13 @@ from backend.database import get_db
 from backend.ocr import extract_params, validate_upload
 from backend.safety import compute_safety_status
 from backend.config import MAX_FILE_SIZE_MB, ALLOWED_MIME_TYPES
+from backend.database import get_db
 
+@auth_bp.route('/debug-users')
+def debug_users():
+    db = get_db()
+    users = db.execute("SELECT * FROM users").fetchall()
+    return [dict(u) for u in users]
 logger = logging.getLogger(__name__)
 
 analysis_bp = Blueprint('analysis', __name__)
