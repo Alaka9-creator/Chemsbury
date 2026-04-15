@@ -236,7 +236,7 @@ function renderUsers(data) {
         ${u.role === 'user'
           ? `<button class="btn btn-info"    style="font-size:0.78rem;padding:4px 10px;" onclick="setRole(${u.id},'admin')">↑ Admin</button>`
           : `<button class="btn btn-ghost"   style="font-size:0.78rem;padding:4px 10px;" onclick="setRole(${u.id},'user')">↓ User</button>`}
-        <button class="btn btn-danger" style="font-size:0.78rem;padding:4px 10px;" onclick="deleteUser(${u.id},'${escHtml(u.name)}')">✕ Delete</button>
+        <button class="btn btn-danger" style="font-size:0.78rem;padding:4px 10px;" onclick="deleteUser(${u.id}, \`${escHtml(u.name)}\`)"">✕ Delete</button>
       ` : '<span style="font-size:0.75rem;color:var(--text3);">You</span>'}</td>
     </tr>`).join('')}
   </tbody></table>`;
