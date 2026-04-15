@@ -42,10 +42,21 @@ def get_limits_from_db() -> dict:
     """Return active parameter limits from DB, falling back to hardcoded."""
     try:
         conn = get_db()
-        rows = conn.execute(
-            'SELECT * FROM water_parameters WHERE is_active = 1'
-        ).fetchall()
+        cursor = conn.cursor()
+
+        cursor.execute(
+            'SELECT parameter_name, permissible_limit, acceptable_limit, hi_is_bad, lo_limit, lo_is_bad '
+            'FROM water_parameters WHERE is_active = TRUE'
+        )
+
+        rows = cursor.fetchall()
+
+        # convert to dicts
+        cols = [col[0] for col in cursor.description]
+        data = [dict(zip(cols, row)) for row in rows]
+
         conn.close()
+
         return {
             row['parameter_name']: {
                 'permissible_limit': row['permissible_limit'],
@@ -54,8 +65,9 @@ def get_limits_from_db() -> dict:
                 'lo_limit':          row['lo_limit'],
                 'lo_is_bad':         row['lo_is_bad'],
             }
-            for row in rows
+            for row in data
         }
+
     except Exception as exc:
         logger.warning(f"DB limit load failed, using fallback: {exc}")
         return _FALLBACK_LIMITS
