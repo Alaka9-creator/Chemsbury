@@ -46,3 +46,7 @@ def dashboard_page():
 @pages_bp.route('/admin')
 def admin_page():
     return render_template("admin.html")
+
+@pages_bp.route('/forgot-password')
+def forgot_password_page():
+    return render_template("forgot_password.html")
