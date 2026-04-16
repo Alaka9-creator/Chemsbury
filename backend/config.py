@@ -5,6 +5,7 @@ print("SMTP_HOST exists?", "SMTP_HOST" in globals())
 # ── JWT ───────────────────────────────────────────────────────────────────────
 
 JWT_SECRET = os.environ.get('JWT_SECRET')
+DATABASE_URL = os.environ.get('DATABASE_URL')
 print("JWT_SECRET VALUE:", JWT_SECRET)
 
 SMTP_HOST = os.environ.get('SMTP_HOST', '')
@@ -14,14 +15,14 @@ if not JWT_SECRET:
     print("FATAL: JWT_SECRET environment variable must be set.", file=sys.stderr)
     sys.exit(1)
 
+if not DATABASE_URL:
+    print("FATAL: DATABASE_URL environment variable must be set.", file=sys.stderr)
+    sys.exit(1)
+
 # ── Domain ────────────────────────────────────────────────────────────────────
 ALLOWED_DOMAIN = os.environ.get('ALLOWED_DOMAIN', 'chemsbury.in')
 
 # ── Database ──────────────────────────────────────────────────────────────────
-DB_PATH = os.environ.get('DB_PATH', 'chemsbury.db')
-_ALLOWED_DB_PREFIXES = ('/', './')
-assert any(DB_PATH.startswith(p) for p in _ALLOWED_DB_PREFIXES), \
-    f"Invalid DB_PATH: {DB_PATH}"
 
 # ── File Upload ───────────────────────────────────────────────────────────────
 MAX_FILE_SIZE_MB   = int(os.environ.get('MAX_FILE_SIZE_MB', 10))

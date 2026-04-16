@@ -1,124 +1,32 @@
-import sqlite3
 import logging
-import os
+from urllib.parse import parse_qsl, urlencode, urlparse, urlunparse
+
 import psycopg2
-from backend.config import DB_PATH
+
+from backend.config import DATABASE_URL
 
 logger = logging.getLogger(__name__)
 
-IS10500_DEFAULTS = [
-    ('ph',          '',           8.5,   6.5,  1, 6.5,  1),
-    ('turbidity',   'NTU',        5.0,   1.0,  1, None, 0),
-    ('tds',         'mg/L',     500.0, 500.0,  1, None, 0),
-    ('hardness',    'mg/L',     300.0, 200.0,  1, None, 0),
-    ('iron',        'mg/L',       0.3,   0.1,  1, None, 0),
-    ('chloride',    'mg/L',     250.0, 250.0,  1, None, 0),
-    ('fluoride',    'mg/L',       1.5,   1.0,  1, None, 0),
-    ('nitrate',     'mg/L',      45.0,  45.0,  1, None, 0),
-    ('manganese',   'mg/L',       0.1,  0.05,  1, None, 0),
-    ('alkalinity',  'mg/L',     200.0, 200.0,  1, None, 0),
-    ('sulphate',    'mg/L',     200.0, 200.0,  1, None, 0),
-    ('calcium',     'mg/L',      75.0,  75.0,  1, None, 0),
-    ('magnesium',   'mg/L',      30.0,  30.0,  1, None, 0),
-    ('copper',      'mg/L',      0.05,  0.05,  1, None, 0),
-    ('zinc',        'mg/L',       5.0,   5.0,  1, None, 0),
-    ('arsenic',     'mg/L',      0.01,  0.01,  1, None, 0),
-    ('lead',        'mg/L',      0.01,  0.01,  1, None, 0),
-    ('chromium',    'mg/L',      0.05,  0.05,  1, None, 0),
-    ('aluminium',   'mg/L',       0.1,  0.03,  1, None, 0),
-    ('ammonia',     'mg/L',       0.5,   0.5,  1, None, 0),
-    ('h2s',         'mg/L',      0.05,  0.05,  1, None, 0),
-    ('boron',       'mg/L',       1.0,   1.0,  1, None, 0),
-    ('nitrite',     'mg/L',      0.02,  0.02,  1, None, 0),
-    ('phenol',      'mg/L',     0.001, 0.001,  1, None, 0),
-    ('coliform',    'MPN/100mL',  0.0,   0.0,  1, None, 0),
-    ('ecoli',       'MPN/100mL',  0.0,   0.0,  1, None, 0),
-    ('tss',         'mg/L',      10.0,  10.0,  1, None, 0),
-    ('bod',         'mg/L',       2.0,   2.0,  1, None, 0),
-    ('cod',         'mg/L',      10.0,  10.0,  1, None, 0),
-    ('colour',      'Hazen',     15.0,   5.0,  1, None, 0),
-]
+
+def _postgres_dsn(db_url: str) -> str:
+    parsed = urlparse(db_url)
+    query = dict(parse_qsl(parsed.query, keep_blank_values=True))
+    query.setdefault("sslmode", "require")
+    return urlunparse(parsed._replace(query=urlencode(query)))
 
 
 def get_db():
-    db_url = os.environ.get("DATABASE_URL")
+    return psycopg2.connect(_postgres_dsn(DATABASE_URL))
 
-    if db_url:
-        # 🔥 PostgreSQL (Railway + Supabase)
-        conn = psycopg2.connect(db_url)
-        return conn
-    else:
-        # 🟢 Local fallback
-        conn = sqlite3.connect("chemsbury.db")
-        conn.row_factory = sqlite3.Row
-        return conn
-    
+
 def rows_to_dicts(cursor, rows):
     cols = [col[0] for col in cursor.description]
     return [dict(zip(cols, row)) for row in rows]
 
+
+def prepare_sql(conn, query: str) -> str:
+    return query
+
+
 def init_db():
-    db_url = os.environ.get("DATABASE_URL")
-
-    if db_url:
-        # PostgreSQL → skip (Supabase handles schema)
-        logger.info("PostgreSQL detected — skipping init_db.")
-        return
-
-    conn = sqlite3.connect("chemsbury.db")
-
-    conn.executescript('''
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            company TEXT,
-            email TEXT UNIQUE NOT NULL,
-            password_hash TEXT NOT NULL,
-            role TEXT DEFAULT 'user',
-            created_at TEXT DEFAULT (datetime('now'))
-        );
-
-        CREATE TABLE IF NOT EXISTS analyses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            lab_info TEXT,
-            sample_info TEXT,
-            params TEXT,
-            safety_status TEXT,
-            method_used TEXT,
-            confidence TEXT,
-            notes TEXT,
-            created_at TEXT DEFAULT (datetime('now'))
-        );
-
-        CREATE TABLE IF NOT EXISTS water_parameters (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            parameter_name TEXT NOT NULL UNIQUE,
-            unit TEXT,
-            permissible_limit REAL,
-            acceptable_limit REAL,
-            hi_is_bad INTEGER DEFAULT 1,
-            lo_limit REAL,
-            lo_is_bad INTEGER DEFAULT 0,
-            is_active INTEGER DEFAULT 1
-        );
-    ''')
-
-    # seed only for SQLite
-    cursor = conn.cursor()
-    cursor.execute('SELECT COUNT(*) FROM water_parameters')
-    count = cursor.fetchone()[0]
-
-    if count == 0:
-        cursor.executemany(
-            '''INSERT INTO water_parameters
-               (parameter_name, unit, permissible_limit, acceptable_limit,
-                hi_is_bad, lo_limit, lo_is_bad)
-               VALUES (?,?,?,?,?,?,?)''',
-            IS10500_DEFAULTS
-        )
-        conn.commit()
-        logger.info(f"Seeded {len(IS10500_DEFAULTS)} parameters.")
-
-    conn.close()
-    logger.info("SQLite DB initialised.")
+    logger.info("PostgreSQL-only mode enabled; skipping local DB init.")

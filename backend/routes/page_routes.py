@@ -50,3 +50,8 @@ def admin_page():
 @pages_bp.route('/forgot-password')
 def forgot_password_page():
     return render_template("forgot_password.html")
+
+
+@pages_bp.route('/reset-password')
+def reset_password_page():
+    return render_template("reset_password.html")
