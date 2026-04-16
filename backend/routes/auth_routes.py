@@ -43,6 +43,8 @@ This link expires in 1 hour.
 
     except Exception as e:
         print("❌ Email error:", str(e))
+        import traceback
+    traceback.print_exc() 
 
 from flask import Blueprint, request, jsonify
 
