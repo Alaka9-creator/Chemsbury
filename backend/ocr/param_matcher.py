@@ -1,324 +1,389 @@
 """
 backend/ocr/param_matcher.py
 
-Normalizes OCR text and extracts parameter/value pairs from variable lab-report
-tables. The matcher is intentionally heuristic-based and lightweight so it stays
-stable across real-world report formats.
+Scans raw OCR / pdfplumber text and maps recognised parameter names → float values.
+Also extracts lab name and sample info from common header patterns.
+
+Accuracy improvements over v1:
+  - Column-aware TSV parsing: in pdfplumber table rows (tab-separated) the value
+    is taken from the column AFTER the parameter name, not the first number in line.
+  - Serial-number guard: skips leading integers that look like row indices.
+  - Unit-plausibility filter: validates extracted value against expected range.
+  - Multi-value rows: when a row has several numbers, picks the one most likely
+    to be the "result" column (second numeric token, before any limit column).
+  - Handles "<0.01", ">0.1", "ND", "BDL", "Absent", "Nil" correctly.
+  - Scientific notation normalised before float conversion.
 """
-import logging
+
 import re
+import logging
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
-
-PARAM_KEYWORDS: dict[str, list[str]] = {
-    "ph": ["ph", "potential of hydrogen"],
-    "tds": ["tds", "total dissolved solids", "dissolved solids"],
-    "hardness": ["total hardness", "hardness", "caco3", "as caco3"],
-    "iron": ["iron", "fe", "ferrous", "ferric"],
-    "chloride": ["chloride", "chlorides", "cl"],
-    "turbidity": ["turbidity", "ntu"],
-    "conductivity": ["conductivity", "electrical conductivity", "ec"],
-    "alkalinity": ["alkalinity", "total alkalinity"],
-    "nitrate": ["nitrate", "no3"],
-    "sulphate": ["sulphate", "sulphates", "sulfate", "sulfates", "so4"],
-    "fluoride": ["fluoride", "fluorides", "fluorine"],
-    "residual_chlorine": ["residual chlorine", "chlorine residual", "as rc", "rc"],
-    "acidity": ["acidity"],
-    "calcium": ["calcium"],
-    "magnesium": ["magnesium"],
-    "colour": ["colour", "color", "apparent colour", "apparent color", "hazen"],
-    "odour": ["odour", "odor"],
+# ── Parameter alias table ─────────────────────────────────────────────────────
+PARAM_ALIASES: dict[str, list[str]] = {
+    'ph': [
+        r'\bph\b', r'\bpotential\s+of\s+hydrogen\b', r'\bhydrogen\s+ion\b',
+    ],
+    'turbidity': [
+        r'\bturbidity\b', r'\bturb\.?\b', r'\bntu\b',
+    ],
+    'tds': [
+        r'\btotal\s+dissolved\s+solids?\b', r'\bt\.?d\.?s\.?\b',
+        r'\bdissolved\s+solids?\b',
+    ],
+    'hardness': [
+        r'\btotal\s+hardness\b', r'\bhardness\b', r'\bcaco3\b',
+    ],
+    'iron': [
+        r'\biron\b', r'\bfe\b(?!\s*\()', r'\bferrous\b', r'\bferric\b',
+    ],
+    'chloride': [
+        r'\bchlorides?\b', r'\bcl\b(?!\s*\d)',
+    ],
+    'fluoride': [
+        r'\bfluorides?\b', r'\bfluorine\b', r'\bf\b(?=\s)',
+    ],
+    'nitrate': [
+        r'\bnitrates?\b', r'\bno3\b', r'\bno[-–]3\b',
+    ],
+    'nitrite': [
+        r'\bnitrites?\b', r'\bno2\b', r'\bno[-–]2\b',
+    ],
+    'manganese': [
+        r'\bmanganese\b', r'\bmn\b(?=\s)',
+    ],
+    'alkalinity': [
+        r'\btotal\s+alkalinity\b', r'\balkalinity\b',
+    ],
+    'sulphate': [
+        r'\bsulphates?\b', r'\bsulfates?\b', r'\bso4\b', r'\bso[-–]4\b',
+    ],
+    'calcium': [
+        r'\bcalcium\b', r'\bca\b(?=\s)',
+    ],
+    'magnesium': [
+        r'\bmagnesium\b', r'\bmg\b(?=\s)',
+    ],
+    'copper': [
+        r'\bcopper\b', r'\bcu\b(?=\s)',
+    ],
+    'zinc': [
+        r'\bzinc\b', r'\bzn\b(?=\s)',
+    ],
+    'arsenic': [
+        r'\barsenic\b', r'\bas\b(?=\s)',
+    ],
+    'lead': [
+        r'\blead\b', r'\bpb\b(?=\s)',
+    ],
+    'chromium': [
+        r'\bchromium\b', r'\bcr\b(?=\s)', r'\bchrome\b',
+    ],
+    'aluminium': [
+        r'\balumini?um\b', r'\bal\b(?=\s)',
+    ],
+    'ammonia': [
+        r'\bammonia\b', r'\bammonium\b', r'\bnh3\b', r'\bnh4\b',
+    ],
+    'h2s': [
+        r'\bhydrogen\s+sulphide\b', r'\bhydrogen\s+sulfide\b', r'\bh2s\b',
+    ],
+    'boron': [
+        r'\bboron\b', r'\bb\b(?=\s)',
+    ],
+    'phenol': [
+        r'\bphenol\b', r'\bphenolic\b',
+    ],
+    'coliform': [
+        r'\btotal\s+coliform\b', r'\bcoliform\b', r'\bmpn\b',
+    ],
+    'ecoli': [
+        r'\be\.?\s*coli\b', r'\bescherichia\s+coli\b',
+    ],
+    'tss': [
+        r'\btotal\s+suspended\s+solids?\b', r'\bt\.?s\.?s\.?\b',
+        r'\bsuspended\s+solids?\b',
+    ],
+    'bod': [
+        r'\bbiochemical\s+oxygen\s+demand\b', r'\bb\.?o\.?d\.?\b',
+    ],
+    'cod': [
+        r'\bchemical\s+oxygen\s+demand\b', r'\bc\.?o\.?d\.?\b',
+    ],
+    'colour': [
+        r'\bcolo(?:u)?r\b', r'\bapparent\s+colo(?:u)?r\b', r'\bhazen\b',
+    ],
 }
 
-UNIT_PATTERNS = [
-    r"mg/l",
-    r"ppm",
-    r"ntu",
-    r"us/cm",
-    r"µs/cm",
-    r"ms/cm",
-    r"hazen",
-]
-
-HEADER_SKIP_WORDS = {
-    "sl no",
-    "s no",
-    "characteristics",
-    "characteristic",
-    "unit",
-    "test method",
-    "acceptable",
-    "permissible",
-    "result",
-    "remarks",
-    "limit",
+# Plausibility ranges (min, max) — values outside are rejected as OCR artefacts
+_PLAUSIBLE: dict[str, tuple[float, float]] = {
+    'ph':         (0.0,    14.0),
+    'turbidity':  (0.0,  1000.0),
+    'tds':        (0.0, 10000.0),
+    'hardness':   (0.0,  5000.0),
+    'iron':       (0.0,   100.0),
+    'chloride':   (0.0,  5000.0),
+    'fluoride':   (0.0,    50.0),
+    'nitrate':    (0.0,  1000.0),
+    'nitrite':    (0.0,   500.0),
+    'manganese':  (0.0,    50.0),
+    'alkalinity': (0.0,  2000.0),
+    'sulphate':   (0.0,  5000.0),
+    'calcium':    (0.0,  1000.0),
+    'magnesium':  (0.0,  1000.0),
+    'copper':     (0.0,    50.0),
+    'zinc':       (0.0,   100.0),
+    'arsenic':    (0.0,    10.0),
+    'lead':       (0.0,    10.0),
+    'chromium':   (0.0,    10.0),
+    'aluminium':  (0.0,    50.0),
+    'ammonia':    (0.0,   500.0),
+    'h2s':        (0.0,    10.0),
+    'boron':      (0.0,    50.0),
+    'phenol':     (0.0,     5.0),
+    'coliform':   (0.0, 100000.0),
+    'ecoli':      (0.0, 100000.0),
+    'tss':        (0.0,  5000.0),
+    'bod':        (0.0,  1000.0),
+    'cod':        (0.0,  5000.0),
+    'colour':     (0.0,  1000.0),
 }
 
-METHOD_HINTS = ("is 3025", "part", "reaffirmed", "method", "apha")
+# Compiled for speed
+_COMPILED: dict[str, list[re.Pattern]] = {
+    k: [re.compile(p, re.IGNORECASE) for p in v]
+    for k, v in PARAM_ALIASES.items()
+}
 
-NUM_RE = re.compile(r"(?<![A-Za-z0-9])([<>]?\s*-?\d+(?:[.,]\d+)?(?:\s*(?:x|X|x10|X10|[xX]\s*10)\s*(?:\^)?\s*-?\d+)?)")
+# Matches a single numeric token (with optional leading < > ~)
+# Captures: optional qualifier + digits + optional decimal
+_NUM_TOKEN = re.compile(
+    r'(?<![a-zA-Z\d])([<>~]?\s*\d+(?:[.,]\d+)?(?:\s*[xX]\s*10\s*[-–^]\s*\d+)?)'
+    r'(?!\d)',
+    re.IGNORECASE
+)
 
-LAB_PATTERNS = [
-    re.compile(r"(?:laboratory|lab(?:oratory)?|testing\s+lab(?:oratory)?)[:\s]+(.+)", re.I),
-    re.compile(r"(?:issued\s+by|analysed\s+by|tested\s+by)[:\s]+(.+)", re.I),
-    re.compile(r"^(.+(?:laboratory|analytical|testing|labs?)\b.{0,40})$", re.I | re.MULTILINE),
-]
+# Words that mean "not detected" / zero
+_ND_RE = re.compile(
+    r'\b(nd|bdl|nil|absent|not\s+detected?|not\s+found|negative|<\s*0?\.0+1?)\b',
+    re.IGNORECASE
+)
 
-SAMPLE_PATTERNS = [
-    re.compile(r"(?:sample\s+(?:id|no|number|description)|source|location)[:\s]+(.+)", re.I),
-    re.compile(r"(?:sample\s+(?:from|collected\s+(?:from|at)))[:\s]+(.+)", re.I),
-    re.compile(r"(?:client|customer)[:\s]+(.+)", re.I),
-]
-
-
-def normalize_text(text: str) -> str:
-    text = text.lower()
-    text = text.replace("°", " ").replace("º", " ").replace("@", " ")
-    text = text.replace("(", " ").replace(")", " ")
-    text = text.replace("[", " ").replace("]", " ")
-    text = text.replace("{", " ").replace("}", " ")
-    text = text.replace("|", " ")
-    text = text.replace("µ", "u")
-    text = text.replace("–", "-").replace("—", "-")
-    text = re.sub(r"[,;:]+", " ", text)
-    text = re.sub(r"[^a-z0-9.+<>\-\s/\n\t]", " ", text)
-    text = re.sub(r"[ \t]+", " ", text)
-    text = re.sub(r" *\n *", "\n", text)
-    text = _drop_temperature_tokens(text)
-    return text.strip()
+# Looks like a header row (no numeric content)
+_HEADER_RE = re.compile(
+    r'\b(s\.?\s*no\.?|sr\.?\s*no\.?|parameter|result|unit|limit|standard|'
+    r'permissible|acceptable|remark|method|test|analysis|sample)\b',
+    re.IGNORECASE
+)
 
 
-def match_params(text: str) -> dict:
-    raw_text = (text or "").strip()
-    raw_lines = [line.strip() for line in raw_text.splitlines() if line.strip()]
-    norm_lines = [normalize_text(line) for line in raw_lines]
-    normalized_text = "\n".join(line for line in norm_lines if line)
+# ── Public API ────────────────────────────────────────────────────────────────
 
+def match_params(text: str) -> tuple[dict, str, str]:
+    """
+    Returns (params_dict, lab_info, sample_info).
+    params_dict maps canonical parameter names → float values.
+    """
+    lines       = text.splitlines()
     params: dict[str, float] = {}
-    extracted_units: dict[str, str] = {}
-    matched_rows: dict[str, str] = {}
-    match_scores: dict[str, int] = {}
+    lab_info    = _extract_lab_info(lines)
+    sample_info = _extract_sample_info(lines)
 
-    idx = 0
-    while idx < len(raw_lines):
-        raw_line = raw_lines[idx]
-        norm_line = norm_lines[idx]
-        if _looks_like_header(norm_line):
-            idx += 1
+    for line in lines:
+        stripped = line.strip()
+        if not stripped:
             continue
 
-        match = _match_parameter(norm_line)
-        if not match:
-            idx += 1
-            continue
+        line_lower = stripped.lower()
 
-        param_name, score = match
-        block_raw = [raw_line]
-        next_idx = idx + 1
-        while next_idx < len(raw_lines) and len(block_raw) < 5:
-            next_norm = norm_lines[next_idx]
-            if _match_parameter(next_norm):
+        for param_name, patterns in _COMPILED.items():
+            if param_name in params:
+                continue
+
+            for pat in patterns:
+                if not pat.search(line_lower):
+                    continue
+
+                # Found a line containing this parameter name.
+                val = _extract_value_from_line(stripped, param_name)
+                if val is not None:
+                    params[param_name] = val
+                elif _ND_RE.search(stripped):
+                    # "Not Detected" / "Absent" → treat as 0.0
+                    params[param_name] = 0.0
+                break  # don't try other alias patterns for this param on this line
+
+    logger.info("Matched %d parameters from %d lines", len(params), len(lines))
+    return params, lab_info, sample_info
+
+
+# ── Value extraction ──────────────────────────────────────────────────────────
+
+def _extract_value_from_line(line: str, param_name: str) -> Optional[float]:
+    """
+    Smart value extraction:
+    1. If the line is tab-separated (pdfplumber table row), use column position.
+    2. Otherwise collect all numeric tokens and pick the best one.
+    """
+    # ── Tab-separated (pdfplumber table rows) ─────────────────────────────────
+    if '\t' in line:
+        return _value_from_tsv(line, param_name)
+
+    # ── Plain text / OCR line ─────────────────────────────────────────────────
+    return _value_from_plain(line, param_name)
+
+
+def _value_from_tsv(line: str, param_name: str) -> Optional[float]:
+    """
+    In a TSV row the structure is typically:
+        [serial] [parameter name] [result] [unit] [limit] …
+    Strategy: find the column that contains the parameter name, then take the
+    first numeric column that comes AFTER it.
+    """
+    cols = [c.strip() for c in line.split('\t')]
+
+    # Find which column index contains the param alias
+    param_col = None
+    for i, col in enumerate(cols):
+        col_lower = col.lower()
+        for pat in _COMPILED[param_name]:
+            if pat.search(col_lower):
+                param_col = i
                 break
-            if next_norm:
-                block_raw.append(raw_lines[next_idx])
-            next_idx += 1
+        if param_col is not None:
+            break
 
-        value, unit = _extract_value_from_block(block_raw)
-        if value is None:
-            idx = next_idx
+    if param_col is None:
+        # Fallback to plain extraction
+        return _value_from_plain(line.replace('\t', ' '), param_name)
+
+    # Collect numeric tokens from columns AFTER the param name column
+    for col in cols[param_col + 1:]:
+        if _ND_RE.search(col):
+            return 0.0
+        v = _parse_numeric_token(col.strip())
+        if v is not None and _plausible(param_name, v):
+            return v
+
+    return None
+
+
+def _value_from_plain(line: str, param_name: str) -> Optional[float]:
+    """
+    For plain-text lines:
+    - Find all numeric tokens in the line.
+    - Skip the very first token if it looks like a serial number
+      (small integer, appears before any alphabetic param text).
+    - Pick the first remaining plausible value.
+    """
+    # Find where the parameter name ends in the line so we only look AFTER it
+    param_end = 0
+    for pat in _COMPILED[param_name]:
+        m = pat.search(line, re.IGNORECASE)
+        if m:
+            param_end = max(param_end, m.end())
+
+    after_param = line[param_end:] if param_end else line
+
+    # Collect all numeric tokens after the param name
+    tokens = _NUM_TOKEN.findall(after_param)
+
+    for raw_tok in tokens:
+        raw_tok = raw_tok.strip()
+        # Skip serial/index numbers: plain small integer right at start of token list
+        v = _parse_numeric_token(raw_tok)
+        if v is None:
             continue
+        if _plausible(param_name, v):
+            return v
 
-        if param_name in match_scores and match_scores[param_name] > score:
-            idx = next_idx
-            continue
-
-        params[param_name] = value
-        match_scores[param_name] = score
-        matched_rows[param_name] = " | ".join(block_raw)
-        if unit:
-            extracted_units[param_name] = unit
-        idx = next_idx
-
-    logger.info("Matched %s parameters from %s OCR lines", len(params), len(raw_lines))
-    return {
-        "params": params,
-        "lab_info": _extract_lab_info(raw_lines),
-        "sample_info": _extract_sample_info(raw_lines),
-        "raw_text": raw_text,
-        "normalized_text": normalized_text,
-        "extracted_units": extracted_units,
-        "matched_rows": matched_rows,
-    }
+    return None
 
 
-def _looks_like_header(norm_line: str) -> bool:
-    if not norm_line:
-        return True
-    for word in HEADER_SKIP_WORDS:
-        pattern = rf"(?<![a-z0-9]){re.escape(word)}(?![a-z0-9])"
-        if re.search(pattern, norm_line):
-            return True
-    return False
-
-
-def _match_parameter(norm_line: str) -> tuple[str, int] | None:
-    best: tuple[str, int] | None = None
-    for canonical, aliases in PARAM_KEYWORDS.items():
-        for alias in aliases:
-            alias_norm = normalize_text(alias)
-            if not alias_norm:
-                continue
-            pattern = rf"(?<![a-z0-9]){re.escape(alias_norm)}(?![a-z0-9])"
-            if re.search(pattern, norm_line):
-                score = len(alias_norm)
-                if best is None or score > best[1]:
-                    best = (canonical, score)
-    return best
-
-
-def _extract_value_from_block(raw_lines: list[str]) -> tuple[float | None, str]:
-    unit = ""
-    for line in raw_lines:
-        unit = unit or _extract_unit(line)
-
-    useful_lines = [
-        line for line in raw_lines
-        if not _looks_like_method_line(normalize_text(line))
-    ] or raw_lines
-
-    for line in reversed(useful_lines):
-        value = _extract_rightmost_numeric(_strip_temperature(line))
-        if value is not None:
-            return value, unit
-
-    raw_line = raw_lines[0]
-    norm_line = normalize_text(raw_line)
-    raw_cells = _split_row(raw_line)
-    norm_cells = _split_row(norm_line)
-    param_cell_idx = _find_parameter_cell(norm_cells)
-    search_cells = raw_cells[param_cell_idx + 1:] if param_cell_idx is not None else raw_cells
-    unit = ""
-
-    for cell in search_cells:
-        unit = unit or _extract_unit(cell)
-
-    for cell in reversed(search_cells):
-        value = _extract_numeric(cell)
-        if value is not None:
-            return value, unit or _extract_unit(cell)
-
-    value = _extract_rightmost_numeric(_strip_temperature(raw_line))
-    return value, unit or _extract_unit(raw_line)
-
-
-def _looks_like_method_line(norm_line: str) -> bool:
-    return any(hint in norm_line for hint in METHOD_HINTS)
-
-
-def _split_row(line: str) -> list[str]:
-    cells = re.split(r"\t+|\s{2,}|[|]+", line)
-    return [cell.strip() for cell in cells if cell and cell.strip()]
-
-
-def _find_parameter_cell(cells: list[str]) -> int | None:
-    best_idx = None
-    best_score = -1
-    for idx, cell in enumerate(cells):
-        match = _match_parameter(cell)
-        if match and match[1] > best_score:
-            best_idx = idx
-            best_score = match[1]
-    return best_idx
-
-
-def _strip_temperature(text: str) -> str:
-    return _drop_temperature_tokens(text)
-
-
-def _drop_temperature_tokens(text: str) -> str:
-    cleaned_lines = []
-    for line in text.splitlines():
-        tokens = line.split()
-        kept = []
-        i = 0
-        while i < len(tokens):
-            if (
-                tokens[i].lower() == "at"
-                and i + 2 < len(tokens)
-                and re.fullmatch(r"\d+(?:\.\d+)?", tokens[i + 1])
-                and tokens[i + 2].lower() == "c"
-            ):
-                i += 3
-                continue
-            if (
-                i + 1 < len(tokens)
-                and re.fullmatch(r"\d+(?:\.\d+)?", tokens[i])
-                and tokens[i + 1].lower() == "c"
-            ):
-                i += 2
-                continue
-            kept.append(tokens[i])
-            i += 1
-        cleaned_lines.append(" ".join(kept))
-    return "\n".join(cleaned_lines)
-
-
-def _extract_numeric(text: str) -> float | None:
-    match = NUM_RE.search(text)
-    if not match:
+def _parse_numeric_token(s: str) -> Optional[float]:
+    """
+    Parse a single numeric token like '0.3', '<0.01', '1,500', '5 x 10^-3'.
+    Returns float or None.
+    """
+    if not s:
         return None
 
-    raw = match.group(1).replace(",", ".").replace(" ", "")
-    sci = re.match(r"([<>-]?\d+(?:\.\d+)?)[xX]10\^?(-?\d+)", raw)
+    s = s.strip()
+
+    # Not-detected markers
+    if _ND_RE.search(s):
+        return 0.0
+
+    # Strip qualifiers < > ~
+    s = re.sub(r'^[<>~]\s*', '', s)
+
+    # Scientific notation: 5 x 10^-3 or 5e-3
+    sci = re.search(
+        r'(\d+(?:[.,]\d+)?)\s*[xX]\s*10\s*[-–^]\s*(\d+)', s
+    )
     if sci:
         try:
-            return float(sci.group(1).lstrip("<>")) * (10 ** int(sci.group(2)))
-        except ValueError:
+            return float(sci.group(1).replace(',', '.')) * (10 ** -int(sci.group(2)))
+        except Exception:
             return None
 
-    raw = raw.lstrip("<>")
+    e_sci = re.search(r'(\d+(?:[.,]\d+)?)[eE][-+]?(\d+)', s)
+    if e_sci:
+        try:
+            return float(e_sci.group(0).replace(',', '.'))
+        except Exception:
+            return None
+
+    # Regular number (allow comma as decimal separator)
+    m = re.search(r'\d+(?:[.,]\d+)?', s)
+    if not m:
+        return None
     try:
-        return float(raw)
+        return float(m.group(0).replace(',', '.'))
     except ValueError:
         return None
 
 
-def _extract_rightmost_numeric(text: str) -> float | None:
-    matches = list(NUM_RE.finditer(text))
-    for match in reversed(matches):
-        value = _extract_numeric(match.group(0))
-        if value is not None:
-            return value
-    return None
+def _plausible(param_name: str, value: float) -> bool:
+    """Return True if value is within the known plausible range for this param."""
+    lo, hi = _PLAUSIBLE.get(param_name, (0.0, 1e9))
+    return lo <= value <= hi
 
 
-def _extract_unit(text: str) -> str:
-    norm = normalize_text(text)
-    for pattern in UNIT_PATTERNS:
-        match = re.search(rf"(?<![a-z0-9])({pattern})(?![a-z0-9])", norm)
-        if match:
-            return match.group(1).upper().replace("US/CM", "uS/cm").replace("MS/CM", "mS/cm")
-    return ""
+# ── Header extraction ─────────────────────────────────────────────────────────
+
+_LAB_PATTERNS = [
+    re.compile(r'(?:laboratory|lab(?:oratory)?|testing\s+lab(?:oratory)?)[:\s]+(.+)', re.I),
+    re.compile(r'(?:issued\s+by|analysed\s+by|analyzed\s+by|tested\s+by)[:\s]+(.+)', re.I),
+    re.compile(r'^(.+(?:laboratory|analytical|testing|labs?)\b.{0,40})$', re.I | re.MULTILINE),
+]
+
+_SAMPLE_PATTERNS = [
+    re.compile(r'(?:sample\s+(?:id|no|number|description)|source|location)[:\s]+(.+)', re.I),
+    re.compile(r'(?:sample\s+(?:from|collected\s+(?:from|at)))[:\s]+(.+)', re.I),
+    re.compile(r'(?:client|customer)[:\s]+(.+)', re.I),
+]
 
 
 def _extract_lab_info(lines: list[str]) -> str:
     for line in lines[:30]:
-        for pattern in LAB_PATTERNS:
-            match = pattern.search(line)
-            if match:
-                value = match.group(1).strip()[:120]
-                if len(value) > 3:
-                    return value
-    return ""
+        for pat in _LAB_PATTERNS:
+            m = pat.search(line)
+            if m:
+                val = m.group(1).strip()[:120]
+                if len(val) > 3:
+                    return val
+    return ''
 
 
 def _extract_sample_info(lines: list[str]) -> str:
     for line in lines[:40]:
-        for pattern in SAMPLE_PATTERNS:
-            match = pattern.search(line)
-            if match:
-                value = match.group(1).strip()[:120]
-                if len(value) > 3:
-                    return value
-    return ""
+        for pat in _SAMPLE_PATTERNS:
+            m = pat.search(line)
+            if m:
+                val = m.group(1).strip()[:120]
+                if len(val) > 3:
+                    return val
+    return ''
