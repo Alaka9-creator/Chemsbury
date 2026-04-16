@@ -3,9 +3,9 @@ body {
   min-height: 100vh;
   overflow: hidden;
   background:
-    radial-gradient(circle at top left, rgba(153, 246, 228, 0.22), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.12), transparent 32%),
-    linear-gradient(180deg, #ffffff 0%, #f4fcff 100%);
+    radial-gradient(circle at top left, rgba(153, 246, 228, 0.3), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(56, 189, 248, 0.18), transparent 32%),
+    linear-gradient(180deg, #ffffff 0%, #effbff 100%);
   color: #111827;
 }
 
@@ -13,10 +13,10 @@ body::before {
   content: "";
   position: fixed;
   inset: auto -10% 0 -10%;
-  height: 220px;
+  height: 240px;
   background:
-    radial-gradient(90% 140% at 15% 100%, rgba(153, 246, 228, 0.32) 0%, transparent 60%),
-    radial-gradient(85% 130% at 80% 100%, rgba(56, 189, 248, 0.16) 0%, transparent 62%);
+    radial-gradient(90% 140% at 15% 100%, rgba(153, 246, 228, 0.5) 0%, transparent 60%),
+    radial-gradient(85% 130% at 80% 100%, rgba(56, 189, 248, 0.24) 0%, transparent 62%);
   pointer-events: none;
   z-index: 0;
   filter: blur(18px);
@@ -27,17 +27,17 @@ body::after {
   position: fixed;
   inset: 0;
   background:
-    linear-gradient(120deg, rgba(20, 184, 166, 0.035), transparent 30%),
+    linear-gradient(120deg, rgba(20, 184, 166, 0.05), transparent 30%),
     repeating-linear-gradient(
       180deg,
-      rgba(20, 184, 166, 0.02) 0,
-      rgba(20, 184, 166, 0.02) 1px,
+      rgba(20, 184, 166, 0.035) 0,
+      rgba(20, 184, 166, 0.035) 1px,
       transparent 1px,
       transparent 28px
     );
   pointer-events: none;
   z-index: 0;
-  opacity: 0.6;
+  opacity: 0.75;
 }
 
 .brand-panel {
@@ -48,7 +48,7 @@ body::after {
   padding: 64px 64px 56px;
   flex-direction: column;
   justify-content: space-between;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.88) 0%, rgba(239, 252, 255, 0.7) 100%);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.9) 0%, rgba(239, 252, 255, 0.74) 100%);
   border-right: 1px solid rgba(20, 184, 166, 0.1);
 }
 
@@ -64,7 +64,7 @@ body::after {
   width: 460px;
   height: 460px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(153, 246, 228, 0.3) 0%, transparent 66%);
+  background: radial-gradient(circle, rgba(153, 246, 228, 0.42) 0%, transparent 66%);
   top: -140px;
   left: -140px;
   pointer-events: none;
@@ -76,7 +76,7 @@ body::after {
   width: 360px;
   height: 360px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(56, 189, 248, 0.12) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.18) 0%, transparent 65%);
   bottom: -80px;
   right: -80px;
   pointer-events: none;
@@ -220,8 +220,8 @@ body::after {
   max-width: 480px;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  padding: clamp(28px, 4vw, 48px) clamp(24px, 5vw, 56px) clamp(24px, 4vw, 40px);
+  justify-content: center;
+  padding: clamp(32px, 5vw, 64px) clamp(24px, 5vw, 56px);
   margin: 0 auto;
   position: relative;
   z-index: 1;
@@ -230,11 +230,11 @@ body::after {
 .form-panel::before {
   content: "";
   position: absolute;
-  inset: 18px 0 18px 0;
-  background: rgba(255, 255, 255, 0.9);
+  inset: 28px 0;
+  background: rgba(255, 255, 255, 0.86);
   border: 1px solid rgba(20, 184, 166, 0.1);
   border-radius: 16px;
-  box-shadow: 0 32px 80px rgba(17, 24, 39, 0.14);
+  box-shadow: 0 24px 60px rgba(17, 24, 39, 0.08);
   z-index: -1;
 }
 
@@ -242,7 +242,7 @@ body::after {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 30px;
+  margin-bottom: 36px;
 }
 
 .mobile-logo img {
@@ -270,8 +270,7 @@ body::after {
 }
 
 .form-head {
-  margin-bottom: 28px;
-  padding-top: 28px;
+  margin-bottom: 32px;
 }
 
 .form-head h2 {
@@ -286,10 +285,6 @@ body::after {
 .form-head p {
   font-size: 0.95rem;
   color: #4b5563;
-}
-
-.login-form {
-  display: block;
 }
 
 .form-group {
@@ -319,13 +314,8 @@ body::after {
   font-family: "DM Sans", sans-serif;
   font-size: 0.95rem;
   outline: none;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease, background-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.02);
-}
-
-.form-input:hover {
-  border-color: #9adfd7;
-  background: #fbfeff;
 }
 
 .form-input::placeholder {
@@ -357,7 +347,7 @@ body::after {
   border: none;
   border-radius: 14px;
   cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.22s ease, filter 0.22s ease;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, filter 0.22s ease;
   letter-spacing: 0.02em;
   display: flex;
   align-items: center;
@@ -368,9 +358,9 @@ body::after {
 }
 
 .submit-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 24px 40px rgba(20, 184, 166, 0.28);
-  filter: saturate(1.05) brightness(0.98);
+  transform: translateY(-1px) scale(1.01);
+  box-shadow: 0 22px 36px rgba(20, 184, 166, 0.28);
+  filter: saturate(1.05) brightness(0.97);
 }
 
 .submit-btn:disabled {
@@ -451,15 +441,11 @@ body::after {
 
   .form-panel {
     max-width: 560px;
-    padding-top: 20px;
-    padding-bottom: 24px;
+    padding-top: 28px;
+    padding-bottom: 28px;
   }
 
   .form-panel::before {
-    inset: 12px;
-  }
-
-  .form-head {
-    padding-top: 18px;
+    inset: 16px;
   }
 }
