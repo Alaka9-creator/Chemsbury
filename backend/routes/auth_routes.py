@@ -11,7 +11,7 @@ import os
 
 def send_reset_email(to_email, reset_link):
     smtp_host = os.getenv("SMTP_HOST")
-    smtp_port = int(os.getenv("SMTP_PORT", 587))
+    smtp_port = int(os.getenv("SMTP_PORT", 465))
     smtp_user = os.getenv("SMTP_USER")
     smtp_pass = os.getenv("SMTP_PASS")
     print("SMTP_HOST:", smtp_host)
