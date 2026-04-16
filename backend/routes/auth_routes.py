@@ -188,41 +188,45 @@ def me():
 
 @auth_bp.route('/api/forgot-password', methods=['POST'])
 def forgot_password():
-    data = request.get_json(silent=True) or {}
-    email = (data.get('email') or '').strip().lower()
+    try:
+        data = request.get_json(silent=True) or {}
+        email = (data.get('email') or '').strip().lower()
 
-    if not email:
+        if not email:
+            return jsonify({'message': 'If registered, reset link sent'}), 200
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        cursor.execute("SELECT id, name FROM users WHERE email=%s", (email,))
+        rows = cursor.fetchall()
+        rows = rows_to_dicts(cursor, rows)
+
+        if rows:
+            user = rows[0]
+
+            cursor.execute("DELETE FROM password_resets WHERE user_id=%s", (user['id'],))
+
+            raw_token = secrets.token_urlsafe(40)
+            token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+            expires_at = datetime.utcnow() + timedelta(hours=1)
+
+            cursor.execute(
+                "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (%s,%s,%s)",
+                (user['id'], token_hash, expires_at)
+            )
+
+            conn.commit()
+
+            reset_url = f"{config.FRONTEND_URL}/reset-password?token={raw_token}"
+            send_reset_email(email, reset_url)
+            logger.warning(f"[DEV] Reset link: {reset_url}")
+
+        conn.close()
+    except Exception as e:
+        logger.error(f"Forgot password error: {e}", exc_info=True)
         return jsonify({'message': 'If registered, reset link sent'}), 200
-
-    conn = get_db()
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT id, name FROM users WHERE email=%s", (email,))
-    rows = cursor.fetchall()
-    rows = rows_to_dicts(cursor, rows)
-
-    if rows:
-        user = rows[0]
-
-        cursor.execute("DELETE FROM password_resets WHERE user_id=%s", (user['id'],))
-
-        raw_token = secrets.token_urlsafe(40)
-        token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
-        expires_at = datetime.utcnow() + timedelta(hours=1)
-
-        cursor.execute(
-            "INSERT INTO password_resets (user_id, token_hash, expires_at) VALUES (%s,%s,%s)",
-            (user['id'], token_hash, expires_at)
-        )
-
-        conn.commit()
-
-        reset_url = f"{config.FRONTEND_URL}/reset-password?token={raw_token}"
-        send_reset_email(email, reset_url)
-        logger.warning(f"[DEV] Reset link: {reset_url}")
-
-    conn.close()
-    return jsonify({'message': 'If registered, reset link sent'}), 200
+    #return jsonify({'message': 'If registered, reset link sent'}), 200
 
 
 # ── RESET PASSWORD ──────────────────────────────
