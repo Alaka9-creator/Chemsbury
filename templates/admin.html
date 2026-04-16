@@ -7,23 +7,23 @@
 <link rel="stylesheet" href="/static/css/base.css">
 <link rel="stylesheet" href="/static/css/components.css">
 <style>
-  .main { position:relative; z-index:1; padding:40px; max-width:1300px; margin:0 auto; }
+  .main { position:relative; z-index:1; padding:40px 24px 72px; max-width:var(--content-max); margin:0 auto; }
   .stats-row { grid-template-columns:repeat(4,1fr); }
 
   .admin-badge {
-    background:linear-gradient(90deg,rgba(167,139,250,0.2),rgba(91,156,246,0.2));
-    border:1px solid rgba(167,139,250,0.3); color:var(--accent3);
-    font-size:0.72rem; font-weight:600; padding:3px 10px;
+    background:linear-gradient(90deg,rgba(20,184,166,0.14),rgba(56,189,248,0.16));
+    border:1px solid rgba(56,189,248,0.2); color:var(--accent-strong);
+    font-size:0.72rem; font-weight:700; padding:5px 12px;
     border-radius:100px; text-transform:uppercase; letter-spacing:0.05em;
   }
 
   /* Param table inline edit */
   .param-input {
-    background:var(--bg3); border:1px solid var(--border2); border-radius:6px;
-    padding:4px 8px; color:var(--text); font-family:'DM Sans',sans-serif;
+    background:#fff; border:1px solid rgba(148,163,184,0.35); border-radius:12px;
+    padding:8px 10px; color:var(--text); font-family:'DM Sans',sans-serif;
     font-size:0.82rem; outline:none; width:80px; transition:border-color 0.2s;
   }
-  .param-input:focus { border-color:var(--accent); }
+  .param-input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(20,184,166,0.1); }
   .param-input.unit  { width:60px; }
 
   .limit-tag { font-size:0.7rem; padding:1px 6px; border-radius:4px; margin-left:4px; }
@@ -36,24 +36,30 @@
 
   /* Add-param form */
   .add-form {
-    background:var(--bg3); border:1px solid var(--border2); border-radius:10px;
-    padding:16px 18px; margin:14px 18px; display:none;
+    background:rgba(255,255,255,0.82); border:1px solid var(--border); border-radius:18px;
+    padding:18px; margin:16px 18px; display:none;
   }
   .add-form.show { display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; }
   .add-form label { font-size:0.75rem; color:var(--text3); text-transform:uppercase; letter-spacing:0.04em; display:block; margin-bottom:4px; }
   .add-form input {
-    background:var(--surface); border:1px solid var(--border2); border-radius:7px;
-    padding:6px 10px; color:var(--text); font-family:'DM Sans',sans-serif;
+    background:#fff; border:1px solid rgba(148,163,184,0.35); border-radius:14px;
+    padding:10px 12px; color:var(--text); font-family:'DM Sans',sans-serif;
     font-size:0.85rem; outline:none; transition:border-color 0.2s;
   }
-  .add-form input:focus { border-color:var(--accent); }
+  .add-form input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(20,184,166,0.1); }
+
+  .page-head { margin-bottom: 32px; }
+  .page-head h1 { font-family:'Syne',sans-serif; font-weight:800; font-size:1.9rem; letter-spacing:-0.02em; margin-bottom:8px; }
+  .page-head p { color:var(--text2); font-size:0.98rem; max-width:720px; }
+  .table-panel-note { margin-top:10px; font-size:0.82rem; color:var(--text3); padding:0 4px; }
 
   @media(max-width:900px){
-    header { padding:0 16px; }
-    .main  { padding:20px 16px; }
+    .main  { padding:24px 16px 56px; }
     .stats-row { grid-template-columns:repeat(2,1fr); }
   }
   @media(max-width:600px){
+    .stats-row { grid-template-columns:1fr; }
+    .add-form { margin:16px; }
     th:nth-child(3),td:nth-child(3),
     th:nth-child(5),td:nth-child(5){ display:none; }
   }
@@ -77,9 +83,9 @@
 </header>
 
 <div class="main">
-  <div style="margin-bottom:28px;">
-    <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:1.8rem;letter-spacing:-0.02em;margin-bottom:6px;">Admin Panel</h1>
-    <p style="color:var(--text2);font-size:0.9rem;">Manage users, view analyses, and configure IS:10500 water quality standards</p>
+  <div class="page-head">
+    <h1>Admin Panel</h1>
+    <p>Manage users, review analysis activity, and maintain the water-quality parameters used across future reports.</p>
   </div>
 
   <div class="stats-row" style="display:grid;gap:14px;margin-bottom:28px;grid-template-columns:repeat(4,1fr);">
@@ -151,7 +157,7 @@
 
       <div id="parametersBody"><div style="display:flex;justify-content:center;padding:40px;"><div class="spinner"></div></div></div>
     </div>
-    <p style="margin-top:10px;font-size:0.78rem;color:var(--text3);padding:0 4px;">
+    <p class="table-panel-note">
       ⚠️ Changes apply immediately to all future analyses. Historical analyses are not re-evaluated.
     </p>
   </div>
