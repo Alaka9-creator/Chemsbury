@@ -75,8 +75,11 @@ def analyze():
 
         return jsonify({
             'params': params,
+            'paramUnits': result.get('extracted_units', {}),
             'sampleInfo': result['sample_info'],
             'labInfo': result['lab_info'],
+            'rawText': result.get('raw_text', ''),
+            'normalizedText': result.get('normalized_text', ''),
             'confidence': result['confidence'],
             'safetyStatus': safety_status,
             'notes': result['notes'],

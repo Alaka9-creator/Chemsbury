@@ -3,6 +3,27 @@
 
 let PARAM_DEFS = [];
 
+function labelFromKey(key) {
+  if (key === 'ph') return 'pH';
+  return key
+    .split('_')
+    .map(part => part ? part.charAt(0).toUpperCase() + part.slice(1) : part)
+    .join(' ');
+}
+
+function ensureParamDefsForParams(params = {}, unitMap = {}) {
+  Object.keys(params).forEach(key => {
+    if (PARAM_DEFS.some(p => p.key === key)) return;
+    PARAM_DEFS.push({
+      key,
+      label: labelFromKey(key),
+      unit: unitMap[key] || '',
+      warnHigh: null,
+      warnLow: null,
+    });
+  });
+}
+
 async function loadParamDefs() {
   try {
     const data = await API.get('/api/parameters/public');
@@ -25,10 +46,13 @@ async function loadParamDefs() {
       { key:'iron',       label:'Iron',         unit:'mg/L',      warnHigh:0.3,  warnLow:null },
       { key:'chloride',   label:'Chloride',     unit:'mg/L',      warnHigh:250,  warnLow:null },
       { key:'fluoride',   label:'Fluoride',     unit:'mg/L',      warnHigh:1.5,  warnLow:null },
+      { key:'conductivity', label:'Conductivity', unit:'uS/cm',   warnHigh:null, warnLow:null },
       { key:'nitrate',    label:'Nitrate',      unit:'mg/L',      warnHigh:45,   warnLow:null },
       { key:'manganese',  label:'Manganese',    unit:'mg/L',      warnHigh:0.1,  warnLow:null },
       { key:'alkalinity', label:'Alkalinity',   unit:'mg/L',      warnHigh:200,  warnLow:null },
       { key:'sulphate',   label:'Sulphate',     unit:'mg/L',      warnHigh:200,  warnLow:null },
+      { key:'residual_chlorine', label:'Residual Chlorine', unit:'mg/L', warnHigh:null, warnLow:null },
+      { key:'acidity',    label:'Acidity',      unit:'mg/L',      warnHigh:null, warnLow:null },
       { key:'calcium',    label:'Calcium',      unit:'mg/L',      warnHigh:75,   warnLow:null },
       { key:'magnesium',  label:'Magnesium',    unit:'mg/L',      warnHigh:30,   warnLow:null },
       { key:'copper',     label:'Copper',       unit:'mg/L',      warnHigh:0.05, warnLow:null },
@@ -39,6 +63,7 @@ async function loadParamDefs() {
       { key:'ammonia',    label:'Ammonia',      unit:'mg/L',      warnHigh:0.5,  warnLow:null },
       { key:'nitrite',    label:'Nitrite',      unit:'mg/L',      warnHigh:0.02, warnLow:null },
       { key:'colour',     label:'Colour',       unit:'Hazen',     warnHigh:15,   warnLow:null },
+      { key:'odour',      label:'Odour',        unit:'',          warnHigh:null, warnLow:null },
       { key:'tss',        label:'TSS',          unit:'mg/L',      warnHigh:10,   warnLow:null },
       { key:'bod',        label:'BOD',          unit:'mg/L',      warnHigh:2,    warnLow:null },
       { key:'h2s',        label:'H₂S / Sulphide',unit:'mg/L',    warnHigh:0.05, warnLow:null },

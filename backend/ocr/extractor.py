@@ -7,8 +7,7 @@ Extraction pipeline:
 """
 import io
 import logging
-import re
-
+import os
 import pdfplumber
 from PIL import Image
 
@@ -21,6 +20,14 @@ logger = logging.getLogger(__name__)
 try:
     import pytesseract
     OCR_AVAILABLE = True
+    for candidate in (
+        os.environ.get("TESSERACT_CMD"),
+        r"C:\Program Files\Tesseract-OCR\tesseract.exe",
+        r"C:\Program Files (x86)\Tesseract-OCR\tesseract.exe",
+    ):
+        if candidate and os.path.exists(candidate):
+            pytesseract.pytesseract.tesseract_cmd = candidate
+            break
     logger.info("pytesseract loaded successfully")
 except ImportError:
     OCR_AVAILABLE = False
@@ -58,6 +65,9 @@ def extract_params(raw_bytes: bytes, mime_type: str) -> dict:
             'params':      dict[str, float|None],
             'lab_info':    str,
             'sample_info': str,
+            'raw_text':    str,
+            'normalized_text': str,
+            'extracted_units': dict[str, str],
             'confidence':  'high'|'medium'|'low',
             'method_used': str,
             'notes':       str,
@@ -95,12 +105,15 @@ def _extract_pdf(raw_bytes: bytes) -> dict:
 
     if text_chunks:
         full_text = '\n'.join(text_chunks)
-        params, lab_info, sample_info = match_params(full_text)
-        if params:
+        match = match_params(full_text)
+        if match["params"]:
             return {
-                'params':      params,
-                'lab_info':    lab_info,
-                'sample_info': sample_info,
+                'params':      match['params'],
+                'lab_info':    match['lab_info'],
+                'sample_info': match['sample_info'],
+                'raw_text':    match['raw_text'],
+                'normalized_text': match['normalized_text'],
+                'extracted_units': match['extracted_units'],
                 'confidence':  'high',
                 'method_used': 'pdfplumber',
                 'notes':       '',
@@ -129,15 +142,18 @@ def _ocr_pdf_pages(raw_bytes: bytes) -> dict:
 
     doc.close()
     full_text = '\n'.join(all_text)
-    params, lab_info, sample_info = match_params(full_text)
+    match = match_params(full_text)
 
     return {
-        'params':      params,
-        'lab_info':    lab_info,
-        'sample_info': sample_info,
-        'confidence':  'medium' if params else 'low',
+        'params':      match['params'],
+        'lab_info':    match['lab_info'],
+        'sample_info': match['sample_info'],
+        'raw_text':    match['raw_text'],
+        'normalized_text': match['normalized_text'],
+        'extracted_units': match['extracted_units'],
+        'confidence':  'medium' if match['params'] else 'low',
         'method_used': 'pytesseract (scanned PDF)',
-        'notes':       'Scanned PDF — accuracy depends on scan quality.',
+        'notes':       'Scanned PDF - accuracy depends on scan quality.',
     }
 
 
@@ -151,12 +167,15 @@ def _extract_image(raw_bytes: bytes) -> dict:
         img  = preprocess_image(img)
         text = pytesseract.image_to_string(img, config='--psm 6')
 
-        params, lab_info, sample_info = match_params(text)
+        match = match_params(text)
         return {
-            'params':      params,
-            'lab_info':    lab_info,
-            'sample_info': sample_info,
-            'confidence':  'medium' if params else 'low',
+            'params':      match['params'],
+            'lab_info':    match['lab_info'],
+            'sample_info': match['sample_info'],
+            'raw_text':    match['raw_text'],
+            'normalized_text': match['normalized_text'],
+            'extracted_units': match['extracted_units'],
+            'confidence':  'medium' if match['params'] else 'low',
             'method_used': 'pytesseract',
             'notes':       '',
         }
@@ -171,6 +190,9 @@ def _empty_result(notes: str = '') -> dict:
         'params':      {},
         'lab_info':    '',
         'sample_info': '',
+        'raw_text':    '',
+        'normalized_text': '',
+        'extracted_units': {},
         'confidence':  'low',
         'method_used': 'none',
         'notes':       notes,

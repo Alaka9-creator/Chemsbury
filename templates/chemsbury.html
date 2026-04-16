@@ -526,6 +526,7 @@ let currentMethod       = null;
 let capturedBase64      = null;
 let capturedFileType    = 'image/jpeg';
 let currentParams       = {};
+let currentParamUnits   = {};
 let selectedFilter      = null;
 let currentFilterObj    = null;
 let currentVessel       = null;
@@ -646,13 +647,15 @@ async function analyzeFile() {
     Object.entries(data.params || {}).forEach(([k,v]) => {
       if (v !== null && v !== undefined && !isNaN(v)) currentParams[k] = parseFloat(v);
     });
+    currentParamUnits = data.paramUnits || {};
+    ensureParamDefsForParams(currentParams, currentParamUnits);
     window._reportMeta = {
       sampleInfo: data.sampleInfo || '',
       labInfo:    data.labInfo    || '',
       confidence: data.confidence || 'medium',
       notes:      data.notes      || '',
     };
-    window._rawOcrResponse = JSON.stringify(data.params, null, 2);
+    window._rawOcrResponse = buildDebugText(data);
 
     document.getElementById('loadingState').style.display = 'none';
     showResults(currentParams);
@@ -736,11 +739,18 @@ function renderSafetyBanner(params) {
     : '<li>No parameters exceeded permissible limits in this report.</li>';
 }
 
+function getRenderableParamDefs(params) {
+  const keys = Object.keys(params || {});
+  if (!keys.length) return PARAM_DEFS;
+  return PARAM_DEFS.filter(p => keys.includes(p.key));
+}
+
 function renderParamsGrid(params) {
   const grid = document.getElementById('paramsGrid');
   grid.innerHTML = '';
+  const defs = getRenderableParamDefs(params);
 
-  PARAM_DEFS.forEach((p, idx) => {
+  defs.forEach((p, idx) => {
     const v = params[p.key];
     let status = 'ok', cls = '';
     let meterPct = 0, meterColor = 'var(--success)';
@@ -765,8 +775,8 @@ function renderParamsGrid(params) {
         value="${v !== undefined && v !== null ? v : ''}"
         placeholder="—" id="pv_${p.key}"
         oninput="updateParam('${p.key}',this.value)">
-      <div class="param-unit">${escHtml(p.unit)}</div>
-      ${p.warnHigh != null ? `<div class="param-limit">IS:10500 limit: ≤ ${p.warnHigh} ${escHtml(p.unit)}</div>` : ''}
+      <div class="param-unit">${escHtml(p.unit || currentParamUnits[p.key] || '')}</div>
+      ${p.warnHigh != null ? `<div class="param-limit">IS:10500 limit: ≤ ${p.warnHigh} ${escHtml(p.unit || currentParamUnits[p.key] || '')}</div>` : ''}
       ${v !== undefined && v !== null && p.warnHigh != null ? `
         <div class="param-meter">
           <div class="param-meter-fill" style="width:${Math.min(meterPct,100)}%;background:${meterColor};"></div>
@@ -1038,7 +1048,7 @@ function printReport() {
   document.getElementById('pr-footer-date').textContent = dateStr;
 
   // Parameter table
-  document.getElementById('pr-param-rows').innerHTML = PARAM_DEFS
+  document.getElementById('pr-param-rows').innerHTML = getRenderableParamDefs(currentParams)
     .filter(p => currentParams[p.key] !== undefined)
     .map(p => {
       const v      = currentParams[p.key];
@@ -1048,7 +1058,7 @@ function printReport() {
       return `<tr>
         <td>${escHtml(p.label)}</td>
         <td><strong>${v}</strong></td>
-        <td>${escHtml(p.unit)}</td>
+        <td>${escHtml(p.unit || currentParamUnits[p.key] || '')}</td>
         <td>${p.warnHigh ?? '—'}</td>
         <td style="color:${color};font-weight:600;">${status}</td>
       </tr>`;
@@ -1096,9 +1106,24 @@ function toggleDebug() {
   ico.textContent  = vis ? '▼ show' : '▲ hide';
 }
 
+function buildDebugText(data) {
+  const blocks = [];
+  blocks.push('Extracted Parameters');
+  blocks.push(JSON.stringify(data.params || {}, null, 2));
+  if (data.rawText) {
+    blocks.push('Raw OCR Text');
+    blocks.push(data.rawText);
+  }
+  if (data.normalizedText) {
+    blocks.push('Normalized OCR Text');
+    blocks.push(data.normalizedText);
+  }
+  return blocks.join('\n\n');
+}
+
 // ── Reset ─────────────────────────────────────────────────────────────────────
 function restartApp() {
-  capturedBase64 = null; currentParams = {};
+  capturedBase64 = null; currentParams = {}; currentParamUnits = {};
   selectedFilter = null; currentFilterObj = null; currentVessel = null;
   ['inputSection'].forEach(id => document.getElementById(id).style.display = 'block');
   ['resultsSection','loadingState','imagePreview','analyzeBtn','dropZone','manualSection','vesselSection','debugPanel']
