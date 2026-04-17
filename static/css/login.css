@@ -1,7 +1,7 @@
 body {
   display: flex;
   min-height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   color: var(--text);
 }
 
@@ -40,7 +40,6 @@ body::after {
   display: none;
   flex: 1;
   position: relative;
-  overflow: hidden;
   padding: 64px 64px 56px;
   flex-direction: column;
   justify-content: space-between;
@@ -216,7 +215,7 @@ body::after {
   max-width: 480px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   padding: clamp(32px, 5vw, 64px) clamp(24px, 5vw, 56px);
   margin: 0 auto;
   position: relative;
